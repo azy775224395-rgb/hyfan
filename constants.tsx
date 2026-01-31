@@ -6,7 +6,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'لوح شمسي مونو كريستال 550 وات',
     price: 850,
     description: 'لوح شمسي عالي الكفاءة بتقنية Half-cut، مثالي للمشاريع السكنية والتجارية.',
-    image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+    image: 'https://i.postimg.cc/s2kVNn2n/China-Manufacture-Solar-Power-Panels-550-Watt-Poly-Mono-Solar-Panel-540W-Polycrystalline-Cost-1000W.jpg',
     category: 'ألواح شمسية',
     specs: ['كفاءة تصل إلى 21.3%', 'تقنية 10 Busbar', 'مقاومة عالية للرياح والثلوج', 'ضمان أداء 25 سنة'],
     fullDescription: 'يتميز هذا اللوح الشمسي بأحدث تقنيات التصنيع لضمان أعلى إنتاجية للطاقة حتى في ظروف الإضاءة المنخفضة. التصميم المتين يجعله مناسباً للظروف الجوية القاسية في المناطق الجبلية والساحلية.'
@@ -16,7 +16,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'لوح شمسي مرن 100 وات',
     price: 320,
     description: 'لوح مرن وخفيف الوزن مناسب للرحلات والكرفانات والقوارب.',
-    image: 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?auto=format&fit=crop&w=800&q=80',
+    image: 'https://i.postimg.cc/3NCJpgYf/100-watt-flexible-solar-panels23420159910.jpg',
     category: 'ألواح شمسية',
     specs: ['وزن خفيف جداً (2kg)', 'قابل للانحناء حتى 30 درجة', 'سهل التركيب والفك', 'خلايا أحادية الكريستال'],
     fullDescription: 'الحل الأمثل للطاقة المتنقلة. يمكنك تركيبه على الأسطح غير المستوية بسهولة تامة. مثالي لأصحاب القوارب وعشاق التخييم.'
@@ -26,7 +26,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'بطارية ليثيوم LiFePO4 100Ah',
     price: 2800,
     description: 'بطارية ليثيوم متطورة مع نظام إدارة بطارية (BMS) مدمج.',
-    image: 'https://images.unsplash.com/photo-1619641662873-67c858593a2f?auto=format&fit=crop&w=800&q=80',
+    image: 'https://i.postimg.cc/yYykSzNF/12V-100Ah-jing-xiu-tu.png',
     category: 'بطاريات',
     specs: ['دورة حياة +4000 مرة', 'شحن سريع', 'وزن أقل بنسبة 60% من الرصاص', 'نظام حماية من الحرارة الزائدة'],
     fullDescription: 'وداعاً لتغيير البطاريات كل عام. بطارية الليثيوم توفر لك طاقة ثابتة وعمراً افتراضياً يتجاوز الـ 10 سنوات مع أداء مذهل في تفريغ الطاقة.'
@@ -36,7 +36,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'بطارية جل عميقة التفريغ 200Ah',
     price: 1150,
     description: 'بطارية جل ذات جودة عالية مخصصة للتخزين الطويل للطاقة.',
-    image: 'https://images.unsplash.com/photo-1614631313361-9c636f3c05c0?auto=format&fit=crop&w=800&q=80',
+    image: 'https://i.postimg.cc/y873f8GF/d85d3461-31dc-4c7f-b153-12017b1c77a9-1000x790-84287200832-pvw3V3Ngl3X8AAk-F9H5Td-VMUa-Tyj-R3y-F1ZUp.png',
     category: 'بطاريات',
     specs: ['لا تحتاج لصيانة', 'مقاومة للتآكل', 'تفريغ ذاتي منخفض', 'مثالية للاستخدام المنزلي'],
     fullDescription: 'البطارية الأكثر مبيعاً وموثوقية لأنظمة الطاقة الشمسية المنزلية. توفر توازناً ممتازاً بين السعر والأداء.'
@@ -46,7 +46,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'ثلاجة إنفرتر 12/24 فولت DC',
     price: 1650,
     description: 'ثلاجة مخصصة للطاقة الشمسية تعمل مباشرة بدون محول.',
-    image: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?auto=format&fit=crop&w=800&q=80',
+    image: 'https://i.postimg.cc/fLV9xqrq/image-48.png',
     category: 'أجهزة منزلية',
     specs: ['استهلاك منخفض جداً', 'ضاغط (كمبروسر) هادئ', 'تحكم رقمي في الحرارة', 'إضاءة LED داخلية'],
     fullDescription: 'صممت هذه الثلاجة لتعمل بأقصى كفاءة على أنظمة الـ DC، مما يوفر طاقة الانفرتر ويزيد من عمر البطاريات.'
@@ -56,7 +56,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'مكيف سبليت إنفرتر موفر',
     price: 2400,
     description: 'مكيف سبليت حديث مع تقنية توفير طاقة تصل إلى 60%.',
-    image: 'https://images.unsplash.com/photo-1614631313361-9c636f3c05c0?auto=format&fit=crop&w=800&q=80',
+    image: 'https://i.postimg.cc/131f83PP/HI8HMrd5k-Afrfj-VKVQulcu0i-L9X5XCYFKxt-Tc0Fj.png',
     category: 'أجهزة منزلية',
     specs: ['تبريد سريع', 'فلتر منقي للهواء', 'خاصية النوم الهادئ', 'يعمل في درجات الحرارة العالية'],
     fullDescription: 'استمتع ببرودة الجو دون القلق من فواتير الكهرباء أو استهلاك البطاريات السريع، بفضل تقنية الانفرتر الذكية.'
