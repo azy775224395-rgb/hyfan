@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Product, CartItem } from './types';
 import { INITIAL_PRODUCTS } from './constants';
@@ -126,9 +125,15 @@ const App: React.FC = () => {
       <footer className="bg-white border-t py-16 mt-20">
         <div className="container mx-auto px-4 text-center">
           <div className="flex flex-col items-center gap-4 mb-8">
-             <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-100">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.2-2.1 3.5-5.5 8.8-9 8.8Zm-1-12c-2.5 0-4.5 2-4.5 4.5"/></svg>
+             {/* الشعار الجديد */}
+             <div className="w-32 mb-2">
+                <img 
+                  src="https://i.postimg.cc/LsH76LbS/IMG-20260131-220137.png" 
+                  alt="شعار حيفان" 
+                  className="w-full h-auto object-contain"
+                />
              </div>
+             
              <h2 className="text-2xl font-black text-gray-900">حيفان للطاقة المتجدّدة</h2>
              <p className="text-gray-500 max-w-sm leading-relaxed">نوفر أجود أنواع الألواح الشمسية والبطاريات والمنظومات الكهربائية المتكاملة لخدمتكم في كافة أنحاء اليمن.</p>
           </div>
