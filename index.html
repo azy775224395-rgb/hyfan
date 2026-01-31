@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
   <head>
@@ -6,10 +7,11 @@
     <title>حيفان للطاقة المتجدّدة | حلول طاقة مستدامة</title>
     <meta name="description" content="متجر حيفان للطاقة المتجددة - ألواح شمسية، بطاريات، وأجهزة منزلية موفرة للطاقة في اليمن.">
     
+    <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="حيفان للطاقة المتجدّدة">
     <meta property="og:description" content="شريكك الموثوق للطاقة النظيفة. تسوق الآن واطلب عبر واتساب.">
-    <meta property="og:image" content="https://files.oaiusercontent.com/file-KAtX7wX86L26T6mNreF2sF?se=2025-02-17T21%3A08%3A42Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3D73983279-b132-4740-9b4f-838615e4f481.webp&sig=G06X3x9WvY0eH95%2B6DozRclS1iW2vjW1O37M7L/6H9o%3D">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=1000&auto=format&fit=crop">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -25,9 +27,22 @@
         scrollbar-width: none;
       }
     </style>
-  </head>
+  <script type="importmap">
+{
+  "imports": {
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4"
+  }
+}
+</script>
+</head>
   <body class="bg-gray-50 text-gray-900">
     <div id="root"></div>
+    <!-- تحميل تطبيق React عبر Vite -->
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
