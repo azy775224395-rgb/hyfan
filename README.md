@@ -1,11 +1,18 @@
-<div align="center">
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+# متجر حيفان للطاقة المتجدّدة ☀️
 
-  <h1>Built with AI Studio</h2>
+موقع تجارة إلكترونية متخصص في حلول الطاقة الشمسية، البطاريات، والأجهزة المنزلية الموفرة للطاقة.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## المميزات:
+- **نظام سلة مشتريات:** تجميع المنتجات وإرسال طلب كامل عبر واتساب.
+- **طلب واتساب مباشر:** إرسال بيانات المنتج مع الرابط الخاص به وتلقي الطلب فوراً.
+- **مساعد ذكي (AI):** مدعوم بـ Google Gemini للإجابة على استفسارات العملاء الفنية.
+- **تصميم عصري:** متجاوب بالكامل مع الهواتف الذكية والحواسيب.
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## طريقة النشر (Deployment):
+1. ارفع الكود إلى GitHub.
+2. اربط المستودع بمنصة **Vercel** أو **Netlify**.
+3. **هام جداً:** أضف مفتاح الـ API في إعدادات المنصة (Environment Variables) باسم `API_KEY`.
 
-</div>
+## التواصل:
+رقم الواتساب المعتمد للطلب: `967775224395`
