@@ -1,4 +1,3 @@
-
 import { Product } from './types';
 
 export const INITIAL_PRODUCTS: Product[] = [
@@ -7,7 +6,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'لوح شمسي مونو كريستال 550 وات',
     price: 850,
     description: 'لوح شمسي عالي الكفاءة بتقنية Half-cut، مثالي للمشاريع السكنية والتجارية.',
-    image: 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=1000&auto=format&fit=crop',
     category: 'ألواح شمسية',
     specs: ['كفاءة تصل إلى 21.3%', 'تقنية 10 Busbar', 'مقاومة عالية للرياح والثلوج', 'ضمان أداء 25 سنة'],
     fullDescription: 'يتميز هذا اللوح الشمسي بأحدث تقنيات التصنيع لضمان أعلى إنتاجية للطاقة حتى في ظروف الإضاءة المنخفضة. التصميم المتين يجعله مناسباً للظروف الجوية القاسية في المناطق الجبلية والساحلية.'
@@ -17,7 +16,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'لوح شمسي مرن 100 وات',
     price: 320,
     description: 'لوح مرن وخفيف الوزن مناسب للرحلات والكرفانات والقوارب.',
-    image: 'https://images.unsplash.com/photo-1545259742-b4fd8fea67e4?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=1000&auto=format&fit=crop',
     category: 'ألواح شمسية',
     specs: ['وزن خفيف جداً (2kg)', 'قابل للانحناء حتى 30 درجة', 'سهل التركيب والفك', 'خلايا أحادية الكريستال'],
     fullDescription: 'الحل الأمثل للطاقة المتنقلة. يمكنك تركيبه على الأسطح غير المستوية بسهولة تامة. مثالي لأصحاب القوارب وعشاق التخييم.'
@@ -27,7 +26,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'بطارية ليثيوم LiFePO4 100Ah',
     price: 2800,
     description: 'بطارية ليثيوم متطورة مع نظام إدارة بطارية (BMS) مدمج.',
-    image: 'https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1619641662873-67c858593a2f?q=80&w=1000&auto=format&fit=crop',
     category: 'بطاريات',
     specs: ['دورة حياة +4000 مرة', 'شحن سريع', 'وزن أقل بنسبة 60% من الرصاص', 'نظام حماية من الحرارة الزائدة'],
     fullDescription: 'وداعاً لتغيير البطاريات كل عام. بطارية الليثيوم توفر لك طاقة ثابتة وعمراً افتراضياً يتجاوز الـ 10 سنوات مع أداء مذهل في تفريغ الطاقة.'
@@ -37,7 +36,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'بطارية جل عميقة التفريغ 200Ah',
     price: 1150,
     description: 'بطارية جل ذات جودة عالية مخصصة للتخزين الطويل للطاقة.',
-    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?q=80&w=1000&auto=format&fit=crop',
     category: 'بطاريات',
     specs: ['لا تحتاج لصيانة', 'مقاومة للتآكل', 'تفريغ ذاتي منخفض', 'مثالية للاستخدام المنزلي'],
     fullDescription: 'البطارية الأكثر مبيعاً وموثوقية لأنظمة الطاقة الشمسية المنزلية. توفر توازناً ممتازاً بين السعر والأداء.'
@@ -47,7 +46,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'ثلاجة إنفرتر 12/24 فولت DC',
     price: 1650,
     description: 'ثلاجة مخصصة للطاقة الشمسية تعمل مباشرة بدون محول.',
-    image: 'https://images.unsplash.com/photo-1571175432270-4822567450d9?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?q=80&w=1000&auto=format&fit=crop',
     category: 'أجهزة منزلية',
     specs: ['استهلاك منخفض جداً', 'ضاغط (كمبروسر) هادئ', 'تحكم رقمي في الحرارة', 'إضاءة LED داخلية'],
     fullDescription: 'صممت هذه الثلاجة لتعمل بأقصى كفاءة على أنظمة الـ DC، مما يوفر طاقة الانفرتر ويزيد من عمر البطاريات.'
@@ -57,7 +56,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'مكيف سبليت إنفرتر موفر',
     price: 2400,
     description: 'مكيف سبليت حديث مع تقنية توفير طاقة تصل إلى 60%.',
-    image: 'https://images.unsplash.com/photo-1631541486333-608620359781?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1614631313361-9c636f3c05c0?q=80&w=1000&auto=format&fit=crop',
     category: 'أجهزة منزلية',
     specs: ['تبريد سريع', 'فلتر منقي للهواء', 'خاصية النوم الهادئ', 'يعمل في درجات الحرارة العالية'],
     fullDescription: 'استمتع ببرودة الجو دون القلق من فواتير الكهرباء أو استهلاك البطاريات السريع، بفضل تقنية الانفرتر الذكية.'
