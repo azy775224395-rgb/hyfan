@@ -12,7 +12,7 @@ interface CartDrawerProps {
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemove, onUpdateQty }) => {
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const WHATSAPP_NUMBER = '967775224395';
+  const WHATSAPP_NUMBER = '967784400333';
 
   const handleCheckoutWhatsApp = () => {
     let orderSummary = "السلام عليكم، أريد شراء المنتجات التالية:\n\n";

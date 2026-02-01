@@ -8,6 +8,7 @@ export interface Product {
   category: string;
   specs?: string[];
   fullDescription?: string;
+  status?: 'الأكثر مبيعاً' | 'جديد' | 'متوفر' | 'خصم';
 }
 
 export interface CartItem extends Product {

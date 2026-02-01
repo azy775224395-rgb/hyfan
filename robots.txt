@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hyfn-czzv.onrender.com/sitemap.xml

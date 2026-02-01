@@ -9,7 +9,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onViewDetails }) => {
-  const WHATSAPP_NUMBER = '967775224395';
+  const WHATSAPP_NUMBER = '967784400333';
   
   const handleOrderWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -23,23 +23,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onViewD
   return (
     <div 
       onClick={() => onViewDetails(product)}
-      className="bg-white rounded-[2rem] overflow-hidden border border-gray-100 hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-300 group cursor-pointer"
+      className="bg-white rounded-[2rem] overflow-hidden border border-gray-100 hover:border-emerald-100 hover:bg-emerald-50/40 hover:shadow-2xl hover:shadow-emerald-200/50 transition-all duration-500 group cursor-pointer relative"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
         <img 
           src={product.image} 
           alt={product.name} 
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
         />
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 flex flex-col gap-2">
           <span className="bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-[10px] font-black text-emerald-600 shadow-sm uppercase tracking-widest border border-emerald-50">
             {product.category}
           </span>
+          {product.status && (
+            <span className="bg-emerald-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black shadow-lg animate-pulse">
+              {product.status}
+            </span>
+          )}
         </div>
       </div>
       
       <div className="p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-2 truncate group-hover:text-emerald-600 transition-colors">{product.name}</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-2 truncate group-hover:text-emerald-700 transition-colors">{product.name}</h3>
         <p className="text-gray-400 text-xs mb-6 line-clamp-2 min-h-[32px] leading-relaxed">
           {product.description}
         </p>
@@ -49,6 +54,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onViewD
             <span className="text-2xl font-black text-emerald-600">
               {product.price} <small className="text-xs font-normal text-gray-300">ر.س</small>
             </span>
+            <div className="flex gap-1">
+              {[1,2,3,4,5].map(s => (
+                <svg key={s} className="w-3 h-3 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              ))}
+            </div>
           </div>
           
           <div className="flex gap-2">
@@ -64,7 +74,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onViewD
                 e.stopPropagation();
                 onAddToCart(product);
               }}
-              className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-gray-100 active:scale-95"
+              className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-emerald-100 hover:text-emerald-700 transition-all border border-gray-100 active:scale-95"
               title="أضف للسلة"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>

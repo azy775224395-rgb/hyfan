@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 
 export class GeminiService {
@@ -5,8 +6,8 @@ export class GeminiService {
 
   private getClient() {
     if (!this.ai) {
-      const apiKey = process.env.API_KEY || "";
-      this.ai = new GoogleGenAI({ apiKey });
+      // Fix: Follow initialization guideline
+      this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
     }
     return this.ai;
   }
@@ -14,10 +15,12 @@ export class GeminiService {
   async generateProductDescription(productName: string): Promise<string> {
     try {
       const client = this.getClient();
+      // Fix: Use generateContent with model name as per guideline
       const response = await client.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: [{ role: 'user', parts: [{ text: `اكتب وصفاً تسويقياً جذاباً ومختصراً لمنتج طاقة متجددة يسمى: "${productName}". اجعل الوصف باللغة العربية بأسلوب احترافي يركز على الكفاءة والتوفير.` }] }],
       });
+      // Fix: Access .text property directly (not a function call)
       return response.text || "عذراً، لم أتمكن من إنشاء وصف حالياً.";
     } catch (e) {
       console.error("AI Error:", e);
@@ -28,6 +31,7 @@ export class GeminiService {
   async chatWithCustomer(message: string, context: string): Promise<string> {
     try {
       const client = this.getClient();
+      // Fix: Use generateContent with model name as per guideline
       const response = await client.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: [{ role: 'user', parts: [{ text: message }] }],
@@ -39,6 +43,7 @@ export class GeminiService {
           أخبر العملاء أن بإمكانهم الطلب مباشرة عبر واتساب من خلال زر الطلب الموجود على كل منتج.`,
         }
       });
+      // Fix: Access .text property directly (not a function call)
       return response.text || "عذراً، أنا أواجه مشكلة في الرد حالياً.";
     } catch (e) {
       console.error("Chat Error:", e);

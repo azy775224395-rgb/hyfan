@@ -15,6 +15,8 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  const LOGO_URL = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -31,7 +33,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products }) => {
     setIsLoading(true);
 
     try {
-      const context = `لدينا منتجات الطاقة المتجددة التالية: ${products.map(p => `${p.name} بسعر ${p.price}`).join('، ')}. رقم الواتساب للطلب هو 967775224395.`;
+      const context = `لدينا منتجات الطاقة المتجددة التالية: ${products.map(p => `${p.name} بسعر ${p.price}`).join('، ')}. رقم الواتساب للطلب هو 967784400333.`;
       const response = await geminiService.chatWithCustomer(userMsg, context);
       setMessages(prev => [...prev, { role: 'model', text: response }]);
     } catch (error) {
@@ -46,12 +48,12 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products }) => {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-2xl hover:bg-emerald-700 transition-all active:scale-90 border-4 border-white"
+        className="w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-2xl hover:bg-emerald-700 transition-all active:scale-90 border-4 border-white overflow-hidden"
       >
         {isOpen ? (
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 6-12 12"/><path d="m6 6 12 12"/></svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>
+          <img src={LOGO_URL} alt="AI" className="w-full h-full object-cover" />
         )}
       </button>
 
@@ -59,18 +61,18 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products }) => {
       {isOpen && (
         <div className="absolute bottom-16 left-0 w-80 sm:w-96 bg-white rounded-[2rem] shadow-2xl border border-emerald-50 flex flex-col h-[500px] overflow-hidden animate-fade-in-up">
           <div className="bg-emerald-600 p-5 text-white flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
-               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/></svg>
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+               <img src={LOGO_URL} alt="حيفان" className="w-full h-full object-cover" />
             </div>
             <div>
-              <h3 className="font-black text-sm">مساعد حيفان الذكي</h3>
-              <p className="text-[10px] opacity-80 font-bold uppercase tracking-wider">خبير أنظمة الطاقة</p>
+              <h3 className="font-black text-sm text-right">مساعد حيفان الذكي</h3>
+              <p className="text-[10px] opacity-80 font-bold uppercase tracking-wider text-right">خبير أنظمة الطاقة</p>
             </div>
           </div>
 
           <div 
             ref={scrollRef}
-            className="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50/50"
+            className="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50/50 text-right"
           >
             {messages.map((msg, idx) => (
               <div 
@@ -104,7 +106,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products }) => {
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
               placeholder="اكتب استفسارك هنا..."
-              className="flex-grow bg-gray-100 rounded-2xl px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all border-transparent"
+              className="flex-grow bg-gray-100 rounded-2xl px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all border-transparent text-right"
             />
             <button 
               onClick={handleSend}
