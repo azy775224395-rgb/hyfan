@@ -18,29 +18,23 @@ const FloatingContact: React.FC = () => {
   ];
 
   return (
-    <div className="fixed left-6 bottom-6 md:left-10 md:bottom-10 z-[60] flex flex-col items-center">
+    <div className="fixed left-5 bottom-5 md:left-10 md:bottom-10 z-[60] flex flex-col items-center">
       {/* Sub Buttons Wrapper */}
-      <div className={`flex flex-col gap-3 mb-4 transition-all duration-500 ease-in-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+      <div className={`flex flex-col gap-2.5 mb-3 transition-all duration-500 ease-in-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
         {icons.map((item, idx) => (
           <a
             key={item.id}
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`group relative ${item.color} w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center text-white shadow-xl hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white/40`}
+            className={`group relative ${item.color} w-9 h-9 md:w-14 md:h-14 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white/40`}
             style={{ 
-              transitionDelay: isOpen ? `${idx * 50}ms` : '0ms',
-              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)'
+              transitionDelay: isOpen ? `${idx * 40}ms` : '0ms'
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="md:w-6 md:h-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="md:w-6 md:h-6">
               <path d={item.icon} />
             </svg>
-            
-            {/* Tooltip Label */}
-            <span className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900/80 backdrop-blur-md text-white text-[10px] md:text-xs font-black rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-xl border border-white/10">
-              {item.title}
-            </span>
           </a>
         ))}
       </div>
@@ -48,28 +42,17 @@ const FloatingContact: React.FC = () => {
       {/* Main Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 md:w-18 md:h-18 rounded-full flex items-center justify-center text-white shadow-2xl transition-all duration-500 active:scale-90 border-4 border-white z-20 ${isOpen ? 'bg-gray-800 rotate-180' : 'bg-emerald-600 hover:bg-emerald-500 animate-pulse-gentle'}`}
-        style={{ boxShadow: '0 15px 35px -5px rgba(16, 185, 129, 0.4)' }}
+        className={`w-12 h-12 md:w-18 md:h-18 rounded-full flex items-center justify-center text-white shadow-2xl transition-all duration-500 active:scale-90 border-[3px] border-white z-20 ${isOpen ? 'bg-gray-800 rotate-180' : 'bg-emerald-600 hover:bg-emerald-500'}`}
       >
         {isOpen ? (
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         ) : (
           <div className="relative">
-             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-             <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+             <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
           </div>
         )}
       </button>
-      
-      <style>{`
-        @keyframes pulse-gentle {
-          0%, 100% { transform: scale(1); box-shadow: 0 15px 35px -5px rgba(16, 185, 129, 0.4); }
-          50% { transform: scale(1.05); box-shadow: 0 20px 45px -5px rgba(16, 185, 129, 0.6); }
-        }
-        .animate-pulse-gentle {
-          animation: pulse-gentle 2.5s infinite ease-in-out;
-        }
-      `}</style>
     </div>
   );
 };
