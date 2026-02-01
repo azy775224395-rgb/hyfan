@@ -28,12 +28,13 @@ const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewState>({ type: 'home' });
   const [searchQuery, setSearchQuery] = useState('');
   
+  // تحديث ترتيب الفئات: الأجهزة الكهربائية أولاً
   const categoryOrder = [
+    'الاجهزة الكهربائيه',
     'الباقات', 
     'الالواح الشمسيه', 
     'البطاريات', 
     'الانفرترات', 
-    'الاجهزة الكهربائيه', 
     'اجهزة الطباخه'
   ];
 
@@ -141,23 +142,19 @@ const App: React.FC = () => {
           <>
             <Hero onOpenStory={() => navigateTo({ type: 'story' })} />
             
-            <div className="reveal-on-scroll opacity-0 transition-all duration-1000 translate-y-10 [&.visible]:opacity-100 [&.visible]:translate-y-0">
-              <BrandSection />
-            </div>
-
-            <div className="mt-24 reveal-on-scroll opacity-0 transition-all duration-1000 translate-y-10 [&.visible]:opacity-100 [&.visible]:translate-y-0" id="products-grid">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+            <div className="mt-16 md:mt-24 reveal-on-scroll opacity-0 transition-all duration-1000 translate-y-10 [&.visible]:opacity-100 [&.visible]:translate-y-0" id="products-grid">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 md:mb-12">
                 <div>
-                  <h2 className="text-4xl font-black text-gray-900">منتجاتنا المختارة</h2>
+                  <h2 className="text-3xl md:text-4xl font-black text-gray-900">منتجاتنا المختارة</h2>
                   <p className="text-gray-500 mt-2 font-bold">تصفح حسب التصنيف</p>
                 </div>
                 
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide -mx-2 px-2 md:mx-0 md:px-0">
                   {categories.map(cat => (
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-6 py-2.5 rounded-full text-sm font-black transition-all whitespace-nowrap ${
+                      className={`px-5 py-2 md:px-6 md:py-2.5 rounded-full text-sm font-black transition-all whitespace-nowrap ${
                         selectedCategory === cat 
                         ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100' 
                         : 'bg-white text-gray-400 border border-gray-100 hover:border-emerald-200 hover:text-emerald-600'
@@ -170,7 +167,7 @@ const App: React.FC = () => {
               </div>
 
               {filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
                   {filteredProducts.map(product => (
                     <ProductCard 
                       key={product.id} 
@@ -181,25 +178,30 @@ const App: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-24 bg-white rounded-[3rem] border border-dashed border-gray-200">
-                  <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="text-center py-16 md:py-24 bg-white rounded-[2rem] md:rounded-[3rem] border border-dashed border-gray-200">
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800">عذراً، لم نجد نتائج في هذه الفئة</h3>
-                  <p className="text-gray-400 mt-2">جرب البحث بكلمات أخرى أو تصفح الفئات الأخرى</p>
+                  <h3 className="text-xl font-bold text-gray-800">عذراً، لم نجد نتائج</h3>
+                  <p className="text-gray-400 mt-2">جرب البحث بكلمات أخرى</p>
                 </div>
               )}
             </div>
 
-            <div className="mt-32 reveal-on-scroll opacity-0 transition-all duration-1000 translate-y-10 [&.visible]:opacity-100 [&.visible]:translate-y-0">
+            <div className="mt-24 md:mt-32 reveal-on-scroll opacity-0 transition-all duration-1000 translate-y-10 [&.visible]:opacity-100 [&.visible]:translate-y-0">
               <SolarCalculator />
             </div>
 
-            <div className="mt-32 reveal-on-scroll opacity-0 transition-all duration-1000 translate-y-10 [&.visible]:opacity-100 [&.visible]:translate-y-0">
+            <div className="mt-24 md:mt-32 reveal-on-scroll opacity-0 transition-all duration-1000 translate-y-10 [&.visible]:opacity-100 [&.visible]:translate-y-0">
               <ReviewSection />
             </div>
 
-            <div className="mt-32 reveal-on-scroll opacity-0 transition-all duration-1000 translate-y-10 [&.visible]:opacity-100 [&.visible]:translate-y-0" id="faq-section">
+            {/* تم نقل قسم العلامات التجارية إلى هنا (أسفل التقييمات) */}
+            <div className="reveal-on-scroll opacity-0 transition-all duration-1000 translate-y-10 [&.visible]:opacity-100 [&.visible]:translate-y-0">
+              <BrandSection />
+            </div>
+
+            <div className="mt-24 md:mt-32 reveal-on-scroll opacity-0 transition-all duration-1000 translate-y-10 [&.visible]:opacity-100 [&.visible]:translate-y-0" id="faq-section">
               <FaqSection />
             </div>
           </>
@@ -217,31 +219,31 @@ const App: React.FC = () => {
         onLogoClick={() => navigateTo({ type: 'home' })}
       />
 
-      <main className="flex-grow container mx-auto px-4 py-8 animate-fade-in">
+      <main className="flex-grow container mx-auto px-3 md:px-4 py-6 md:py-8 animate-fade-in">
         {renderContent()}
       </main>
 
-      <footer className="bg-white border-t border-gray-100 py-16 mt-20">
+      <footer className="bg-white border-t border-gray-100 py-12 md:py-16 mt-20">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-12 mb-12">
             <div className="col-span-1 md:col-span-2">
               <div 
                 className="flex items-center gap-3 mb-6 cursor-pointer"
                 onClick={() => navigateTo({ type: 'home' })}
               >
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-xl shadow-emerald-100 border border-emerald-50">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl md:rounded-2xl flex items-center justify-center overflow-hidden shadow-xl shadow-emerald-100 border border-emerald-50">
                   <img src={LOGO_URL} alt="حيفان للطاقة" className="w-full h-full object-cover" />
                 </div>
-                <span className="text-2xl font-black text-gray-900">حيفان للطاقة</span>
+                <span className="text-xl md:text-2xl font-black text-gray-900">حيفان للطاقة</span>
               </div>
-              <p className="text-gray-500 leading-relaxed max-w-md font-medium">
+              <p className="text-gray-500 leading-relaxed max-w-md font-medium text-sm md:text-base">
                 رائدون في تقديم حلول الطاقة الشمسية المتكاملة في اليمن. نهدف إلى توفير طاقة نظيفة ومستدامة بأسعار تنافسية وجودة عالمية لعام 2026 وما بعده.
               </p>
             </div>
             
             <div>
-              <h4 className="font-black text-gray-900 mb-6 text-lg">روابط سريعة</h4>
-              <ul className="space-y-4 text-gray-500 font-bold">
+              <h4 className="font-black text-gray-900 mb-5 md:mb-6 text-base md:text-lg">روابط سريعة</h4>
+              <ul className="space-y-3 md:space-y-4 text-gray-500 font-bold text-sm md:text-base">
                 <li><button onClick={() => navigateTo({ type: 'home' })} className="hover:text-emerald-600 transition-colors text-right w-full">الرئيسية</button></li>
                 <li><button onClick={() => navigateTo({ type: 'story' })} className="hover:text-emerald-600 transition-colors text-right w-full">قصة نجاحنا</button></li>
                 <li><button onClick={() => { navigateTo({ type: 'home' }); setTimeout(() => document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-emerald-600 transition-colors text-right w-full">منتجاتنا</button></li>
@@ -250,8 +252,8 @@ const App: React.FC = () => {
             </div>
 
             <div>
-              <h4 className="font-black text-gray-900 mb-6 text-lg">تواصل معنا</h4>
-              <ul className="space-y-4 text-gray-500 font-bold">
+              <h4 className="font-black text-gray-900 mb-5 md:mb-6 text-base md:text-lg">تواصل معنا</h4>
+              <ul className="space-y-3 md:space-y-4 text-gray-500 font-bold text-sm md:text-base">
                 <li>
                   <a href="tel:+967784400222" className="flex items-center gap-3 hover:text-emerald-600 transition-colors">
                     <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -273,7 +275,7 @@ const App: React.FC = () => {
           </div>
 
           <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-gray-400 text-sm font-bold">
+            <p className="text-gray-400 text-xs md:text-sm font-bold text-center md:text-right">
               جميع الحقوق محفوظة © حيفان للطاقة المتجددة 2026
             </p>
           </div>
