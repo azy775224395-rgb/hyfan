@@ -42,12 +42,12 @@ const Hero: React.FC<HeroProps> = ({ onOpenStory }) => {
 
       <div className="relative container mx-auto px-6 md:px-16 z-10 text-right max-w-5xl mt-8 md:mt-0">
         <div className="relative inline-block mb-4 md:mb-6">
-          <h1 className="relative text-3xl md:text-8xl font-black text-white leading-[1.4] md:leading-[1.4] animate-slide-up py-2">
-            حيفان للطاقة <br className="md:hidden" />
+          <h1 className="relative text-2xl sm:text-3xl md:text-8xl font-black text-white leading-[1.4] md:leading-[1.4] animate-slide-up py-2">
+            حيفان للطاقة{' '}
             <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-l from-emerald-400 via-teal-300 to-emerald-400 bg-[length:200%_auto] animate-gradient-flow drop-shadow-[0_0_20px_rgba(52,211,153,0.5)] px-1">
-              نضيءُ مستقبلكَ
+              المتجدّدة
             </span> <br />
-            بحلولٍ مستدامةٍ
+            نحو عالمٍ مستدامٍ بطاقةٍ متجددةٍ
           </h1>
         </div>
         
