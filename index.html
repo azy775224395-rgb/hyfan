@@ -21,9 +21,25 @@
         font-family: 'Cairo', sans-serif;
         margin: 0;
         padding: 0;
+        background-color: #f0fdf4;
       }
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      /* تحسين مظهر التمرير ليتناسب مع الثيم الفاتح */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f0fdf4;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #bbf7d0;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #86efac;
+      }
     </style>
   <script type="importmap">
 {
@@ -38,7 +54,7 @@
 }
 </script>
 </head>
-  <body class="bg-gray-50 text-gray-900">
+  <body class="text-emerald-950">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
