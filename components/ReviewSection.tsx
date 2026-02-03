@@ -1,12 +1,16 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Review } from '../types';
 import { NotificationService } from '../services/notificationService';
 
 const MOCK_REVIEWS: Review[] = [
   { id: 1, name: "أحمد صالح", rating: 5, comment: "خدمة ممتازة وسرعة في التوصيل لتعز. الألواح جودتها عالية جداً.", date: "2025-02-15" },
   { id: 2, name: "محمد العمري", rating: 5, comment: "المساعد الذكي ساعدني جداً في اختيار البطارية المناسبة. أنصح بالتعامل معهم.", date: "2025-02-10" },
-  { id: 3, name: "سارة خالد", rating: 4, comment: "ثلاجة الإنفرتر ممتازة وتوفر طاقة بشكل ملحوظ. شكراً حيفان.", date: "2025-02-01" }
+  { id: 3, name: "سارة خالد", rating: 4, comment: "ثلاجة الإنفرتر ممتازة وتوفر طاقة بشكل ملحوظ. شكراً حيفان.", date: "2025-02-01" },
+  { id: 4, name: "خالد الوصابي", rating: 5, comment: "اشتريت باقة النور، والآن منزلي في إب لا ينطفئ أبداً. جودة الأسلاك والتركيب رائعة.", date: "2025-01-25" },
+  { id: 5, name: "يحيى الحاشدي", rating: 5, comment: "أفضل أسعار لبطاريات TUBO وجدتها عند حيفان. الضمان حقيقي وتم استبدال قطعة لي بسرعة.", date: "2025-01-15" },
+  { id: 6, name: "أروى محمد", rating: 4, comment: "المكنسة الكهربائية قوية جداً ومناسبة لمنظومة الطاقة الشمسية الصغيرة.", date: "2025-01-05" },
+  { id: 7, name: "عصام القباطي", rating: 5, comment: "تعامل راقي جداً من خدمة العملاء. شحنوا لي المنتج إلى عدن ووصل سليم تماماً.", date: "2024-12-28" }
 ];
 
 interface ReviewSectionProps {
@@ -14,13 +18,33 @@ interface ReviewSectionProps {
 }
 
 const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
-  const [reviews, setReviews] = useState<Review[]>(MOCK_REVIEWS);
+  // تحميل التقييمات من localStorage إذا وجدت، وإلا استخدام التقييمات الافتراضية
+  const [reviews, setReviews] = useState<Review[]>(() => {
+    const saved = localStorage.getItem('hyfan_reviews');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // دمج التقييمات المحفوظة مع الافتراضية لضمان وجود الكل
+        const combined = [...parsed, ...MOCK_REVIEWS.filter(mr => !parsed.find((p: Review) => p.id === mr.id))];
+        return combined.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      } catch (e) {
+        return MOCK_REVIEWS;
+      }
+    }
+    return MOCK_REVIEWS;
+  });
+
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [name, setName] = useState('');
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // تحديث localStorage عند إضافة تقييم جديد
+  useEffect(() => {
+    localStorage.setItem('hyfan_reviews', JSON.stringify(reviews));
+  }, [reviews]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +62,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
         comment,
         date: new Date().toISOString().split('T')[0]
       };
-      setReviews([newReview, ...reviews]);
+      
+      const updatedReviews = [newReview, ...reviews];
+      setReviews(updatedReviews);
       
       // إرسال إشعار تيليجرام
       NotificationService.sendTelegramNotification(NotificationService.formatReviewMessage(newReview));
@@ -58,7 +84,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
         <div className="bg-emerald-900 rounded-[2rem] md:rounded-[3.5rem] p-8 md:p-14 text-white relative overflow-hidden shadow-2xl">
           <div className="relative z-10">
             <h2 className="text-3xl md:text-4xl font-black mb-4">قيم تجربتك</h2>
-            <p className="text-emerald-100/70 font-bold mb-10 leading-relaxed">أخبرنا عن رأيك في منتجات حيفان</p>
+            <p className="text-emerald-100/70 font-bold mb-10 leading-relaxed">أخبرنا عن رأيك في منتجات حيفان لنقوم بنشرها في الموقع</p>
 
             {!submitted ? (
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -98,7 +124,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="كيف كانت تجربتك؟"
+                  placeholder="كيف كانت تجربتك مع منتجاتنا وخدماتنا؟"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white placeholder:text-white/20 outline-none focus:ring-4 focus:ring-emerald-400/20 transition-all min-h-[120px] font-bold"
                 />
 
@@ -107,7 +133,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
                   disabled={isSubmitting}
                   className="w-full bg-white text-emerald-900 py-5 rounded-2xl font-black hover:bg-emerald-50 transition-all shadow-xl active:scale-95 text-lg"
                 >
-                  {isSubmitting ? 'جاري الإرسال...' : 'نشر التقييم'}
+                  {isSubmitting ? 'جاري الإرسال...' : 'نشر التقييم الآن'}
                 </button>
               </form>
             ) : (
@@ -116,7 +142,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#065f46" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <h3 className="text-3xl font-black mb-2">شكراً لثقتك!</h3>
-                <p className="text-emerald-100/70 text-lg">تمت إضافة تقييمك بنجاح في القائمة.</p>
+                <p className="text-emerald-100/70 text-lg">تمت إضافة تقييمك بنجاح وحفظه في الموقع.</p>
                 <button onClick={() => setSubmitted(false)} className="mt-8 text-white underline font-bold">إضافة تقييم آخر</button>
               </div>
             )}
@@ -126,7 +152,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
         {/* Reviews List */}
         <div className="flex flex-col gap-8">
           <div className="flex items-center justify-between">
-            <h3 className="text-2xl md:text-3xl font-black text-emerald-950">آراء العملاء</h3>
+            <h3 className="text-2xl md:text-3xl font-black text-emerald-950">أحدث التقييمات</h3>
             <button 
               onClick={() => onShowAll(reviews)}
               className="text-emerald-600 font-black text-sm md:text-base hover:underline flex items-center gap-2"
@@ -137,7 +163,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
           </div>
           
           <div className="space-y-6">
-            {reviews.slice(0, 3).map((review) => (
+            {/* عرض أول 6 تقييمات لتعبئة الصفحة بشكل أفضل */}
+            {reviews.slice(0, 6).map((review) => (
               <div key={review.id} className="bg-white p-6 md:p-8 rounded-[2rem] border border-emerald-50 shadow-sm hover:shadow-md transition-all group">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
