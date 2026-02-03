@@ -13,6 +13,8 @@ const APPLIANCES = [
 const SolarCalculator: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<{ [key: string]: number }>({});
   const [hours, setHours] = useState(5);
+  const [isSending, setIsSending] = useState(false);
+  
   const WHATSAPP_NUMBER = '967784400333';
 
   const toggleItem = (id: string) => {
@@ -35,18 +37,21 @@ const SolarCalculator: React.FC = () => {
   }, 0);
 
   const dailyWh = totalWatts * hours;
-  const suggestedPanels = Math.ceil(dailyWh / 450); 
-  const suggestedBattery = Math.ceil((dailyWh / 12) * 1.3); 
-  const suggestedInverter = Math.ceil((totalWatts * 1.25) / 500) * 500;
+  const suggestedPanels = Math.ceil(dailyWh / 450) || 0; 
+  const suggestedBattery = Math.ceil((dailyWh / 12) * 1.3) || 0; 
+  const suggestedInverter = Math.ceil((totalWatts * 1.25) / 500) * 500 || 0;
 
   const handleRequestQuote = () => {
     if (Object.keys(selectedItems).length === 0) {
-      alert("يرجى اختيار جهاز واحد على الأقل أولاً.");
+      alert("يرجى اختيار جهاز واحد على الأقل من القائمة أولاً.");
       return;
     }
 
+    setIsSending(true);
+
     const selectedNames = Object.keys(selectedItems)
       .map(id => APPLIANCES.find(a => a.id === id)?.name)
+      .filter(Boolean)
       .join('، ');
 
     const message = `السلام عليكم حيفان للطاقة، أريد طلب عرض سعر رسمي بناءً على حسابات الموقع:
@@ -62,7 +67,13 @@ const SolarCalculator: React.FC = () => {
 - سعة الإنفرتر المطلوبة: ${suggestedInverter} وات`;
 
     const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodedMessage}`;
+    
+    // محاكاة تحميل بسيطة لتحسين تجربة المستخدم
+    setTimeout(() => {
+      window.open(whatsappUrl, '_blank');
+      setIsSending(false);
+    }, 800);
   };
 
   return (
@@ -111,7 +122,7 @@ const SolarCalculator: React.FC = () => {
             
             <div className="mt-8 md:mt-16 p-4 md:p-10 bg-white/5 rounded-[1.5rem] md:rounded-[3rem] border border-white/5">
               <div className="flex justify-between items-center mb-4 md:mb-8">
-                 <h3 className="text-[10px] md:text-lg font-black text-gray-400 uppercase">التشغيل:</h3>
+                 <h3 className="text-[10px] md:text-lg font-black text-gray-400 uppercase">ساعات التشغيل:</h3>
                  <span className="bg-emerald-500 text-white px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[10px] md:text-xl font-black shadow-lg">{hours} س</span>
               </div>
               <input 
@@ -130,26 +141,37 @@ const SolarCalculator: React.FC = () => {
             <div className="grid grid-cols-3 gap-2 md:gap-8 w-full relative z-10">
               <div className="bg-white/15 backdrop-blur-md p-3 md:p-10 rounded-xl md:rounded-[2.5rem] text-center border border-white/20 flex flex-col items-center justify-center">
                 <div className="text-xl md:text-5xl mb-1">☀️</div>
-                <div className="text-sm md:text-4xl font-black">{suggestedPanels || 0}</div>
+                <div className="text-sm md:text-4xl font-black">{suggestedPanels}</div>
                 <div className="text-[7px] md:text-sm font-black opacity-80 uppercase mt-1">لوح</div>
               </div>
               <div className="bg-white/15 backdrop-blur-md p-3 md:p-10 rounded-xl md:rounded-[2.5rem] text-center border border-white/20 flex flex-col items-center justify-center">
                 <div className="text-xl md:text-5xl mb-1">🔋</div>
-                <div className="text-sm md:text-4xl font-black">{suggestedBattery || 0}</div>
+                <div className="text-sm md:text-4xl font-black">{suggestedBattery}</div>
                 <div className="text-[7px] md:text-sm font-black opacity-80 uppercase mt-1">أمبير</div>
               </div>
               <div className="bg-white/25 backdrop-blur-md p-3 md:p-10 rounded-xl md:rounded-[2.5rem] text-center border border-white/30 flex flex-col items-center justify-center shadow-xl md:scale-110">
                 <div className="text-xl md:text-5xl mb-1">🔌</div>
-                <div className="text-sm md:text-4xl font-black">{suggestedInverter || 0}W</div>
+                <div className="text-sm md:text-4xl font-black">{suggestedInverter}W</div>
                 <div className="text-[7px] md:text-sm font-black uppercase mt-1">إنفرتر</div>
               </div>
             </div>
 
             <button 
               onClick={handleRequestQuote}
-              className="mt-8 md:mt-16 bg-white text-emerald-900 py-4 md:py-8 rounded-xl md:rounded-[2.5rem] font-black hover:bg-emerald-50 transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-2 md:gap-4 text-xs md:text-2xl relative z-10"
+              disabled={isSending}
+              className={`mt-8 md:mt-16 bg-white text-emerald-900 py-4 md:py-8 rounded-xl md:rounded-[2.5rem] font-black transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-2 md:gap-4 text-xs md:text-2xl relative z-10 ${isSending ? 'opacity-80 cursor-not-allowed' : 'hover:bg-emerald-50'}`}
             >
-              اطلب عرض سعر رسمي
+              {isSending ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 md:h-8 md:w-8 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  جاري التحويل...
+                </>
+              ) : (
+                'اطلب عرض سعر رسمي'
+              )}
             </button>
           </div>
         </div>

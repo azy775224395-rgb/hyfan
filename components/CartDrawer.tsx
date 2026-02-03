@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CartItem } from '../types';
+import { CartItem, UserProfile } from '../types';
 import { NotificationService } from '../services/notificationService';
 
 interface CartDrawerProps {
@@ -9,27 +9,37 @@ interface CartDrawerProps {
   items: CartItem[];
   onRemove: (id: string) => void;
   onUpdateQty: (id: string, delta: number) => void;
+  user?: UserProfile | null;
 }
 
-const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemove, onUpdateQty }) => {
+const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemove, onUpdateQty, user }) => {
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const WHATSAPP_NUMBER = '967784400333';
 
   const handleCheckoutWhatsApp = () => {
     let orderSummary = "السلام عليكم، أريد شراء المنتجات التالية:\n\n";
     items.forEach((item, index) => {
-      const productUrl = `${window.location.origin}/#product-${item.id}`;
       orderSummary += `${index + 1}- ${item.name} (عدد: ${item.quantity})\nالسعر: ${item.price * item.quantity} ر.س\n\n`;
     });
     orderSummary += `*المجموع الكلي:* ${total} ر.س`;
     
-    // إرسال إشعار تيليجرام للمشرف
+    // إرسال إشعار تيليجرام للمشرف بمعلومات دقيقة
     NotificationService.sendTelegramNotification(
       NotificationService.formatOrderMessage({
-        product: items.map(i => i.name).join(', '),
+        product: items.map(i => `${i.name} (x${i.quantity})`).join(', '),
         price: `${total} ر.س`,
-        method: "تواصل واتساب",
-        customer: { name: "عميل زائر", phone: "عبر الواتساب" }
+        method: "سلة مشتريات (تواصل واتساب)",
+        customer: user ? { 
+          fullName: user.name, 
+          phone: "مسجل عبر الموقع", 
+          city: "غير محدد", 
+          address: "غير محدد" 
+        } : { 
+          fullName: "عميل زائر", 
+          phone: "عبر الواتساب", 
+          city: "غير محدد", 
+          address: "غير محدد" 
+        }
       })
     );
 

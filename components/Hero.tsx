@@ -14,62 +14,45 @@ const Hero: React.FC<HeroProps> = ({ onOpenStory }) => {
   };
 
   return (
-    <section className="relative md:rounded-[2.5rem] overflow-hidden mb-4 md:mb-10 bg-[#061e23] min-h-[400px] md:min-h-[600px] flex items-center shadow-2xl border-b md:border border-white/5 py-6 md:py-16">
-      {/* Background Image - Optimized */}
+    <section className="relative md:rounded-[2.5rem] overflow-hidden mb-6 md:mb-12 bg-[#061e23] min-h-[300px] md:min-h-[450px] flex items-center shadow-2xl border-b md:border border-white/5">
+      {/* Background Image */}
       <div className="absolute inset-0">
         <img 
           src="https://images.unsplash.com/photo-1509391366360-fe5bb60213ad?q=60&w=1200&auto=format&fit=crop" 
-          alt="الطاقة المتجددة" 
-          loading="eager"
-          className="w-full h-full object-cover opacity-50"
+          alt="متجر حيفان" 
+          className="w-full h-full object-cover opacity-40"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#061e23] via-[#061e23]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#061e23] via-[#061e23]/40 to-transparent" />
       </div>
 
-      <div className="relative container mx-auto px-6 md:px-12 z-10 text-right max-w-5xl">
-        <div className="mb-4">
-          <h1 className="text-2xl md:text-7xl font-black text-white leading-tight animate-fade-in">
-            حيفان للطاقة{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-l from-emerald-400 to-teal-300 drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]">
-              المتجدّدة
-            </span> <br />
-            <span className="text-sm md:text-3xl opacity-80 font-bold">نحو عالمٍ مستدامٍ بطاقةٍ متجددةٍ</span>
-          </h1>
-        </div>
-        
-        <p className="text-gray-300 text-[11px] md:text-xl mb-6 md:mb-10 leading-relaxed max-w-xl font-medium">
-          أفضل منظومات الطاقة الشمسية المصممة لليمن، مع ضمانة حقيقية وخدمة عملاء متميزة.
-        </p>
-
-        <div className="flex flex-wrap gap-3 mb-8">
-          <button 
-            onClick={scrollToProducts}
-            className="bg-emerald-600 text-white px-6 py-3 md:px-10 md:py-5 rounded-xl font-black shadow-lg hover:bg-emerald-500 transition-all active:scale-95 text-[11px] md:text-lg"
-          >
-            تصفح المنتجات
-          </button>
+      <div className="relative container mx-auto px-6 md:px-12 z-10 text-right">
+        <div className="max-w-3xl">
+          <div className="inline-block bg-emerald-600/20 backdrop-blur-md border border-emerald-500/30 text-emerald-400 px-4 py-1.5 rounded-full text-[10px] md:text-sm font-black mb-6 animate-pulse">
+            عروض حصرية لعام 2026 متوفرة الآن
+          </div>
           
-          <button 
-            onClick={onOpenStory}
-            className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-6 py-3 md:px-10 md:py-5 rounded-xl font-black hover:bg-white/20 transition-all text-[11px] md:text-lg"
-          >
-            قصة نجاحنا
-          </button>
-        </div>
+          <h1 className="text-3xl md:text-6xl font-black text-white leading-tight mb-6">
+            أفضل حلول <span className="text-emerald-400">الطاقة الشمسية</span> <br/>
+            بأقل الأسعار في اليمن
+          </h1>
+          
+          <p className="text-gray-300 text-xs md:text-lg mb-8 leading-relaxed font-bold opacity-80 max-w-xl">
+            تسوّق الآن أحدث الألواح والبطاريات والأجهزة المنزلية الموفرة للطاقة مع ضمان حقيقي وشحن لكافة المحافظات.
+          </p>
 
-        {/* Simplified Stats */}
-        <div className="grid grid-cols-3 gap-4 border-t border-white/10 pt-6">
-          <div>
-            <div className="text-sm md:text-4xl font-black text-white">+40 ألف</div>
-            <div className="text-[8px] md:text-xs text-gray-400 font-bold uppercase">عميل</div>
-          </div>
-          <div className="border-x border-white/5 px-2">
-            <div className="text-sm md:text-4xl font-black text-white">25 سنة</div>
-            <div className="text-[8px] md:text-xs text-gray-400 font-bold uppercase">ضمان</div>
-          </div>
-          <div>
-            <div className="text-sm md:text-4xl font-black text-white">24/7</div>
-            <div className="text-[8px] md:text-xs text-gray-400 font-bold uppercase">دعم</div>
+          <div className="flex gap-4">
+            <button 
+              onClick={scrollToProducts}
+              className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black shadow-xl hover:bg-emerald-500 transition-all active:scale-95 text-sm md:text-lg"
+            >
+              ابدأ التسوق الآن
+            </button>
+            <button 
+              onClick={onOpenStory}
+              className="bg-white/5 backdrop-blur-md text-white border border-white/10 px-8 py-4 rounded-2xl font-black hover:bg-white/10 transition-all text-sm md:text-lg"
+            >
+              عن حيفان
+            </button>
           </div>
         </div>
       </div>
