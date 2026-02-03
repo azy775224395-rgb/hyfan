@@ -24,6 +24,11 @@ const SolarCalculator: React.FC = () => {
     });
   };
 
+  const resetCalculator = () => {
+    setSelectedItems({});
+    setHours(5);
+  };
+
   const totalWatts = Object.keys(selectedItems).reduce((sum, id) => {
     const item = APPLIANCES.find(a => a.id === id);
     return sum + (item ? item.watts : 0);
@@ -67,13 +72,21 @@ const SolarCalculator: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-6 md:px-12 relative z-10 w-full">
-        <div className="text-center mb-8 md:mb-16">
-          <h2 className="text-2xl md:text-5xl font-black mb-3 md:mb-4">حاسبة الطاقة الذكية</h2>
-          <p className="text-emerald-400 font-bold text-xs md:text-xl opacity-90">صمم منظومتك بنفسك في ثوانٍ</p>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-10 md:mb-16 gap-6">
+          <div className="text-right">
+            <h2 className="text-2xl md:text-5xl font-black mb-3">حاسبة الطاقة الذكية</h2>
+            <p className="text-emerald-400 font-bold text-xs md:text-xl opacity-90">صمم منظومتك بنفسك في ثوانٍ</p>
+          </div>
+          <button 
+            onClick={resetCalculator}
+            className="flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-6 py-3 rounded-2xl border border-red-500/20 transition-all font-bold text-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            مسح جميع الأجهزة
+          </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 w-full">
-          {/* الاختيارات */}
           <div className="bg-white/5 backdrop-blur-2xl p-6 md:p-12 rounded-[1.5rem] md:rounded-[3rem] border border-white/10 w-full">
             <h3 className="text-base md:text-2xl font-black mb-6 md:mb-10 flex items-center gap-3 text-emerald-400">
               <span className="w-8 h-8 md:w-12 md:h-12 bg-emerald-500 rounded-lg md:rounded-xl flex items-center justify-center text-xs md:text-xl text-white shadow-lg">1</span>
@@ -109,7 +122,6 @@ const SolarCalculator: React.FC = () => {
             </div>
           </div>
 
-          {/* النتائج */}
           <div className="bg-emerald-600 p-6 md:p-16 rounded-[1.5rem] md:rounded-[3rem] shadow-3xl flex flex-col justify-center w-full relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
             

@@ -4,12 +4,14 @@ import React from 'react';
 interface HeaderProps {
   cartCount: number;
   onOpenCart: () => void;
+  onOpenAuth: () => void;
   searchQuery: string;
   setSearchQuery: (val: string) => void;
   onLogoClick: () => void;
+  user: any;
 }
 
-const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, searchQuery, setSearchQuery, onLogoClick }) => {
+const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, searchQuery, setSearchQuery, onLogoClick, user }) => {
   const LOGO_URL = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
 
   return (
@@ -35,54 +37,43 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, searchQuery, set
         </div>
 
         {/* Improved Search Bar */}
-        <div className="flex-grow max-w-md relative group">
+        <div className="flex-grow max-w-md relative group mx-2">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث..."
+            placeholder="ابحث عن ألواح، بطاريات..."
             className="w-full bg-white/60 backdrop-blur-3xl border border-emerald-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-300 rounded-full md:rounded-[1.5rem] px-8 py-1.5 md:px-14 md:py-4 transition-all outline-none text-[9px] md:text-base font-bold text-emerald-950 placeholder:text-emerald-300"
           />
-          <svg 
-            className="absolute right-2.5 md:right-5 top-1/2 -translate-y-1/2 text-emerald-300 group-focus-within:text-emerald-600 transition-colors w-[14px] h-[14px] md:w-[22px] md:h-[22px]" 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.3-4.3"/>
-          </svg>
         </div>
 
-        {/* Cart Action */}
-        <button 
-          onClick={onOpenCart}
-          className="relative p-1.5 md:p-4 text-emerald-800 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-full md:rounded-[1.2rem] transition-all active:scale-90 border border-emerald-50 hover:border-emerald-200 shadow-lg shrink-0"
-        >
-          <svg 
-            className="w-[16px] h-[16px] md:w-[28px] md:h-[28px]"
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
+        {/* Actions */}
+        <div className="flex items-center gap-2 md:gap-4 shrink-0">
+          <button 
+            onClick={onOpenAuth}
+            className="p-1.5 md:p-4 text-emerald-800 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-full md:rounded-[1.2rem] transition-all border border-emerald-50 hover:border-emerald-200 shadow-lg relative"
           >
-            <circle cx="8" cy="21" r="1"/>
-            <circle cx="19" cy="21" r="1"/>
-            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-          </svg>
-          {cartCount > 0 && (
-            <span className="absolute -top-1 -left-1 md:-top-1.5 md:-left-1.5 bg-emerald-600 text-white text-[7px] md:text-[11px] font-black w-3.5 h-3.5 md:w-7 md:h-7 flex items-center justify-center rounded-full border border-white shadow-2xl">
-              {cartCount}
-            </span>
-          )}
-        </button>
+            {user ? (
+              <img src={user.avatar} className="w-4 h-4 md:w-7 md:h-7 rounded-full object-cover" alt="Profile" />
+            ) : (
+              <svg className="w-[16px] h-[16px] md:w-[28px] md:h-[28px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            )}
+          </button>
+
+          <button 
+            onClick={onOpenCart}
+            className="relative p-1.5 md:p-4 text-emerald-800 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-full md:rounded-[1.2rem] transition-all active:scale-90 border border-emerald-50 hover:border-emerald-200 shadow-lg"
+          >
+            <svg className="w-[16px] h-[16px] md:w-[28px] md:h-[28px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+            </svg>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -left-1 md:-top-1.5 md:-left-1.5 bg-emerald-600 text-white text-[7px] md:text-[11px] font-black w-3.5 h-3.5 md:w-7 md:h-7 flex items-center justify-center rounded-full border border-white shadow-2xl">
+                {cartCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </header>
   );

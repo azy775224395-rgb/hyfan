@@ -19,3 +19,25 @@ export interface ChatMessage {
   role: 'user' | 'model';
   text: string;
 }
+
+export interface Review {
+  id: number;
+  name: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
+export interface ShippingInfo {
+  fullName: string;
+  phone: string;
+  city: string;
+  address: string;
+}
+
+export interface UserProfile {
+  name: string;
+  email: string;
+  avatar: string;
+  provider: 'google' | 'facebook' | 'discord' | null;
+}

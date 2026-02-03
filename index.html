@@ -15,6 +15,7 @@
     <link rel="canonical" href="https://hyfn-czzv.onrender.com">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
       body {
@@ -26,20 +27,16 @@
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       
-      /* تحسين مظهر التمرير ليتناسب مع الثيم الفاتح */
-      ::-webkit-scrollbar {
-        width: 8px;
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #f0fdf4; }
+      ::-webkit-scrollbar-thumb { background: #bbf7d0; border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: #86efac; }
+
+      @keyframes slide-up {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
       }
-      ::-webkit-scrollbar-track {
-        background: #f0fdf4;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #bbf7d0;
-        border-radius: 10px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #86efac;
-      }
+      .animate-slide-up { animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
     </style>
   <script type="importmap">
 {

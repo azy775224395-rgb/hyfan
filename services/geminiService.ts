@@ -6,7 +6,6 @@ export class GeminiService {
 
   private getClient() {
     if (!this.ai) {
-      // Fix: Follow initialization guideline
       this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
     }
     return this.ai;
@@ -15,13 +14,11 @@ export class GeminiService {
   async generateProductDescription(productName: string): Promise<string> {
     try {
       const client = this.getClient();
-      // Fix: Use generateContent with model name as per guideline
       const response = await client.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: [{ role: 'user', parts: [{ text: `اكتب وصفاً تسويقياً جذاباً ومختصراً لمنتج طاقة متجددة يسمى: "${productName}". اجعل الوصف باللغة العربية بأسلوب احترافي يركز على الكفاءة والتوفير.` }] }],
       });
-      // Fix: Access .text property directly (not a function call)
-      return response.text || "عذراً، لم أتمكن من إنشاء وصف حالياً.";
+      return response.text || "منتج عالي الجودة من حيفان للطاقة.";
     } catch (e) {
       console.error("AI Error:", e);
       return "منتج عالي الجودة من حيفان للطاقة.";
@@ -31,23 +28,29 @@ export class GeminiService {
   async chatWithCustomer(message: string, context: string): Promise<string> {
     try {
       const client = this.getClient();
-      // Fix: Use generateContent with model name as per guideline
       const response = await client.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: [{ role: 'user', parts: [{ text: message }] }],
         config: {
-          systemInstruction: `أنت مساعد خبير في أنظمة الطاقة الشمسية لمتجر "حيفان للطاقة المتجددة". 
-          سياق المتجر الحالي ومنتجاته: ${context}. 
-          مهمتك هي مساعدة العملاء في اختيار الألواح والبطاريات المناسبة لاحتياجاتهم المنزلية. 
-          كن ودوداً، مهذباً، وقدم نصائح تقنية دقيقة باللغة العربية. 
-          أخبر العملاء أن بإمكانهم الطلب مباشرة عبر واتساب من خلال زر الطلب الموجود على كل منتج.`,
+          systemInstruction: `أنت "استشاري حيفان الذكي"، خبير عالمي في أنظمة الطاقة الشمسية والحلول المستدامة.
+          
+          سياق عملك:
+          1. أنت تعمل لمتجر "حيفان للطاقة المتجددة" في اليمن (عام 2026).
+          2. لديك قائمة بالمنتجات المتوفرة بأسعارها ومواصفاتها (موجودة في سياق الرسالة).
+          
+          قواعد الرد:
+          - كن تقنياً ومحترفاً: اشرح الفرق بين بطاريات الليثيوم (عمر أطول، شحن أسرع) وبطاريات الجل (تكلفة أقل).
+          - حساب الأحمال: إذا طلب العميل حساب منظومة، اسأله عن الأجهزة (ثلاجة، إضاءة، مراوح) ثم قدم له مقترحاً بالألواح والبطاريات المناسبة من منتجاتنا.
+          - لغة الرد: اللغة العربية بلهجة بيضاء واضحة ومحترمة.
+          - المنتجات المتاحة: استخدم المنتجات الموجودة في السياق فقط عند تقديم توصيات.
+          - متى تذكر واتساب؟: فقط وفقط إذا طلب العميل الشراء، أو سأل عن السعر النهائي لطلب كمية، أو أراد التحدث مع موظف بشري. غير ذلك، أجب على كافة أسئلته التقنية بنفسك.
+          - المعرفة التقنية: أنت تعرف أن ألواح N-Type أفضل من P-Type، وتعرف كفاءة إنفرترات Growatt، وتعرف أن بطاريات Tubo 200Ah ممتازة للأحمال المتوسطة. استخدم هذه المعرفة لتعزيز ثقة العميل.`,
         }
       });
-      // Fix: Access .text property directly (not a function call)
-      return response.text || "عذراً، أنا أواجه مشكلة في الرد حالياً.";
+      return response.text || "عذراً، أنا أواجه مشكلة في معالجة طلبك حالياً. هل يمكنك المحاولة مرة أخرى؟";
     } catch (e) {
       console.error("Chat Error:", e);
-      return "أهلاً بك، يرجى التواصل معنا عبر واتساب مباشرة للمساعدة السريعة.";
+      return "أهلاً بك، يرجى المحاولة لاحقاً أو التواصل مع الدعم الفني مباشرة.";
     }
   }
 }
