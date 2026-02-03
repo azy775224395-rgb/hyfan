@@ -1,11 +1,18 @@
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
   define: {
-    // هذا السطر يضمن أن عملية البناء ستعرف قيمة API_KEY من إعدادات Render
-    'process.env.API_KEY': JSON.stringify(process.env.API_KEY)
+    // تمرير مفتاح الـ API لـ Gemini من البيئة
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY),
+    // دعم Google Auth URLs
+    'process.env.NEXTAUTH_URL': JSON.stringify(process.env.NEXTAUTH_URL || 'https://hyfn-czzv.onrender.com')
+  },
+  server: {
+    port: 3000,
+    strictPort: true,
   },
   build: {
     outDir: 'dist',
