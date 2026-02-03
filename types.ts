@@ -35,9 +35,18 @@ export interface ShippingInfo {
   address: string;
 }
 
+export interface Order {
+  id: string;
+  date: string;
+  total: number;
+  status: 'قيد التنفيذ' | 'تم التوصيل' | 'في الشحن';
+  itemsCount: number;
+}
+
 export interface UserProfile {
   name: string;
   email: string;
   avatar: string;
   provider: 'google' | 'facebook' | 'discord' | null;
+  orders?: Order[];
 }

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { CartItem } from '../types';
+import { NotificationService } from '../services/notificationService';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -18,10 +19,20 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemov
     let orderSummary = "السلام عليكم، أريد شراء المنتجات التالية:\n\n";
     items.forEach((item, index) => {
       const productUrl = `${window.location.origin}/#product-${item.id}`;
-      orderSummary += `${index + 1}- ${item.name} (عدد: ${item.quantity})\nالسعر: ${item.price * item.quantity} ر.س\nالرابط: ${productUrl}\n\n`;
+      orderSummary += `${index + 1}- ${item.name} (عدد: ${item.quantity})\nالسعر: ${item.price * item.quantity} ر.س\n\n`;
     });
-    orderSummary += `*المجموع الكلي:* ${total} ر.س\n\nاريد شراء هذه المنتجات`;
+    orderSummary += `*المجموع الكلي:* ${total} ر.س`;
     
+    // إرسال إشعار تيليجرام للمشرف
+    NotificationService.sendTelegramNotification(
+      NotificationService.formatOrderMessage({
+        product: items.map(i => i.name).join(', '),
+        price: `${total} ر.س`,
+        method: "تواصل واتساب",
+        customer: { name: "عميل زائر", phone: "عبر الواتساب" }
+      })
+    );
+
     const encodedMessage = encodeURIComponent(orderSummary);
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
   };
@@ -30,13 +41,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemov
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      {/* Overlay */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" 
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      {/* Drawer */}
       <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-slide-left border-r border-emerald-50">
         <div className="p-6 border-b flex items-center justify-between bg-emerald-50/20">
           <h2 className="text-2xl font-black flex items-center gap-3 text-emerald-900">
@@ -57,10 +63,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemov
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="opacity-40"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
               </div>
               <p className="text-lg font-bold">سلتك فارغة حالياً</p>
-              <button 
-                onClick={onClose}
-                className="mt-4 text-emerald-600 font-bold hover:underline"
-              >ابدأ التسوق الآن</button>
             </div>
           ) : (
             items.map(item => (
@@ -75,23 +77,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemov
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center border border-gray-100 rounded-xl bg-gray-50/50 overflow-hidden">
-                      <button 
-                        onClick={() => onUpdateQty(item.id, -1)}
-                        className="p-1 px-3 hover:bg-emerald-50 text-emerald-600 transition-colors"
-                      >-</button>
+                      <button onClick={() => onUpdateQty(item.id, -1)} className="p-1 px-3 hover:bg-emerald-50 text-emerald-600 transition-colors">-</button>
                       <span className="px-3 text-xs font-black">{item.quantity}</span>
-                      <button 
-                        onClick={() => onUpdateQty(item.id, 1)}
-                        className="p-1 px-3 hover:bg-emerald-50 text-emerald-600 transition-colors"
-                      >+</button>
+                      <button onClick={() => onUpdateQty(item.id, 1)} className="p-1 px-3 hover:bg-emerald-50 text-emerald-600 transition-colors">+</button>
                     </div>
-                    <button 
-                      onClick={() => onRemove(item.id)}
-                      className="p-2 text-gray-300 hover:text-red-500 transition-colors"
-                      title="حذف"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                    </button>
+                    <button onClick={() => onRemove(item.id)} className="p-2 text-gray-300 hover:text-red-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
                   </div>
                 </div>
               </div>
@@ -109,23 +99,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemov
               onClick={handleCheckoutWhatsApp}
               className="w-full bg-emerald-600 text-white py-5 rounded-[1.5rem] font-bold shadow-xl shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-3 text-lg"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               تأكيد الطلب واتساب
             </button>
-            <p className="text-center text-[10px] text-emerald-400 mt-4 font-bold">تواصل معنا عبر واتساب لإتمام الشحن والدفع</p>
           </div>
         )}
       </div>
-      
-      <style>{`
-        @keyframes slide-left {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
-        }
-        .animate-slide-left {
-          animation: slide-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      `}</style>
     </div>
   );
 };

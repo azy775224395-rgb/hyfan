@@ -1,28 +1,12 @@
 
 import React, { useState } from 'react';
 import { Review } from '../types';
+import { NotificationService } from '../services/notificationService';
 
 const MOCK_REVIEWS: Review[] = [
   { id: 1, name: "أحمد صالح", rating: 5, comment: "خدمة ممتازة وسرعة في التوصيل لتعز. الألواح جودتها عالية جداً.", date: "2025-02-15" },
   { id: 2, name: "محمد العمري", rating: 5, comment: "المساعد الذكي ساعدني جداً في اختيار البطارية المناسبة. أنصح بالتعامل معهم.", date: "2025-02-10" },
-  { id: 3, name: "سارة خالد", rating: 4, comment: "ثلاجة الإنفرتر ممتازة وتوفر طاقة بشكل ملحوظ. شكراً حيفان.", date: "2025-02-01" },
-  { id: 4, name: "عبدالله اليافعي", rating: 5, comment: "أفضل أسعار في عدن بدون منازع.", date: "2025-01-28" },
-  { id: 5, name: "فؤاد هزاع", rating: 5, comment: "منظومة 5 كيلو تعمل بكفاءة عالية جداً، التركيب كان سريعاً.", date: "2025-01-25" },
-  { id: 6, name: "إيمان عبدالله", rating: 4, comment: "منتجات VOLX جودتها ممتازة جداً للمنازل.", date: "2025-01-20" },
-  { id: 7, name: "خالد بن ناصر", rating: 5, comment: "تعامل راقي وضمانة حقيقية، تم استبدال بطارية لي في تعز فوراً.", date: "2025-01-15" },
-  { id: 8, name: "صلاح الدين", rating: 5, comment: "شكراً حيفان للطاقة، الإنارة لم تنقطع منذ التركيب.", date: "2025-01-10" },
-  { id: 9, name: "منصور الحاشدي", rating: 5, comment: "التوصيل لصنعاء كان في نفس اليوم، تجربة رائعة.", date: "2025-01-05" },
-  { id: 10, name: "ياسين قاسم", rating: 5, comment: "أنصح ببطاريات التيوبو جداً قوية وتحملت الضغط.", date: "2025-01-01" },
-  { id: 11, name: "هاني السويدي", rating: 4, comment: "حاسبة الطاقة دقيقة جداً وساعدتني في التخطيط.", date: "2024-12-25" },
-  { id: 12, name: "ليلى مختار", rating: 5, comment: "خدمة ما بعد البيع متميزة جداً.", date: "2024-12-20" },
-  { id: 13, name: "جلال الصنعاني", rating: 5, comment: "فخورين بوجود مثل هذا المتجر الاحترافي في اليمن.", date: "2024-12-15" },
-  { id: 14, name: "بسام المحمدي", rating: 5, comment: "الطباخات التركية جودتها لا توصف.", date: "2024-12-10" },
-  { id: 15, name: "نبيل القدسي", rating: 4, comment: "أسعار البطاريات منافسة جداً.", date: "2024-12-05" },
-  { id: 16, name: "سامية العنسي", rating: 5, comment: "تعامل مريح جداً عبر واتساب.", date: "2024-12-01" },
-  { id: 17, name: "حمزة إدريس", rating: 5, comment: "الألواح تعمل بكفاءة حتى في الجو الغائم.", date: "2024-11-25" },
-  { id: 18, name: "راوية الجبلي", rating: 5, comment: "شكراً على النصيحة الفنية قبل الشراء.", date: "2024-11-20" },
-  { id: 19, name: "عاصم الشرجبي", rating: 5, comment: "الإنفرتر الـ 5 كيلو جرووات جبار.", date: "2024-11-15" },
-  { id: 20, name: "وسيم القباطي", rating: 5, comment: "حلول طاقة متكاملة واحترافية.", date: "2024-11-10" }
+  { id: 3, name: "سارة خالد", rating: 4, comment: "ثلاجة الإنفرتر ممتازة وتوفر طاقة بشكل ملحوظ. شكراً حيفان.", date: "2025-02-01" }
 ];
 
 interface ReviewSectionProps {
@@ -55,6 +39,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
         date: new Date().toISOString().split('T')[0]
       };
       setReviews([newReview, ...reviews]);
+      
+      // إرسال إشعار تيليجرام
+      NotificationService.sendTelegramNotification(NotificationService.formatReviewMessage(newReview));
+      
       setIsSubmitting(false);
       setSubmitted(true);
       setName('');

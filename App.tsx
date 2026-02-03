@@ -33,6 +33,7 @@ const App: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(() => {
     const saved = localStorage.getItem('hyfan_user');
     return saved ? JSON.parse(saved) : null;
@@ -135,8 +136,8 @@ const App: React.FC = () => {
       </footer>
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} items={cart} onRemove={removeFromCart} onUpdateQty={updateQuantity} />
       <AuthSidebar isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} user={user} onUserUpdate={handleUserUpdate} />
-      <AiAssistant products={products} />
-      <FloatingContact />
+      <AiAssistant products={products} isContactOpen={isContactOpen} />
+      <FloatingContact isOpen={isContactOpen} onToggle={() => setIsContactOpen(!isContactOpen)} />
     </div>
   );
 };

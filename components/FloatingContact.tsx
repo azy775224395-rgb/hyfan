@@ -1,8 +1,12 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 
-const FloatingContact: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface FloatingContactProps {
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+const FloatingContact: React.FC<FloatingContactProps> = ({ isOpen, onToggle }) => {
   const WHATSAPP_NUMBER = '967784400333';
   const PHONE_NUMBER = '+967784400222';
   const FACEBOOK_URL = 'https://facebook.com/hyfan.energy';
@@ -41,7 +45,7 @@ const FloatingContact: React.FC = () => {
 
       {/* Main Toggle Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onToggle}
         className={`w-12 h-12 md:w-18 md:h-18 rounded-full flex items-center justify-center text-white shadow-2xl transition-all duration-500 active:scale-90 border-[3px] border-white z-20 ${isOpen ? 'bg-gray-800 rotate-180' : 'bg-emerald-600 hover:bg-emerald-500'}`}
       >
         {isOpen ? (

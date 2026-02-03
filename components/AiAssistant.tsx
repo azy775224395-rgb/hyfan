@@ -5,9 +5,10 @@ import { ChatMessage, Product } from '../types';
 
 interface AiAssistantProps {
   products: Product[];
+  isContactOpen?: boolean;
 }
 
-const AiAssistant: React.FC<AiAssistantProps> = ({ products }) => {
+const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'model', text: 'أهلاً بك في حيفان للطاقة! أنا المهندس المسؤول عن الاستشارات التقنية. هل تريد مساعدتك في اختيار الألواح المناسبة أو حساب أحمال منزلك؟' }
@@ -52,7 +53,13 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products }) => {
   };
 
   return (
-    <div className="fixed bottom-32 left-6 z-[80]">
+    <div 
+      className={`fixed left-6 z-[80] transition-all duration-500 ease-in-out ${
+        isContactOpen 
+          ? 'bottom-[380px] md:bottom-[480px]' 
+          : 'bottom-32'
+      }`}
+    >
       {/* Floating Button - Positioned above social buttons */}
       <button
         onClick={() => setIsOpen(!isOpen)}
