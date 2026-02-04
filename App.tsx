@@ -20,17 +20,14 @@ import AllReviewsModal from './components/AllReviewsModal';
 import CheckoutView from './components/CheckoutView';
 import AuthSidebar from './components/AuthSidebar';
 
-// تعريف الحالات الأساسية فقط لضمان عدم حدوث أخطاء توجيه
 type PageType = 'home' | 'product' | 'checkout';
 
 const App: React.FC = () => {
-  // الحالة الأساسية
   const [products] = useState<Product[]>(INITIAL_PRODUCTS);
   const [activePage, setActivePage] = useState<PageType>('home');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // حالات النوافذ المنبثقة (لا تؤثر على الصفحة الأساسية)
   const [isStoryOpen, setIsStoryOpen] = useState(false);
   const [isWarrantyOpen, setIsWarrantyOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -44,9 +41,23 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const LOGO_URL = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
+  // SEO Management
+  useEffect(() => {
+    let title = "حيفان للطاقة المتجددة | الريادة في حلول الطاقة في اليمن";
+    let desc = "اكتشف أفضل عروض الألواح الشمسية والبطاريات في متجر حيفان. حلول طاقة ذكية لعام 2026.";
 
-  // معالجة التنقل البسيط
+    if (activePage === 'product' && selectedProduct) {
+      title = `${selectedProduct.name} | حيفان للطاقة`;
+      desc = selectedProduct.description;
+    } else if (activePage === 'checkout' && selectedProduct) {
+      title = `إتمام شراء ${selectedProduct.name} | حيفان للطاقة`;
+    }
+
+    document.title = title;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', desc);
+  }, [activePage, selectedProduct]);
+
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash;
@@ -59,7 +70,6 @@ const App: React.FC = () => {
           return;
         }
       }
-      // أي هاش آخر أو عدم وجود هاش يوجه للرئيسية فوراً
       setActivePage('home');
       setSelectedProduct(null);
     };
@@ -69,9 +79,8 @@ const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', handleHash);
   }, [products]);
 
-  // العودة للأعلى عند تغيير الصفحة
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activePage, selectedProduct]);
 
   const handleUserUpdate = (newUser: UserProfile) => {
@@ -123,18 +132,17 @@ const App: React.FC = () => {
     setActivePage('checkout');
   };
 
-  // محتوى الصفحة الرئيسية
   const renderHome = () => (
     <div className="flex flex-col gap-12 md:gap-20 pb-20 animate-fade-in">
       <Hero onOpenStory={() => setIsStoryOpen(true)} />
       
-      <div id="products-grid" className="container mx-auto px-4 scroll-mt-24">
+      <section id="products-grid" className="container mx-auto px-4 scroll-mt-24">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 border-b border-emerald-100 pb-8">
           <div>
-            <h2 className="text-2xl md:text-4xl font-black text-emerald-950">منتجاتنا المختارة</h2>
-            <p className="text-emerald-600 font-bold mt-1">أفضل جودة بأفضل سعر في اليمن</p>
+            <h2 className="text-2xl md:text-4xl font-black text-emerald-950 underline decoration-emerald-500 decoration-4 underline-offset-8">منتجاتنا المختارة</h2>
+            <p className="text-emerald-600 font-bold mt-4">أفضل جودة بأفضل سعر في اليمن 2026</p>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <nav className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map(cat => (
               <button 
                 key={cat} 
@@ -144,7 +152,7 @@ const App: React.FC = () => {
                 {cat}
               </button>
             ))}
-          </div>
+          </nav>
         </div>
         
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
@@ -158,14 +166,12 @@ const App: React.FC = () => {
             />
           ))}
         </div>
-      </div>
+      </section>
 
-      <div className="container mx-auto px-4"><SolarCalculator /></div>
-      <div className="container mx-auto px-4">
-        <ReviewSection onShowAll={(reviews) => setReviewsToShow(reviews)} />
-      </div>
+      <SolarCalculator />
+      <ReviewSection onShowAll={(reviews) => setReviewsToShow(reviews)} />
       <BrandSection />
-      <div className="container mx-auto px-4"><FaqSection /></div>
+      <FaqSection />
     </div>
   );
 
@@ -182,7 +188,7 @@ const App: React.FC = () => {
         user={user} 
       />
       
-      <main className="flex-grow relative z-10">
+      <main className="flex-grow relative z-10" role="main">
         {activePage === 'home' && renderHome()}
         {activePage === 'product' && selectedProduct && (
           <ProductDetail 
@@ -203,15 +209,15 @@ const App: React.FC = () => {
 
       <footer className="bg-emerald-950 text-white py-16 text-center relative z-10">
         <div className="container mx-auto px-4">
-          <img src={LOGO_URL} alt="حيفان" className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl border-2 border-emerald-500/30" />
+          <img src="https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg" alt="حيفان للطاقة" className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl border-2 border-emerald-500/30" loading="lazy" />
           <h3 className="text-xl font-black mb-2">حيفان للطاقة المتجددة</h3>
           <p className="text-emerald-400 font-bold text-sm mb-8 opacity-80">شريككم الموثوق للطاقة النظيفة في اليمن</p>
           
-          <div className="flex justify-center gap-8 mb-12">
+          <nav className="flex justify-center gap-8 mb-12">
             <button onClick={() => setIsStoryOpen(true)} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">من نحن</button>
             <button onClick={() => setIsWarrantyOpen(true)} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">سياسة الضمان</button>
-            <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">الرجوع للأعلى</button>
-          </div>
+            <a href="/sitemap.xml" className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">خريطة الموقع</a>
+          </nav>
           
           <div className="pt-8 border-t border-white/5">
             <p className="text-[10px] font-bold text-white/30 tracking-widest uppercase">© 2026 حيفان للطاقة المتجددة - جميع الحقوق محفوظة</p>
@@ -219,7 +225,6 @@ const App: React.FC = () => {
         </div>
       </footer>
 
-      {/* Modals - Always independent of routing */}
       {isStoryOpen && <StoryModal onClose={() => setIsStoryOpen(false)} />}
       {isWarrantyOpen && <WarrantyModal onClose={() => setIsWarrantyOpen(false)} />}
       {reviewsToShow && <AllReviewsModal reviews={reviewsToShow} onClose={() => setReviewsToShow(null)} />}

@@ -20,6 +20,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onViewD
           src={product.image} 
           alt={product.name} 
           loading="lazy"
+          width="400"
+          height="400"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute top-3 right-3 flex flex-col gap-1">

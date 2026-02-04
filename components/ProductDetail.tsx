@@ -10,24 +10,50 @@ interface ProductDetailProps {
 }
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddToCart, onOrderNow }) => {
-  const WHATSAPP_NUMBER = '967784400333';
-
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    // حقن Product Schema
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'product-schema';
+    script.text = JSON.stringify({
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": product.name,
+      "image": [product.image],
+      "description": product.description,
+      "sku": product.id,
+      "brand": {
+        "@type": "Brand",
+        "name": "حيفان"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": window.location.href,
+        "priceCurrency": "SAR",
+        "price": product.price,
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition"
+      }
+    });
+    document.head.appendChild(script);
+
+    return () => {
+      const oldScript = document.getElementById('product-schema');
+      if (oldScript) oldScript.remove();
+    };
+  }, [product]);
 
   return (
-    <div className="min-h-screen bg-white animate-fade-in flex flex-col">
-      {/* Navigation Breadcrumb */}
-      <div className="bg-emerald-50/50 py-4 border-b border-emerald-100">
+    <article className="min-h-screen bg-white animate-fade-in flex flex-col">
+      <nav className="bg-emerald-50/50 py-4 border-b border-emerald-100" aria-label="Breadcrumb">
         <div className="container mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm font-bold text-gray-500">
-            <button onClick={onClose} className="hover:text-emerald-600 transition-colors">الرئيسية</button>
-            <span>/</span>
-            <span className="text-emerald-600">{product.category}</span>
-            <span>/</span>
-            <span className="text-emerald-950 truncate max-w-[150px]">{product.name}</span>
-          </div>
+          <ol className="flex items-center gap-2 text-sm font-bold text-gray-500">
+            <li><button onClick={onClose} className="hover:text-emerald-600 transition-colors">الرئيسية</button></li>
+            <li><span>/</span></li>
+            <li className="text-emerald-600">{product.category}</li>
+            <li><span>/</span></li>
+            <li className="text-emerald-950 truncate max-w-[150px]">{product.name}</li>
+          </ol>
           <button 
             onClick={onClose} 
             className="p-2 bg-white rounded-xl border border-emerald-100 hover:text-emerald-600 transition-all flex items-center gap-2 font-bold text-xs shadow-sm"
@@ -36,10 +62,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
             رجوع
           </button>
         </div>
-      </div>
+      </nav>
 
       <div className="container mx-auto px-6 py-12 flex flex-col lg:flex-row gap-16">
-        {/* Product Image Section */}
         <div className="lg:w-1/2 flex flex-col gap-6">
           <div className="bg-emerald-50/20 rounded-[3rem] p-12 flex items-center justify-center border border-emerald-50 shadow-inner group">
             <img 
@@ -48,19 +73,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
               className="max-w-full h-auto rounded-3xl shadow-2xl transition-transform duration-700 group-hover:scale-105" 
             />
           </div>
-          {/* Status Badge */}
           {product.status && (
             <div className="flex justify-center">
-              <span className="bg-amber-100 text-amber-700 px-8 py-2 rounded-full font-black text-sm border border-amber-200 shadow-sm animate-pulse">
+              <span className="bg-amber-100 text-amber-700 px-8 py-2 rounded-full font-black text-sm border border-amber-200 shadow-sm">
                 {product.status}
               </span>
             </div>
           )}
         </div>
 
-        {/* Product Info Section */}
         <div className="lg:w-1/2 flex flex-col">
-          <div className="mb-8">
+          <header className="mb-8">
             <span className="text-emerald-600 text-xs font-black uppercase tracking-widest bg-emerald-100 px-4 py-1.5 rounded-full inline-block mb-6">
               {product.category}
             </span>
@@ -73,11 +96,11 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
               </span>
               <span className="bg-emerald-50 text-emerald-600 px-4 py-1 rounded-lg text-xs font-bold border border-emerald-100">شامل الضريبة والشحن</span>
             </div>
-          </div>
+          </header>
 
-          <div className="space-y-10 flex-grow">
+          <section className="space-y-10 flex-grow">
             <div>
-              <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-2">تفاصيل المنتج</h3>
+              <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-2">تفاصيل المنتج</h2>
               <p className="text-gray-600 leading-relaxed text-xl font-medium">
                 {product.fullDescription || product.description}
               </p>
@@ -85,20 +108,19 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
 
             {product.specs && (
               <div>
-                <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-2">المواصفات التقنية</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-2">المواصفات التقنية</h2>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {product.specs.map((spec, i) => (
-                    <div key={i} className="flex items-center gap-3 text-sm text-emerald-900 bg-emerald-50/50 p-5 rounded-[1.5rem] border border-emerald-100 font-bold hover:bg-white transition-colors">
+                    <li key={i} className="flex items-center gap-3 text-sm text-emerald-900 bg-emerald-50/50 p-5 rounded-[1.5rem] border border-emerald-100 font-bold hover:bg-white transition-colors">
                       <svg className="text-emerald-500 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>
                       {spec}
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
-          </div>
+          </section>
 
-          {/* Action Buttons */}
           <div className="mt-16 flex flex-col sm:flex-row gap-4 border-t pt-10">
             <button 
               onClick={() => onOrderNow(product)}
@@ -115,15 +137,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
               أضف للسلة
             </button>
           </div>
-
-          <div className="mt-8 flex items-center justify-center gap-8 opacity-40 grayscale group hover:grayscale-0 transition-all">
-             <div className="flex items-center gap-2 font-bold text-xs"><span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">🛡️</span> ضمان حقيقي</div>
-             <div className="flex items-center gap-2 font-bold text-xs"><span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">🚚</span> شحن سريع</div>
-             <div className="flex items-center gap-2 font-bold text-xs"><span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">💬</span> دعم فني</div>
-          </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 
