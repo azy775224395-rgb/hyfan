@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { geminiService } from '../services/geminiService';
+import { NotificationService } from '../services/notificationService';
 import { ChatMessage, Product } from '../types';
 
 interface AiAssistantProps {
@@ -35,18 +36,21 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
 
     try {
       const context = `
-        المنتجات المتاحة في مخازن حيفان حالياً:
-        ${products.map(p => `
-          - ${p.name}: السعر ${p.price} ر.س، القسم: ${p.category}
-          المواصفات التقنية: ${p.specs?.join(' | ') || 'جودة عالية'}
-          وصف المهندس: ${p.description}
-        `).join('\n')}
+        قائمة المنتجات الحالية:
+        ${products.map(p => `- ${p.name}: السعر ${p.price} ر.س، القسم: ${p.category}. الوصف: ${p.description}`).join('\n')}
       `;
       
       const response = await geminiService.chatWithCustomer(userMsg, context);
       setMessages(prev => [...prev, { role: 'model', text: response }]);
+      
+      // إرسال الإشعار لتليجرام ليعلم المشرف بما يدور في المحادثة
+      NotificationService.sendTelegramNotification(
+        NotificationService.formatAiChatMessage(userMsg, response)
+      );
+      
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: 'المعذرة، حدث خطأ في الاتصال. هل يمكنك تكرار سؤالك؟' }]);
+      const errorMsg = 'المعذرة يا غالي، المساعد مشغول قليلاً. أعد سؤالك أو تواصل معنا واتساب مباشرة.';
+      setMessages(prev => [...prev, { role: 'model', text: errorMsg }]);
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +64,6 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
           : 'bottom-32'
       }`}
     >
-      {/* Floating Button - Positioned above social buttons */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-[0_10px_40px_rgba(5,150,105,0.4)] hover:bg-emerald-700 transition-all active:scale-90 border-4 border-white overflow-hidden group"
@@ -75,7 +78,6 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
         )}
       </button>
 
-      {/* Chat Window */}
       {isOpen && (
         <div className="absolute bottom-20 left-0 w-[350px] sm:w-[420px] bg-white rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-emerald-50 flex flex-col h-[580px] overflow-hidden animate-chat-pop">
           <div className="bg-emerald-600 p-6 text-white flex items-center justify-between shadow-lg">
@@ -84,10 +86,10 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
                  <img src={LOGO_URL} alt="حيفان" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h3 className="font-black text-base text-right leading-tight">استشاري حيفان التقني</h3>
+                <h3 className="font-black text-base text-right leading-tight">المهندس الاستشاري</h3>
                 <div className="flex items-center gap-1.5 justify-end">
                   <span className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse"></span>
-                  <p className="text-[10px] opacity-90 font-bold uppercase tracking-wider text-right">متصل - خبير طاقة شمسية</p>
+                  <p className="text-[10px] opacity-90 font-bold uppercase tracking-wider text-right">خبير طاقة يمني</p>
                 </div>
               </div>
             </div>
@@ -99,7 +101,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
                 <div className={`max-w-[85%] p-4 rounded-[1.8rem] text-sm leading-relaxed shadow-sm ${
                   msg.role === 'user' 
                     ? 'bg-emerald-600 text-white rounded-br-none font-bold' 
-                    : 'bg-white border border-emerald-50 text-emerald-950 rounded-bl-none font-medium'
+                    : 'bg-white border border-emerald-50 text-emerald-950 rounded-bl-none font-medium whitespace-pre-wrap'
                 }`}>
                   {msg.text}
                 </div>
@@ -122,7 +124,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="اسألني تقنياً عن الألواح أو البطاريات..."
+              placeholder="اكتب سؤالك الهندسي هنا..."
               className="flex-grow bg-emerald-50/50 rounded-2xl px-6 py-4 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all border-emerald-100 border text-right font-bold"
             />
             <button 

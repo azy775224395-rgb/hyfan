@@ -2,59 +2,59 @@
 import { GoogleGenAI } from "@google/genai";
 
 export class GeminiService {
-  /**
-   * Always create a new GoogleGenAI instance right before making an API call
-   * to ensure it uses the most up-to-date API key from the environment.
-   */
   private getClient() {
-    return new GoogleGenAI({ apiKey: process.env.API_KEY });
-  }
-
-  async generateProductDescription(productName: string): Promise<string> {
-    try {
-      const ai = this.getClient();
-      // Using gemini-3-flash-preview for Basic Text Tasks as recommended.
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `اكتب وصفاً تسويقياً جذاباً ومختصراً لمنتج طاقة متجددة يسمى: "${productName}". اجعل الوصف باللغة العربية بأسلوب احترافي يركز على الكفاءة والتوفير.`,
-      });
-      // Correctly accessing the text property as per guidelines.
-      return response.text || "منتج عالي الجودة من حيفان للطاقة.";
-    } catch (e) {
-      console.error("AI Error:", e);
-      return "منتج عالي الجودة من حيفان للطاقة.";
-    }
+    // التأكد من استخدام مفتاح API صالح من البيئة
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) throw new Error("API Key is missing");
+    return new GoogleGenAI({ apiKey });
   }
 
   async chatWithCustomer(message: string, context: string): Promise<string> {
     try {
       const ai = this.getClient();
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: message,
+        model: 'gemini-2.5-flash-lite-latest',
+        contents: { parts: [{ text: message }] },
         config: {
-          systemInstruction: `أنت "المهندس الاستشاري لمتجر حيفان للطاقة المتجددة" (إصدار 2026).
-          مهامك الأساسية:
-          1. تقديم استشارات تقنية عميقة: اشرح للعملاء الفرق بين ألواح N-Type (الأكثر كفاءة حالياً) وألواح P-Type.
-          2. خبرة البطاريات: تحدث باحترافية عن دورات الشحن (Cycles) في بطاريات الليثيوم LiFePO4 مقارنة ببطاريات الجل، ووضح لماذا الليثيوم أفضل للمنظومات الذكية.
-          3. حساب الأحمال: إذا أخبرك العميل بأجهزته، قم بحساب استهلاك الوات/ساعة بدقة واقترح عدد الألواح وسعة البطاريات والإنفرتر المناسب من "قائمة منتجات حيفان" المتوفرة في السياق.
+          systemInstruction: `أنت "كبير المهندسين الاستشاريين في متجر حيفان للطاقة المتجددة" في اليمن.
           
-          سياق المنتجات المتوفرة:
+          صلاحياتك وخبراتك:
+          1. خبير تقني: أنت المرجع الأول للألواح الشمسية (Jinko N-Type)، البطاريات (TUBO)، والإنفرترات (Growatt).
+          2. مهندس أحمال: إذا سألك العميل عن تشغيل أجهزة، قم بحساب الأحمال (الوات اللحظي والوات/ساعة) بدقة.
+          3. مقترح حلول: بناءً على الأحمال، اقترح منظومة كاملة من المنتجات المتوفرة في سياق المتجر أدناه.
+          
+          سياق المنتجات المتوفرة في متجر حيفان:
           ${context}
           
-          قواعد صارمة للرد:
-          - ممنوع التوجيه للواتساب في بداية المحادثة. أجب على كل الأسئلة التقنية والأسعار بنفسك أولاً.
-          - لا تذكر واتساب إلا في حالتين فقط: (أ) العميل قال "أريد الشراء الآن"، (ب) العميل طلب التحدث مع موظف بشري أو سأل عن تفاصيل الشحن المعقدة.
-          - لغة الرد: عربية فصحى مبسطة أو لهجة يمنية بيضاء محترمة.
-          - كن واثقاً: أنت خبير في ماركات مثل Jinko, Growatt, و TUBO.
-          - رقم واتساب الطلبات (للطوارئ فقط): 967784400333.`,
+          قواعد التواصل:
+          - لغة الرد: لهجة يمنية بيضاء مهذبة وراقية أو لغة عربية فصحى بسيطة.
+          - لا تحل العميل للواتساب إلا إذا كان جاهزاً للشراء الفوري أو سأل عن الشحن/الضمان. أجب على كل الأسئلة التقنية بنفسك.
+          - رقم واتساب المبيعات (عند الحاجة): 967784400333.
+          - كن دقيقاً: لا تعطِ أرقاماً عشوائية، استخدم قوانين الفيزياء الكهربائية البسيطة في حساباتك.`,
+          temperature: 0.7,
         }
       });
-      // Correctly accessing the text property as per guidelines.
-      return response.text || "عذراً، أواجه مشكلة تقنية بسيطة. كيف يمكنني مساعدتك في حساب أحمال منظومتك؟";
+      
+      const text = response.text;
+      if (!text) throw new Error("Empty response from AI");
+      return text;
+      
     } catch (e) {
-      console.error("Chat Error:", e);
-      return "أهلاً بك في حيفان، يرجى المحاولة لاحقاً أو مراجعة قسم الأسئلة الشائعة.";
+      console.error("Gemini API Error:", e);
+      return "عذراً يا غالي، يبدو أن هناك ضغط على النظام حالياً. أنا مهندس حيفان، اسألني عن حساب الأحمال أو تفاصيل الألواح وسأجيبك فوراً بعد ثوانٍ.";
+    }
+  }
+
+  async generateProductDescription(productName: string): Promise<string> {
+    try {
+      const ai = this.getClient();
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-lite-latest',
+        contents: `اكتب وصفاً تقنياً تسويقياً لمنتج طاقة يسمى: "${productName}". ركز على الفائدة للعميل في اليمن.`,
+      });
+      return response.text || "منتج عالي الجودة من حيفان للطاقة.";
+    } catch (e) {
+      return "منتج عالي الجودة من حيفان للطاقة.";
     }
   }
 }

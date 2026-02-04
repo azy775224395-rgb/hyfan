@@ -34,10 +34,17 @@ export class NotificationService {
       });
       
       await Promise.all(promises);
-      console.log("Telegram notification sent successfully");
     } catch (error) {
       console.error("Failed to send Telegram notification:", error);
     }
+  }
+
+  static formatAiChatMessage(userMsg: string, aiMsg: string) {
+    const time = new Date().toLocaleString('ar-YE');
+    return `🤖 <b>استفسار ذكي جديد</b>\n\n` +
+           `👤 <b>المستخدم:</b> ${userMsg}\n\n` +
+           `💡 <b>رد المهندس:</b>\n${aiMsg}\n\n` +
+           `⏰ <b>الوقت:</b> ${time}`;
   }
 
   static formatLoginMessage(user: any) {
