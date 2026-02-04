@@ -12,7 +12,7 @@ interface AiAssistantProps {
 const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'أهلاً بك في حيفان للطاقة! أنا المهندس المسؤول عن الاستشارات التقنية. هل تريد مساعدتك في اختيار الألواح المناسبة أو حساب أحمال منزلك؟' }
+    { role: 'model', text: 'أهلاً بك في حيفان للطاقة! أنا المهندس الاستشاري المسؤول. كيف يمكنني مساعدتك في تصميم منظومتك الشمسية اليوم؟' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +37,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
     try {
       const context = `
         قائمة المنتجات الحالية:
-        ${products.map(p => `- ${p.name}: السعر ${p.price} ر.س، القسم: ${p.category}. الوصف: ${p.description}`).join('\n')}
+        ${products.map(p => `- ${p.name}: السعر ${p.price} ر.س، القسم: ${p.category}.`).join('\n')}
       `;
       
       const response = await geminiService.chatWithCustomer(userMsg, context);
@@ -49,7 +49,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
       );
       
     } catch (error) {
-      const errorMsg = 'المعذرة يا غالي، المساعد مشغول قليلاً. أعد سؤالك أو تواصل معنا واتساب مباشرة.';
+      const errorMsg = 'عذراً، المساعد مشغول قليلاً. المهندس متاح عبر واتساب للاستشارات العاجلة.';
       setMessages(prev => [...prev, { role: 'model', text: errorMsg }]);
     } finally {
       setIsLoading(false);
@@ -79,26 +79,24 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-20 left-0 w-[350px] sm:w-[420px] bg-white rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-emerald-50 flex flex-col h-[580px] overflow-hidden animate-chat-pop">
-          <div className="bg-emerald-600 p-6 text-white flex items-center justify-between shadow-lg">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center overflow-hidden border-2 border-emerald-400">
+        <div className="absolute bottom-20 left-0 w-[320px] sm:w-[420px] bg-white rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-emerald-50 flex flex-col h-[520px] overflow-hidden animate-chat-pop">
+          <div className="bg-emerald-600 p-5 text-white flex items-center justify-between shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden border border-emerald-400">
                  <img src={LOGO_URL} alt="حيفان" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h3 className="font-black text-base text-right leading-tight">المهندس الاستشاري</h3>
-                <div className="flex items-center gap-1.5 justify-end">
-                  <span className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse"></span>
-                  <p className="text-[10px] opacity-90 font-bold uppercase tracking-wider text-right">خبير طاقة يمني</p>
-                </div>
+                <h3 className="font-black text-sm text-right leading-tight">المهندس الاستشاري</h3>
+                <p className="text-[9px] opacity-80 font-bold uppercase text-right">خبير طاقة شمسية</p>
               </div>
             </div>
+            <button onClick={() => setIsOpen(false)} className="opacity-70 hover:opacity-100"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
           </div>
 
-          <div ref={scrollRef} className="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50/50 text-right">
+          <div ref={scrollRef} className="flex-grow overflow-y-auto p-5 space-y-4 bg-gray-50/50 text-right">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-4 rounded-[1.8rem] text-sm leading-relaxed shadow-sm ${
+                <div className={`max-w-[90%] p-4 rounded-[1.5rem] text-sm leading-relaxed shadow-sm ${
                   msg.role === 'user' 
                     ? 'bg-emerald-600 text-white rounded-br-none font-bold' 
                     : 'bg-white border border-emerald-50 text-emerald-950 rounded-bl-none font-medium whitespace-pre-wrap'
@@ -109,10 +107,11 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white border border-emerald-50 p-4 rounded-3xl rounded-bl-none shadow-sm flex gap-1.5">
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" />
-                  <span className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce [animation-delay:0.4s]" />
+                <div className="bg-white border border-emerald-50 p-4 rounded-2xl rounded-bl-none shadow-sm flex gap-1.5 items-center">
+                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" />
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce [animation-delay:0.4s]" />
+                  <span className="text-[10px] text-emerald-400 font-bold mr-2">جاري التفكير الهندسي...</span>
                 </div>
               </div>
             )}
@@ -124,13 +123,13 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="اكتب سؤالك الهندسي هنا..."
-              className="flex-grow bg-emerald-50/50 rounded-2xl px-6 py-4 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all border-emerald-100 border text-right font-bold"
+              placeholder="مثال: كم لوح يحتاج مكيف 12؟"
+              className="flex-grow bg-emerald-50/50 rounded-xl px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all border-emerald-100 border text-right font-bold"
             />
             <button 
               onClick={handleSend}
               disabled={isLoading}
-              className="bg-emerald-600 text-white p-4 rounded-2xl hover:bg-emerald-700 transition-all shadow-lg"
+              className="bg-emerald-600 text-white p-3 rounded-xl hover:bg-emerald-700 transition-all shadow-lg disabled:opacity-50"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-180"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             </button>
@@ -144,7 +143,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .animate-chat-pop {
-          animation: chat-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: chat-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
       `}</style>
     </div>
