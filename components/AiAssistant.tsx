@@ -12,7 +12,7 @@ interface AiAssistantProps {
 const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'أهلاً بك في متجر حيفان للطاقة. أنا خبير المبيعات والحلول التقنية، كيف يمكنني مساعدتك في تصميم منظومتك أو اختيار منتجاتك اليوم؟' }
+    { role: 'model', text: 'أهلاً بك في حيفان للطاقة. أنا خبير المبيعات هنا، مستعد لتزويدك بأفضل حلول الطاقة الشمسية والبطاريات. كيف يمكنني خدمتك اليوم؟' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +35,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
     setIsLoading(true);
 
     try {
-      // إرسال سياق مفصل جداً يتضمن المعرفات لتوليد الروابط
+      // إعداد بيانات المنتجات بدقة للمساعد
       const context = products.map(p => 
         `- المنتج: ${p.name} | السعر: ${p.price} ر.س | الفئة: ${p.category} | المعرف: ${p.id} | المواصفات: ${p.specs?.join(', ')} | الوصف: ${p.description}`
       ).join('\n');
@@ -43,24 +43,27 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
       const response = await geminiService.chatWithCustomer(userMsg, context);
       setMessages(prev => [...prev, { role: 'model', text: response }]);
       
-      NotificationService.sendTelegramNotification(
-        NotificationService.formatAiChatMessage(userMsg, response)
-      );
+      // إرسال الإشعار فقط إذا كان طول الرسالة أكثر من 15 حرفاً
+      if (userMsg.length > 15) {
+        NotificationService.sendTelegramNotification(
+          NotificationService.formatAiChatMessage(userMsg, response)
+        );
+      }
       
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: 'نعتذر عن هذا الانقطاع الفني، أنا هنا لمساعدتك، يرجى إعادة إرسال استفسارك بخصوص منتجات الطاقة.' }]);
+      // رد واثق حتى في حالات الفشل
+      setMessages(prev => [...prev, { role: 'model', text: 'أهلاً بك. لدينا حالياً أفضل عروض الألواح والبطاريات في اليمن بضمان حقيقي. تفضل بسؤالك التقني وسأجيبك فوراً.' }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // وظيفة لتحويل الروابط في النص إلى روابط قابلة للنقر
   const renderMessageText = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.split(urlRegex).map((part, i) => {
       if (part.match(urlRegex)) {
         return (
-          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline break-all font-black">
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-500 font-black underline underline-offset-4 hover:text-blue-700 transition-colors">
             {part}
           </a>
         );
@@ -91,27 +94,30 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-20 left-0 w-[320px] sm:w-[420px] bg-white rounded-[2.5rem] shadow-3xl border border-emerald-100 flex flex-col h-[550px] overflow-hidden animate-chat-pop">
-          <div className="bg-emerald-950 p-5 text-white flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden shadow-inner">
+        <div className="absolute bottom-20 left-0 w-[320px] sm:w-[450px] bg-white rounded-[3rem] shadow-3xl border border-emerald-100 flex flex-col h-[600px] overflow-hidden animate-chat-pop">
+          <div className="bg-emerald-950 p-6 text-white flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white rounded-2xl overflow-hidden shadow-xl border border-white/20">
                  <img src={LOGO_URL} alt="حيفان" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h3 className="font-black text-sm">موظف مبيعات حيفان</h3>
-                <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest">خبير حلول الطاقة المعتمد</p>
+                <h3 className="font-black text-base">مبيعات حيفان</h3>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                  <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">مستشار الطاقة المتوفر حالياً</p>
+                </div>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="opacity-50 hover:opacity-100 transition-opacity"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+            <button onClick={() => setIsOpen(false)} className="opacity-50 hover:opacity-100 transition-opacity"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
           </div>
 
-          <div ref={scrollRef} className="flex-grow overflow-y-auto p-5 space-y-4 bg-gray-50/50 text-right scrollbar-hide">
+          <div ref={scrollRef} className="flex-grow overflow-y-auto p-6 space-y-5 bg-gray-50/50 text-right scrollbar-hide">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[90%] p-4 px-5 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
+                <div className={`max-w-[92%] p-5 px-6 rounded-3xl text-[14px] leading-relaxed shadow-sm ${
                   msg.role === 'user' 
                     ? 'bg-emerald-600 text-white rounded-br-none font-bold' 
-                    : 'bg-white border border-emerald-50 text-emerald-950 rounded-bl-none font-bold whitespace-pre-wrap'
+                    : 'bg-white border border-emerald-100 text-emerald-950 rounded-bl-none font-bold whitespace-pre-wrap'
                 }`}>
                   {renderMessageText(msg.text)}
                 </div>
@@ -119,33 +125,33 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white border border-emerald-50 p-3 px-5 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-3">
-                  <div className="flex gap-1">
-                    <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="bg-white border border-emerald-100 p-4 px-6 rounded-3xl rounded-bl-none shadow-sm flex items-center gap-4">
+                  <div className="flex gap-1.5">
+                    <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                  <span className="text-[10px] text-emerald-600 font-black italic">جاري مراجعة المخزن والبيانات الفنية...</span>
+                  <span className="text-[11px] text-emerald-800 font-black italic">جاري مراجعة المخزن الفعلي...</span>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="p-4 border-t bg-white flex gap-2 items-center">
+          <div className="p-5 border-t bg-white flex gap-3 items-center">
             <input 
               type="text" 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="هل يوجد منتج جينكو؟ كيف أصمم منظومتي؟"
-              className="flex-grow bg-gray-50 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-emerald-950 transition-all border-gray-100 border text-right font-bold placeholder:text-gray-300 shadow-inner"
+              placeholder="هل لوح جينكو 580 وات متوفر؟"
+              className="flex-grow bg-emerald-50/30 rounded-2xl px-6 py-4 text-sm outline-none focus:ring-2 focus:ring-emerald-950 transition-all border-emerald-100 border text-right font-bold placeholder:text-gray-300"
             />
             <button 
               onClick={handleSend}
               disabled={isLoading}
-              className="bg-emerald-950 text-white p-4 rounded-2xl hover:bg-black transition-all disabled:opacity-50 shadow-lg active:scale-95"
+              className="bg-emerald-950 text-white p-4.5 rounded-2xl hover:bg-black transition-all disabled:opacity-50 shadow-xl active:scale-95"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-180"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-180"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             </button>
           </div>
         </div>
@@ -153,11 +159,11 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
 
       <style>{`
         @keyframes chat-pop {
-          from { opacity: 0; transform: translateY(20px) scale(0.95); }
+          from { opacity: 0; transform: translateY(30px) scale(0.9); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .animate-chat-pop {
-          animation: chat-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: chat-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
       `}</style>
     </div>
