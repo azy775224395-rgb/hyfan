@@ -36,21 +36,12 @@ const App: React.FC = () => {
 
   const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=حيفان+للطاقة+المتجددة+اليمن';
 
-  // إدارة التوجيه والتمرير
   useEffect(() => {
     const onHashChange = () => {
       const newHash = window.location.hash || '#/';
-      
-      // إذا كنا نغادر الرئيسية، نحفظ مكاننا
-      if (currentHash === '#/') {
-        homeScrollPos.current = window.scrollY;
-      }
-
+      if (currentHash === '#/') homeScrollPos.current = window.scrollY;
       setCurrentHash(newHash);
-
-      // منطق التمرير
       if (newHash === '#/') {
-        // ننتظر قليلاً حتى يرندر المحتوى ثم نمرر
         requestAnimationFrame(() => {
           window.scrollTo({
             top: homeScrollPos.current,
@@ -62,7 +53,6 @@ const App: React.FC = () => {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
     };
-
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, [currentHash]);
@@ -70,7 +60,6 @@ const App: React.FC = () => {
   const navigateTo = (hash: string, resetScroll = false) => {
     if (hash === '#/') isBackAction.current = true;
     if (resetScroll && hash === '#/') homeScrollPos.current = 0;
-    
     window.location.hash = hash;
   };
 
@@ -91,9 +80,9 @@ const App: React.FC = () => {
     navigateTo('#/cart');
   };
 
-  const removeFromCart = (id: string) => setCart(prev => prev.filter(item => item.id !== id));
-  const updateQuantity = (id: string, delta: number) => {
-    setCart(prev => prev.map(item => item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
+  // وظيفة تنسيق السعر مبسطة لتكون بالريال السعودي فقط
+  const formatPrice = (sarPrice: number) => {
+    return `${sarPrice} ر.س`;
   };
 
   const categories = useMemo(() => Array.from(new Set(products.map(p => p.category))), [products]);
@@ -120,6 +109,7 @@ const App: React.FC = () => {
           onClose={() => navigateTo('#/')} 
           onAddToCart={addToCart} 
           onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
+          formatPrice={formatPrice}
         />
       );
     }
@@ -138,7 +128,17 @@ const App: React.FC = () => {
 
     switch (hash) {
       case '#/cart':
-        return <CartDrawer isOpen={true} onClose={() => navigateTo('#/')} items={cart} onRemove={removeFromCart} onUpdateQty={updateQuantity} user={user} />;
+        return (
+          <CartDrawer 
+            isOpen={true} 
+            onClose={() => navigateTo('#/')} 
+            items={cart} 
+            onRemove={(id) => setCart(prev => prev.filter(item => item.id !== id))} 
+            onUpdateQty={(id, delta) => setCart(prev => prev.map(item => item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item))} 
+            user={user} 
+            formatPrice={formatPrice} 
+          />
+        );
       case '#/auth':
         return <AuthSidebar isOpen={true} onClose={() => navigateTo('#/')} user={user} onUserUpdate={handleUserUpdate} />;
       case '#/story':
@@ -181,6 +181,7 @@ const App: React.FC = () => {
                     onAddToCart={addToCart} 
                     onViewDetails={(p) => navigateTo(`#/product/${p.id}`)} 
                     onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
+                    formatPrice={formatPrice}
                   />
                 ))}
               </div>
@@ -205,7 +206,7 @@ const App: React.FC = () => {
         searchQuery={searchQuery} 
         setSearchQuery={setSearchQuery} 
         onLogoClick={() => navigateTo('#/', true)} 
-        user={user} 
+        user={user}
       />
       
       <main className="flex-grow relative z-10" role="main">

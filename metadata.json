@@ -1,7 +1,5 @@
 {
   "name": "حيفان للطاقة المتجدّدة",
   "description": "متجر حيفان للطاقة المتجدّدة - رائدون في حلول الألواح الشمسية والبطاريات والأجهزة المنزلية الموفرة للطاقة.",
-  "requestFramePermissions": [
-    "camera"
-  ]
+  "requestFramePermissions": []
 }

@@ -7,9 +7,10 @@ interface ProductDetailProps {
   onClose: () => void;
   onAddToCart: (p: Product) => void;
   onOrderNow: (p: Product) => void;
+  formatPrice: (p: number) => string;
 }
 
-const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddToCart, onOrderNow }) => {
+const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddToCart, onOrderNow, formatPrice }) => {
   useEffect(() => {
     const script = document.createElement('script');
     script.type = 'application/ld+json';
@@ -92,7 +93,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
             </h1>
             <div className="flex items-center gap-4">
               <span className="text-4xl md:text-5xl font-black text-emerald-600">
-                {product.price} <small className="text-sm text-gray-400 font-bold uppercase">ر.س</small>
+                {formatPrice(product.price)}
               </span>
               <span className="bg-emerald-50 text-emerald-600 px-4 py-1 rounded-lg text-xs font-bold border border-emerald-100">شامل الضريبة والشحن</span>
             </div>

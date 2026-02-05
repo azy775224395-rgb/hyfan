@@ -30,21 +30,28 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
             <span className="text-[13px] md:text-2xl font-black bg-gradient-to-l from-emerald-950 to-emerald-700 bg-clip-text text-transparent leading-none">
               حيفان للطاقة
             </span>
-            <span className="text-[6px] md:text-[11px] font-black text-emerald-600/70 hidden sm:block tracking-widest mt-1 md:mt-2 uppercase">
-              Energy Solutions 2026
-            </span>
+            <div className="flex items-center gap-2 mt-1 md:mt-2">
+              <span className="text-[6px] md:text-[11px] font-black text-emerald-600/70 hidden sm:block tracking-widest uppercase">
+                Energy Solutions 2026
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Improved Search Bar */}
-        <div className="flex-grow max-w-md relative group mx-2">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث عن ألواح، بطاريات..."
-            className="w-full bg-white/60 backdrop-blur-3xl border border-emerald-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-300 rounded-full md:rounded-[1.5rem] px-8 py-1.5 md:px-14 md:py-4 transition-all outline-none text-[9px] md:text-base font-bold text-emerald-950 placeholder:text-emerald-300"
-          />
+        {/* Search Bar */}
+        <div className="flex-grow max-w-xl flex items-center gap-2 md:gap-4 mx-2">
+          <div className="flex-grow relative group">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ابحث عن ألواح، بطاريات..."
+              className="w-full bg-white/60 backdrop-blur-3xl border border-emerald-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-300 rounded-full md:rounded-[1.5rem] px-8 py-1.5 md:px-14 md:py-4 transition-all outline-none text-[9px] md:text-base font-bold text-emerald-950 placeholder:text-emerald-300"
+            />
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-300 hidden md:block">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </div>
+          </div>
         </div>
 
         {/* Actions */}

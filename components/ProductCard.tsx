@@ -7,9 +7,10 @@ interface ProductCardProps {
   onAddToCart: (p: Product) => void;
   onViewDetails: (p: Product) => void;
   onOrderNow: (p: Product) => void;
+  formatPrice: (p: number) => string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onViewDetails, onOrderNow }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onViewDetails, onOrderNow, formatPrice }) => {
   return (
     <div 
       onClick={() => onViewDetails(product)}
@@ -40,18 +41,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onViewD
         
         <div className="flex items-center justify-between mb-5">
           <span className="text-base md:text-2xl font-black text-emerald-700">
-            {product.price} <small className="text-[10px] md:text-xs font-bold text-emerald-300">ر.س</small>
+            {formatPrice(product.price)}
           </span>
         </div>
         
         <div className="flex gap-2">
           <button 
+            type="button"
             onClick={(e) => { e.stopPropagation(); onOrderNow(product); }}
             className="flex-1 bg-emerald-600 text-white py-3 rounded-xl hover:bg-emerald-500 transition-all shadow-lg flex items-center justify-center gap-2 font-black text-[11px] md:text-sm active:scale-95"
           >
             اطلب الآن
           </button>
           <button 
+            type="button"
             onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
             className="flex-1 bg-white text-emerald-600 py-3 rounded-xl border-2 border-emerald-100 hover:bg-emerald-50 transition-all shadow-sm flex items-center justify-center gap-2 font-black text-[11px] md:text-sm active:scale-95"
           >

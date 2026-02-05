@@ -10,23 +10,24 @@ interface CartDrawerProps {
   onRemove: (id: string) => void;
   onUpdateQty: (id: string, delta: number) => void;
   user?: UserProfile | null;
+  formatPrice: (p: number) => string;
 }
 
-const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpdateQty, user }) => {
+const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpdateQty, user, formatPrice }) => {
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const WHATSAPP_NUMBER = '967784400333';
 
   const handleCheckoutWhatsApp = () => {
     let orderSummary = "السلام عليكم، أريد شراء المنتجات التالية:\n\n";
     items.forEach((item, index) => {
-      orderSummary += `${index + 1}- ${item.name} (عدد: ${item.quantity})\nالسعر: ${item.price * item.quantity} ر.س\n\n`;
+      orderSummary += `${index + 1}- ${item.name} (عدد: ${item.quantity})\nالسعر: ${formatPrice(item.price * item.quantity)}\n\n`;
     });
-    orderSummary += `*المجموع الكلي:* ${total} ر.س`;
+    orderSummary += `*المجموع الكلي:* ${formatPrice(total)}`;
     
     NotificationService.sendTelegramNotification(
       NotificationService.formatOrderMessage({
         product: items.map(i => `${i.name} (x${i.quantity})`).join(', '),
-        price: `${total} ر.س`,
+        price: formatPrice(total),
         method: "سلة مشتريات (تواصل واتساب)",
         customer: user ? { 
           fullName: user.name, 
@@ -75,7 +76,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpd
                 </div>
                 <div className="flex-grow text-center md:text-right">
                   <h4 className="font-black text-emerald-950 text-xl mb-2">{item.name}</h4>
-                  <p className="text-emerald-600 font-black text-2xl">{item.price} <small className="text-xs font-bold text-gray-400">ر.س</small></p>
+                  <p className="text-emerald-600 font-black text-2xl">{formatPrice(item.price)} <small className="text-xs font-bold text-gray-400">للقطعة</small></p>
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="flex items-center border-2 border-emerald-50 rounded-2xl bg-emerald-50/30 p-1">
@@ -102,7 +103,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpd
               </div>
               <div className="flex justify-between text-2xl font-black pt-4 border-t border-white/10">
                 <span>الإجمالي</span>
-                <span className="text-emerald-400">{total} ر.س</span>
+                <span className="text-emerald-400">{formatPrice(total)}</span>
               </div>
             </div>
             <button 
@@ -111,7 +112,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpd
             >
               تأكيد الطلب واتساب
             </button>
-            <p className="text-center text-[10px] text-white/30 font-bold mt-6 uppercase tracking-widest">جميع العمليات مشفرة وآمنة</p>
           </div>
         </div>
       )}

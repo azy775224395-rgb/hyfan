@@ -6,7 +6,7 @@ import { ProductService } from '../services/productService';
 import { ChatMessage, Product } from '../types';
 
 interface AiAssistantProps {
-  products: Product[]; // هذه ستكون كنسخة احتياطية
+  products: Product[];
   isContactOpen?: boolean;
 }
 
@@ -18,12 +18,12 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const LOGO_URL = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
 
   useEffect(() => {
-    // جلب المنتجات الحية من السحابة عند تشغيل المساعد
     const fetchCloudInventory = async () => {
       const data = await ProductService.getLiveProducts();
       setLiveProducts(data);
@@ -37,18 +37,16 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
     }
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (customMsg?: string) => {
+    const userMsg = customMsg || input.trim();
+    if (!userMsg || isLoading) return;
 
-    const userMsg = input.trim();
-    setInput('');
+    if (!customMsg) setInput('');
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setIsLoading(true);
 
     try {
-      // استخدام المنتجات الحية إذا توفرت، وإلا العودة للاحتياطية
       const currentInventory = liveProducts.length > 0 ? liveProducts : fallbackProducts;
-      
       const context = currentInventory.map(p => 
         `- المنتج: ${p.name} | السعر: ${p.price} ر.س | الفئة: ${p.category} | المعرف: ${p.id} | المواصفات: ${p.specs?.join(', ')} | الحالة: ${p.status || 'متوفر'}`
       ).join('\n');
@@ -61,11 +59,35 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
           NotificationService.formatAiChatMessage(userMsg, response)
         );
       }
-      
     } catch (error) {
       setMessages(prev => [...prev, { role: 'model', text: 'أهلاً بك. لدينا حالياً أفضل عروض الألواح والبطاريات بضمان حقيقي. تفضل بسؤالك عن أي منتج وسأعطيك البديل الأنسب فوراً.' }]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const toggleVoice = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("عذراً، متصفحك لا يدعم التعرف على الصوت. يرجى استخدام جوجل كروم.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'ar-YE';
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      handleSend(transcript);
+    };
+
+    if (isListening) {
+      recognition.stop();
+    } else {
+      recognition.start();
     }
   };
 
@@ -114,12 +136,13 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
               <div>
                 <h3 className="font-black text-base">مهندس مبيعات حيفان</h3>
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                  <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">مخزون السحابة متصل</p>
+                  <span className={`w-2 h-2 rounded-full ${isListening ? 'bg-red-500 animate-ping' : 'bg-emerald-400 animate-pulse'}`}></span>
+                  <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">
+                    {isListening ? 'جاري الاستماع...' : 'مخزون السحابة متصل'}
+                  </p>
                 </div>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="opacity-50 hover:opacity-100 transition-opacity"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
           </div>
 
           <div ref={scrollRef} className="flex-grow overflow-y-auto p-6 space-y-5 bg-gray-50/50 text-right scrollbar-hide">
@@ -142,41 +165,36 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
                     <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                     <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                  <span className="text-[11px] text-emerald-800 font-black italic">أبحث في المستودع السحابي عن بدائل...</span>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="p-5 border-t bg-white flex gap-3 items-center">
+          <div className="p-5 border-t bg-white flex gap-2 items-center">
+            <button 
+              onClick={toggleVoice}
+              className={`p-4 rounded-2xl transition-all shadow-lg active:scale-95 ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+            </button>
             <input 
               type="text" 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="هل لوح جينكو 580 وات متوفر؟"
-              className="flex-grow bg-emerald-50/30 rounded-2xl px-6 py-4 text-sm outline-none focus:ring-2 focus:ring-emerald-950 transition-all border-emerald-100 border text-right font-bold placeholder:text-gray-300"
+              placeholder="تحدث أو اكتب استفسارك..."
+              className="flex-grow bg-emerald-50/30 rounded-2xl px-6 py-4 text-sm outline-none border-emerald-100 border text-right font-bold placeholder:text-gray-300"
             />
             <button 
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={isLoading}
               className="bg-emerald-950 text-white p-4.5 rounded-2xl hover:bg-black transition-all disabled:opacity-50 shadow-xl active:scale-95"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-180"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="rotate-180"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             </button>
           </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes chat-pop {
-          from { opacity: 0; transform: translateY(30px) scale(0.9); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .animate-chat-pop {
-          animation: chat-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      `}</style>
     </div>
   );
 };
