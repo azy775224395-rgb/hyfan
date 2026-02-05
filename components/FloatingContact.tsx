@@ -9,9 +9,11 @@ interface FloatingContactProps {
 const FloatingContact: React.FC<FloatingContactProps> = ({ isOpen, onToggle }) => {
   const WHATSAPP_NUMBER = '967784400333';
   const PHONE_NUMBER = '+967784400222';
-  const FACEBOOK_URL = 'https://facebook.com/hyfan.energy';
-  const INSTAGRAM_URL = 'https://instagram.com/hyfan.energy';
-  const MAP_URL = 'https://maps.google.com/?q=Hayfan+Renewable+Energy';
+  // روابط محدثة لتعمل بشكل مباشر واحترافي
+  const FACEBOOK_URL = 'https://www.facebook.com/hayfan.energy';
+  const INSTAGRAM_URL = 'https://www.instagram.com/hayfan.energy';
+  // رابط خرائط جوجل ذكي يبحث عن اسم المتجر في اليمن لضمان ظهور النتائج
+  const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=حيفان+للطاقة+المتجددة+اليمن';
 
   const icons = [
     { id: 'whatsapp', icon: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-13.7 8.38 8.38 0 0 1 3.8.9L21 3z', color: 'bg-[#25D366]', url: `https://wa.me/${WHATSAPP_NUMBER}`, title: 'واتساب' },
@@ -39,6 +41,9 @@ const FloatingContact: React.FC<FloatingContactProps> = ({ isOpen, onToggle }) =
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="md:w-6 md:h-6">
               <path d={item.icon} />
             </svg>
+            <span className="absolute right-full mr-3 bg-emerald-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-xl border border-white/10">
+              {item.title}
+            </span>
           </a>
         ))}
       </div>

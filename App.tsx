@@ -41,6 +41,8 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : null;
   });
 
+  const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=حيفان+للطاقة+المتجددة+اليمن';
+
   // SEO Management
   useEffect(() => {
     let title = "حيفان للطاقة المتجددة | الريادة في حلول الطاقة في اليمن";
@@ -216,7 +218,8 @@ const App: React.FC = () => {
           <nav className="flex justify-center gap-8 mb-12">
             <button onClick={() => setIsStoryOpen(true)} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">من نحن</button>
             <button onClick={() => setIsWarrantyOpen(true)} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">سياسة الضمان</button>
-            <a href="/sitemap.xml" className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">خريطة الموقع</a>
+            {/* تم تحديث الرابط ليوجه إلى الخريطة الفعلية بدلاً من ملف تقني */}
+            <a href={MAP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">موقعنا على الخريطة</a>
           </nav>
           
           <div className="pt-8 border-t border-white/5">
