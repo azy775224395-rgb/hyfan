@@ -12,7 +12,7 @@ interface AiAssistantProps {
 const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'المهندس حيفان معك. أعطني سؤالك التقني عن أي منتج وسأعطيك الخلاصة.' }
+    { role: 'model', text: 'المهندس حيفان معك. أعطني اسم المنتج أو نوع الحمل وسأعطيك الخلاصة الفنية.' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,9 +35,9 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
     setIsLoading(true);
 
     try {
-      // تمرير بيانات مفصلة للمساعد ليشمل البدائل
+      // إرسال سياق غني جداً للمساعد ليشمل كل التفاصيل الفنية والبدائل
       const context = products.map(p => 
-        `- المنتج: ${p.name} | السعر: ${p.price} ر.س | الفئة: ${p.category} | الوصف: ${p.description}`
+        `- ${p.name} | السعر: ${p.price} ر.س | الفئة: ${p.category} | المميزات: ${p.specs?.join(', ') || p.description}`
       ).join('\n');
       
       const response = await geminiService.chatWithCustomer(userMsg, context);
@@ -48,7 +48,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
       );
       
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: 'خطأ تقني. يرجى إعادة المحاولة.' }]);
+      setMessages(prev => [...prev, { role: 'model', text: 'حدث ضغط في الشبكة. المهندس بانتظار إعادة سؤالك.' }]);
     } finally {
       setIsLoading(false);
     }
@@ -76,27 +76,27 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-20 left-0 w-[320px] sm:w-[400px] bg-white rounded-[2rem] shadow-3xl border border-emerald-100 flex flex-col h-[480px] overflow-hidden animate-chat-pop">
-          <div className="bg-emerald-950 p-4 text-white flex items-center justify-between">
+        <div className="absolute bottom-20 left-0 w-[320px] sm:w-[400px] bg-white rounded-[2rem] shadow-3xl border border-emerald-100 flex flex-col h-[500px] overflow-hidden animate-chat-pop">
+          <div className="bg-emerald-950 p-5 text-white flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-white rounded-lg overflow-hidden">
+              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden shadow-inner">
                  <img src={LOGO_URL} alt="حيفان" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h3 className="font-black text-xs">المهندس حيفان</h3>
-                <p className="text-[8px] opacity-50 font-bold uppercase">خبير التوفر والبدائل</p>
+                <h3 className="font-black text-sm">كبير المهندسين</h3>
+                <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest">خبير المنظومات والمخزون</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="opacity-50 hover:opacity-100"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+            <button onClick={() => setIsOpen(false)} className="opacity-50 hover:opacity-100 transition-opacity"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
           </div>
 
-          <div ref={scrollRef} className="flex-grow overflow-y-auto p-4 space-y-3 bg-gray-50/50 text-right">
+          <div ref={scrollRef} className="flex-grow overflow-y-auto p-5 space-y-4 bg-gray-50/50 text-right scrollbar-hide">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-3 px-4 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
+                <div className={`max-w-[85%] p-4 px-5 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
                   msg.role === 'user' 
                     ? 'bg-emerald-600 text-white rounded-br-none font-bold' 
-                    : 'bg-white border border-emerald-50 text-emerald-950 rounded-bl-none font-bold whitespace-pre-wrap'
+                    : 'bg-white border border-emerald-50 text-emerald-950 rounded-bl-none font-black whitespace-pre-wrap'
                 }`}>
                   {msg.text}
                 </div>
@@ -104,29 +104,33 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white border border-emerald-50 p-3 px-4 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-pulse" />
-                  <span className="text-[10px] text-emerald-600 font-black">جاري مراجعة المخزن...</span>
+                <div className="bg-white border border-emerald-50 p-3 px-5 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-3">
+                  <div className="flex gap-1">
+                    <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                  <span className="text-[10px] text-emerald-600 font-black">المهندس يراجع المخزن...</span>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="p-3 border-t bg-white flex gap-2 items-center">
+          <div className="p-4 border-t bg-white flex gap-2 items-center">
             <input 
               type="text" 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="هل يوجد منتج...؟"
-              className="flex-grow bg-gray-50 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-950 transition-all border-gray-100 border text-right font-bold"
+              placeholder="هل يوجد لوح جينكو؟ كم سعر البطارية؟"
+              className="flex-grow bg-gray-50 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-emerald-950 transition-all border-gray-100 border text-right font-bold placeholder:text-gray-300"
             />
             <button 
               onClick={handleSend}
               disabled={isLoading}
-              className="bg-emerald-950 text-white p-3 rounded-xl hover:bg-black transition-all disabled:opacity-50"
+              className="bg-emerald-950 text-white p-4 rounded-2xl hover:bg-black transition-all disabled:opacity-50 shadow-lg active:scale-95"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-180"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-180"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             </button>
           </div>
         </div>
@@ -138,7 +142,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .animate-chat-pop {
-          animation: chat-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: chat-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
       `}</style>
     </div>
