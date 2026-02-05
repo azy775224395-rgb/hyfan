@@ -12,7 +12,7 @@ interface AiAssistantProps {
 const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'المهندس حيفان معك. أعطني اسم المنتج أو نوع الحمل وسأعطيك الخلاصة الفنية.' }
+    { role: 'model', text: 'أهلاً بك في متجر حيفان للطاقة. أنا خبير المبيعات والحلول التقنية، كيف يمكنني مساعدتك في تصميم منظومتك أو اختيار منتجاتك اليوم؟' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,9 +35,9 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
     setIsLoading(true);
 
     try {
-      // إرسال سياق غني جداً للمساعد ليشمل كل التفاصيل الفنية والبدائل
+      // إرسال سياق مفصل جداً يتضمن المعرفات لتوليد الروابط
       const context = products.map(p => 
-        `- ${p.name} | السعر: ${p.price} ر.س | الفئة: ${p.category} | المميزات: ${p.specs?.join(', ') || p.description}`
+        `- المنتج: ${p.name} | السعر: ${p.price} ر.س | الفئة: ${p.category} | المعرف: ${p.id} | المواصفات: ${p.specs?.join(', ')} | الوصف: ${p.description}`
       ).join('\n');
       
       const response = await geminiService.chatWithCustomer(userMsg, context);
@@ -48,10 +48,25 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
       );
       
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: 'حدث ضغط في الشبكة. المهندس بانتظار إعادة سؤالك.' }]);
+      setMessages(prev => [...prev, { role: 'model', text: 'نعتذر عن هذا الانقطاع الفني، أنا هنا لمساعدتك، يرجى إعادة إرسال استفسارك بخصوص منتجات الطاقة.' }]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // وظيفة لتحويل الروابط في النص إلى روابط قابلة للنقر
+  const renderMessageText = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.split(urlRegex).map((part, i) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline break-all font-black">
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
   };
 
   return (
@@ -76,15 +91,15 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-20 left-0 w-[320px] sm:w-[400px] bg-white rounded-[2rem] shadow-3xl border border-emerald-100 flex flex-col h-[500px] overflow-hidden animate-chat-pop">
+        <div className="absolute bottom-20 left-0 w-[320px] sm:w-[420px] bg-white rounded-[2.5rem] shadow-3xl border border-emerald-100 flex flex-col h-[550px] overflow-hidden animate-chat-pop">
           <div className="bg-emerald-950 p-5 text-white flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white rounded-xl overflow-hidden shadow-inner">
                  <img src={LOGO_URL} alt="حيفان" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h3 className="font-black text-sm">كبير المهندسين</h3>
-                <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest">خبير المنظومات والمخزون</p>
+                <h3 className="font-black text-sm">موظف مبيعات حيفان</h3>
+                <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest">خبير حلول الطاقة المعتمد</p>
               </div>
             </div>
             <button onClick={() => setIsOpen(false)} className="opacity-50 hover:opacity-100 transition-opacity"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
@@ -93,12 +108,12 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
           <div ref={scrollRef} className="flex-grow overflow-y-auto p-5 space-y-4 bg-gray-50/50 text-right scrollbar-hide">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-4 px-5 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
+                <div className={`max-w-[90%] p-4 px-5 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
                   msg.role === 'user' 
                     ? 'bg-emerald-600 text-white rounded-br-none font-bold' 
-                    : 'bg-white border border-emerald-50 text-emerald-950 rounded-bl-none font-black whitespace-pre-wrap'
+                    : 'bg-white border border-emerald-50 text-emerald-950 rounded-bl-none font-bold whitespace-pre-wrap'
                 }`}>
-                  {msg.text}
+                  {renderMessageText(msg.text)}
                 </div>
               </div>
             ))}
@@ -110,7 +125,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
                     <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                     <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                  <span className="text-[10px] text-emerald-600 font-black">المهندس يراجع المخزن...</span>
+                  <span className="text-[10px] text-emerald-600 font-black italic">جاري مراجعة المخزن والبيانات الفنية...</span>
                 </div>
               </div>
             )}
@@ -122,8 +137,8 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="هل يوجد لوح جينكو؟ كم سعر البطارية؟"
-              className="flex-grow bg-gray-50 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-emerald-950 transition-all border-gray-100 border text-right font-bold placeholder:text-gray-300"
+              placeholder="هل يوجد منتج جينكو؟ كيف أصمم منظومتي؟"
+              className="flex-grow bg-gray-50 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-emerald-950 transition-all border-gray-100 border text-right font-bold placeholder:text-gray-300 shadow-inner"
             />
             <button 
               onClick={handleSend}
