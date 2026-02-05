@@ -14,13 +14,16 @@ const Hero: React.FC<HeroProps> = ({ onOpenStory }) => {
   };
 
   return (
-    <section className="relative md:rounded-[2.5rem] overflow-hidden mb-6 md:mb-12 bg-[#061e23] min-h-[300px] md:min-h-[450px] flex items-center shadow-2xl border-b md:border border-white/5">
-      {/* Background Image */}
+    <section id="hero-section" className="relative md:rounded-[2.5rem] overflow-hidden mb-6 md:mb-12 bg-[#061e23] min-h-[300px] md:min-h-[450px] flex items-center shadow-2xl border-b md:border border-white/5">
+      {/* Background Image - Optimized for LCP */}
       <div className="absolute inset-0">
         <img 
           src="https://images.unsplash.com/photo-1509391366360-fe5bb60213ad?q=60&w=1200&auto=format&fit=crop" 
-          alt="متجر حيفان" 
+          alt="متجر حيفان للطاقة" 
           className="w-full h-full object-cover opacity-40"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#061e23] via-[#061e23]/40 to-transparent" />
       </div>

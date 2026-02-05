@@ -6,87 +6,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>حيفان للطاقة المتجددة | الريادة في حلول الطاقة في اليمن 2026</title>
     
-    <!-- إثبات ملكية Google -->
     <meta name="google-site-verification" content="google0ed1dcb16768642e" />
-
     <meta name="description" content="متجر حيفان للطاقة المتجددة: نوفر أفضل أنواع الألواح الشمسية وبطاريات الليثيوم في اليمن. حلول هندسية ذكية بضمان حقيقي.">
     <meta name="keywords" content="طاقة شمسية اليمن، ألواح جينكو، بطاريات توبو، إنفرتر، حيفان للطاقة">
     
+    <link rel="preconnect" href="https://dmkyurpyqhqwoczmdpeb.supabase.co">
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <style>
-      body { font-family: 'Cairo', sans-serif; margin: 0; padding: 0; background-color: #f0fdf4; scroll-behavior: smooth; }
+      body { 
+        font-family: 'Cairo', sans-serif; 
+        margin: 0; 
+        padding: 0; 
+        background-color: #f0fdf4; 
+        scroll-behavior: smooth;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+      }
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       ::-webkit-scrollbar { width: 8px; }
       ::-webkit-scrollbar-track { background: #f0fdf4; }
       ::-webkit-scrollbar-thumb { background: #bbf7d0; border-radius: 10px; }
-      @keyframes slide-up { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      
       .animate-slide-up { animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
       .animate-fade-in { animation: fadeIn 0.4s ease-out; }
       @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-      /* تقنية إخفاء الكلمات المفتاحية عن المستخدم وإظهارها لجوجل */
-      .seo-hidden-cloud {
-        position: absolute;
-        left: -9999px;
-        top: -9999px;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        visibility: hidden;
-        display: block;
-      }
+      @keyframes slide-up { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
+
     <script type="importmap">
-    {
-      "imports": {
-        "react": "https://esm.sh/react@^19.2.4",
-        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-        "react/": "https://esm.sh/react@^19.2.4/",
-        "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
-        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.48.1",
-        "vite": "https://esm.sh/vite@^7.3.1",
-        "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
-      }
-    }
-    </script>
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "@google/genai": "https://esm.sh/@google/genai@1.39.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.48.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.3"
+  }
+}
+</script>
   </head>
   <body class="text-emerald-950">
     <div id="root"></div>
-
-    <!-- قسم الكلمات المفتاحية المخفي لتحسين الـ SEO -->
-    <div class="seo-hidden-cloud" aria-hidden="true">
-      <h1>طاقة شمسية في اليمن 2026 حيفان للطاقة المتجددة</h1>
-      <p>
-        ألواح شمسية جينكو سولار 580 وات، Jinko Solar N-Type 580W، أفضل سعر لوح شمسي في اليمن، أرخص ألواح شمسية صنعاء، ألواح شمسية عدن، ألواح شمسية تعز، 
-        بطاريات توبو TUBO 200 أمبير، بطارية توبو 150 أمبير، بطاريات ليثيوم في اليمن، أسعار بطاريات الطاقة الشمسية اليمن، بطارية جل، بطارية اسيد، بطارية تفريغ عميق، 
-        إنفرتر جرووات Growatt 5KW، إنفرتر مصطفوي، إنفرترات هجينة، منظم شحن MPPT، منظم شحن PWM، كابلات طاقة شمسية، قواعد ألواح شمسية، غسالات فولكس VOLX، 
-        غسالة 9 كيلو، غسالة 12 كيلو، غسالة 15 كيلو، ثلاجات إنفرتر توفير طاقة، ثلاجة عرض 800 لتر، فريزر مقوس، مكنسة كهربائية فولتكس، مكيفات طاقة شمسية، 
-        مكيف 12000 وحدة، مكيف سبليت، مكيف شباك، منظومات طاقة شمسية متكاملة، باقة النور، باقة البركة، حساب أحمال الطاقة الشمسية، مهندس طاقة شمسية اليمن، 
-        تركيب منظومات شمسية، صيانة بطاريات، وكيل جينكو اليمن، وكيل توبو اليمن، طاقة نظيفة، كهرباء مجانية، توفير فواتير الكهرباء، محولات كهربائية، UPS، 
-        طاقة شمسية للمزارع، طاقة شمسية للمنازل، غطاسات طاقة شمسية، طلمبات مياه، إنارة شوارع، لمبات ليد موفرة، سلك 4 ملي، سلك 6 ملي، توصيل بطاريات، 
-        متجر حيفان، حيفان للطاقة، عروض الطاقة الشمسية 2026، تخفيضات بطاريات، هدايا طاقة شمسية، شحن لجميع المحافظات، ذمار، الحديدة، المكلا، مأرب، الجوف، صعدة، حجة، 
-        المحويت، ريمة، البيضاء، الضالع، لحج، أبين، شبوة، حضرموت، المهرة، سقطرى.
-        أجهزة منزلية موفرة للكهرباء، طباخة تركي، طباخة 5 عيون، فرن غاز، شواية، مروحة شمسية، مراوح سقف، مراوح شحن، كشافات طوارئ، بطارية لابتوب، خازن، 
-        باور بانك، تقنية N-Type، تقنية ببرك، كفاءة تحويل، معامل قدرة، فولت، أمبير، وات، كيلو وات ساعة، دورة حياة البطارية، ضمان استبدال، ضمان حقيقي، 
-        موزع معتمد، شراء أونلاين اليمن، دفع عند الاستلام، تحويل كريمي، بينانس اليمن، USDT اليمن، فيزا اليمن، ماستركارد اليمن، أمان الدفع، متجر إلكتروني يمني.
-        solar energy yemen, solar panels price yemen, jinko solar yemen, tubo batteries, lithium battery yemen, growatt inverter yemen, solar system calculation,
-        renewable energy store, hayfan energy, clean energy solutions, best solar panels 2026, energy saving appliances, high efficiency solar.
-      </p>
-      <!-- تكرار ذكي للكلمات وتوسيعها آلياً -->
-      <script>
-        // كود برمجي بسيط لتوليد تنويعات أكثر للكلمات المفتاحية داخل القسم المخفي عند التحميل
-        // هذا يساعد الزواحف على رؤية محتوى متجدد وكبير جداً
-        const cloud = document.querySelector('.seo-hidden-cloud p');
-        const keywords = ["طاقة", "شمسية", "اليمن", "بطاريات", "ألواح", "إنفرتر", "توفير", "كهرباء", "حيفان", "ضمان", "سعر", "رخيص", "أفضل", "تركيب"];
-        let extraText = "";
-        for(let i=0; i<500; i++) {
-          extraText += keywords[Math.floor(Math.random() * keywords.length)] + " ";
-        }
-        cloud.innerHTML += extraText;
-      </script>
-    </div>
-
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

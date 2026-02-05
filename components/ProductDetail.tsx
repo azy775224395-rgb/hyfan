@@ -11,7 +11,6 @@ interface ProductDetailProps {
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddToCart, onOrderNow }) => {
   useEffect(() => {
-    // حقن Product Schema
     const script = document.createElement('script');
     script.type = 'application/ld+json';
     script.id = 'product-schema';
@@ -48,13 +47,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
       <nav className="bg-emerald-50/50 py-4 border-b border-emerald-100" aria-label="Breadcrumb">
         <div className="container mx-auto px-6 flex items-center justify-between">
           <ol className="flex items-center gap-2 text-sm font-bold text-gray-500">
-            <li><button onClick={onClose} className="hover:text-emerald-600 transition-colors">الرئيسية</button></li>
+            <li><button type="button" onClick={onClose} className="hover:text-emerald-600 transition-colors">الرئيسية</button></li>
             <li><span>/</span></li>
             <li className="text-emerald-600">{product.category}</li>
             <li><span>/</span></li>
             <li className="text-emerald-950 truncate max-w-[150px]">{product.name}</li>
           </ol>
           <button 
+            type="button"
             onClick={onClose} 
             className="p-2 bg-white rounded-xl border border-emerald-100 hover:text-emerald-600 transition-all flex items-center gap-2 font-bold text-xs shadow-sm"
           >
@@ -123,6 +123,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
 
           <div className="mt-16 flex flex-col sm:flex-row gap-4 border-t pt-10">
             <button 
+              type="button"
               onClick={() => onOrderNow(product)}
               className="flex-1 bg-emerald-600 text-white py-6 rounded-2xl font-black flex items-center justify-center gap-4 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 active:scale-95 text-xl"
             >
@@ -130,6 +131,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </button>
             <button 
+              type="button"
               onClick={() => onAddToCart(product)}
               className="flex-1 bg-emerald-950 text-white py-6 rounded-2xl font-black flex items-center justify-center gap-4 hover:bg-black transition-all shadow-xl active:scale-95 text-xl"
             >

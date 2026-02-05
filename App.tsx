@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Product, CartItem, Review, UserProfile } from './types';
 import { INITIAL_PRODUCTS } from './constants';
 import Header from './components/Header';
@@ -20,20 +20,13 @@ import AllReviewsModal from './components/AllReviewsModal';
 import CheckoutView from './components/CheckoutView';
 import AuthSidebar from './components/AuthSidebar';
 
-type PageType = 'home' | 'product' | 'checkout';
-
 const App: React.FC = () => {
   const [products] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [activePage, setActivePage] = useState<PageType>('home');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [currentHash, setCurrentHash] = useState(window.location.hash || '#/');
   const [searchQuery, setSearchQuery] = useState('');
   
-  const [isStoryOpen, setIsStoryOpen] = useState(false);
-  const [isWarrantyOpen, setIsWarrantyOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isContactOpen, setIsContactOpen] = useState(false);
-  const [reviewsToShow, setReviewsToShow] = useState<Review[] | null>(null);
+  const homeScrollPos = useRef(0);
+  const isBackAction = useRef(false);
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [user, setUser] = useState<UserProfile | null>(() => {
@@ -43,52 +36,48 @@ const App: React.FC = () => {
 
   const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=حيفان+للطاقة+المتجددة+اليمن';
 
-  // SEO Management
+  // إدارة التوجيه والتمرير
   useEffect(() => {
-    let title = "حيفان للطاقة المتجددة | الريادة في حلول الطاقة في اليمن";
-    let desc = "اكتشف أفضل عروض الألواح الشمسية والبطاريات في متجر حيفان. حلول طاقة ذكية لعام 2026.";
-
-    if (activePage === 'product' && selectedProduct) {
-      title = `${selectedProduct.name} | حيفان للطاقة`;
-      desc = selectedProduct.description;
-    } else if (activePage === 'checkout' && selectedProduct) {
-      title = `إتمام شراء ${selectedProduct.name} | حيفان للطاقة`;
-    }
-
-    document.title = title;
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) metaDesc.setAttribute('content', desc);
-  }, [activePage, selectedProduct]);
-
-  useEffect(() => {
-    const handleHash = () => {
-      const hash = window.location.hash;
-      if (hash.startsWith('#product-')) {
-        const id = hash.replace('#product-', '');
-        const p = products.find(prod => prod.id === id);
-        if (p) {
-          setSelectedProduct(p);
-          setActivePage('product');
-          return;
-        }
+    const onHashChange = () => {
+      const newHash = window.location.hash || '#/';
+      
+      // إذا كنا نغادر الرئيسية، نحفظ مكاننا
+      if (currentHash === '#/') {
+        homeScrollPos.current = window.scrollY;
       }
-      setActivePage('home');
-      setSelectedProduct(null);
+
+      setCurrentHash(newHash);
+
+      // منطق التمرير
+      if (newHash === '#/') {
+        // ننتظر قليلاً حتى يرندر المحتوى ثم نمرر
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: homeScrollPos.current,
+            behavior: isBackAction.current ? 'instant' : 'smooth'
+          });
+          isBackAction.current = false;
+        });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
     };
 
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
-  }, [products]);
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [currentHash]);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [activePage, selectedProduct]);
+  const navigateTo = (hash: string, resetScroll = false) => {
+    if (hash === '#/') isBackAction.current = true;
+    if (resetScroll && hash === '#/') homeScrollPos.current = 0;
+    
+    window.location.hash = hash;
+  };
 
   const handleUserUpdate = (newUser: UserProfile) => {
     setUser(newUser);
     localStorage.setItem('hyfan_user', JSON.stringify(newUser));
-    setIsAuthOpen(false);
+    navigateTo('#/');
   };
 
   const addToCart = (product: Product) => {
@@ -99,7 +88,7 @@ const App: React.FC = () => {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
-    setIsCartOpen(true);
+    navigateTo('#/cart');
   };
 
   const removeFromCart = (id: string) => setCart(prev => prev.filter(item => item.id !== id));
@@ -119,94 +108,108 @@ const App: React.FC = () => {
     });
   }, [products, searchQuery, selectedCategory]);
 
-  const navigateToHome = () => {
-    window.location.hash = '';
-    setActivePage('home');
-    setSelectedProduct(null);
-  };
+  const renderCurrentPage = () => {
+    const hash = currentHash;
 
-  const navigateToProduct = (p: Product) => {
-    window.location.hash = `product-${p.id}`;
-  };
+    if (hash.startsWith('#/product/')) {
+      const id = hash.replace('#/product/', '');
+      const product = products.find(p => p.id === id);
+      if (product) return (
+        <ProductDetail 
+          product={product} 
+          onClose={() => navigateTo('#/')} 
+          onAddToCart={addToCart} 
+          onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
+        />
+      );
+    }
 
-  const navigateToCheckout = (p: Product) => {
-    setSelectedProduct(p);
-    setActivePage('checkout');
-  };
+    if (hash.startsWith('#/checkout/')) {
+      const id = hash.replace('#/checkout/', '');
+      const product = products.find(p => p.id === id);
+      if (product) return (
+        <CheckoutView 
+          product={product} 
+          onCancel={() => navigateTo('#/')} 
+          user={user} 
+        />
+      );
+    }
 
-  const renderHome = () => (
-    <div className="flex flex-col gap-12 md:gap-20 pb-20 animate-fade-in">
-      <Hero onOpenStory={() => setIsStoryOpen(true)} />
-      
-      <section id="products-grid" className="container mx-auto px-4 scroll-mt-24">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 border-b border-emerald-100 pb-8">
-          <div>
-            <h2 className="text-2xl md:text-4xl font-black text-emerald-950 underline decoration-emerald-500 decoration-4 underline-offset-8">منتجاتنا المختارة</h2>
-            <p className="text-emerald-600 font-bold mt-4">أفضل جودة بأفضل سعر في اليمن 2026</p>
+    switch (hash) {
+      case '#/cart':
+        return <CartDrawer isOpen={true} onClose={() => navigateTo('#/')} items={cart} onRemove={removeFromCart} onUpdateQty={updateQuantity} user={user} />;
+      case '#/auth':
+        return <AuthSidebar isOpen={true} onClose={() => navigateTo('#/')} user={user} onUserUpdate={handleUserUpdate} />;
+      case '#/story':
+        return <StoryModal onClose={() => navigateTo('#/')} />;
+      case '#/warranty':
+        return <WarrantyModal onClose={() => navigateTo('#/')} />;
+      case '#/reviews':
+        return <AllReviewsModal reviews={[]} onClose={() => navigateTo('#/')} />;
+      case '#/':
+      default:
+        return (
+          <div className="flex flex-col gap-12 md:gap-20 pb-20 animate-fade-in">
+            <Hero onOpenStory={() => navigateTo('#/story')} />
+            
+            <section id="products-grid" className="container mx-auto px-4 scroll-mt-24">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 border-b border-emerald-100 pb-8">
+                <div>
+                  <h2 className="text-2xl md:text-4xl font-black text-emerald-950 underline decoration-emerald-500 decoration-4 underline-offset-8">منتجاتنا المختارة</h2>
+                  <p className="text-emerald-600 font-bold mt-4">أفضل جودة بأفضل سعر في اليمن 2026</p>
+                </div>
+                <nav className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                  {categories.map(cat => (
+                    <button 
+                      key={cat} 
+                      type="button"
+                      onClick={() => { setSelectedCategory(cat); setSearchQuery(''); }} 
+                      className={`px-6 py-2 rounded-full text-xs font-black border-2 transition-all whitespace-nowrap ${selectedCategory === cat && searchQuery === '' ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg' : 'bg-white text-emerald-800 border-emerald-50 hover:border-emerald-200'}`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+              
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+                {filteredProducts.map(product => (
+                  <ProductCard 
+                    key={product.id} 
+                    product={product} 
+                    onAddToCart={addToCart} 
+                    onViewDetails={(p) => navigateTo(`#/product/${p.id}`)} 
+                    onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
+                  />
+                ))}
+              </div>
+            </section>
+
+            <SolarCalculator />
+            <ReviewSection user={user} onShowAll={() => navigateTo('#/reviews')} />
+            <BrandSection />
+            <FaqSection />
           </div>
-          <nav className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map(cat => (
-              <button 
-                key={cat} 
-                onClick={() => { setSelectedCategory(cat); setSearchQuery(''); }} 
-                className={`px-6 py-2 rounded-full text-xs font-black border-2 transition-all whitespace-nowrap ${selectedCategory === cat && searchQuery === '' ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg' : 'bg-white text-emerald-800 border-emerald-50 hover:border-emerald-200'}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </nav>
-        </div>
-        
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
-          {filteredProducts.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onAddToCart={addToCart} 
-              onViewDetails={navigateToProduct} 
-              onOrderNow={navigateToCheckout} 
-            />
-          ))}
-        </div>
-      </section>
-
-      <SolarCalculator />
-      <ReviewSection onShowAll={(reviews) => setReviewsToShow(reviews)} />
-      <BrandSection />
-      <FaqSection />
-    </div>
-  );
+        );
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-white overflow-x-hidden" dir="rtl">
       <AnimatedBackground />
       <Header 
         cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} 
-        onOpenCart={() => setIsCartOpen(true)} 
-        onOpenAuth={() => setIsAuthOpen(true)} 
+        onOpenCart={() => navigateTo('#/cart')} 
+        onOpenAuth={() => navigateTo('#/auth')} 
         searchQuery={searchQuery} 
         setSearchQuery={setSearchQuery} 
-        onLogoClick={navigateToHome} 
+        onLogoClick={() => navigateTo('#/', true)} 
         user={user} 
       />
       
       <main className="flex-grow relative z-10" role="main">
-        {activePage === 'home' && renderHome()}
-        {activePage === 'product' && selectedProduct && (
-          <ProductDetail 
-            product={selectedProduct} 
-            onClose={navigateToHome} 
-            onAddToCart={addToCart} 
-            onOrderNow={navigateToCheckout} 
-          />
-        )}
-        {activePage === 'checkout' && selectedProduct && (
-          <CheckoutView 
-            product={selectedProduct} 
-            onCancel={navigateToHome} 
-            user={user} 
-          />
-        )}
+        {renderCurrentPage()}
       </main>
 
       <footer className="bg-emerald-950 text-white py-16 text-center relative z-10">
@@ -216,9 +219,8 @@ const App: React.FC = () => {
           <p className="text-emerald-400 font-bold text-sm mb-8 opacity-80">شريككم الموثوق للطاقة النظيفة في اليمن</p>
           
           <nav className="flex justify-center gap-8 mb-12">
-            <button onClick={() => setIsStoryOpen(true)} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">من نحن</button>
-            <button onClick={() => setIsWarrantyOpen(true)} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">سياسة الضمان</button>
-            {/* تم تحديث الرابط ليوجه إلى الخريطة الفعلية بدلاً من ملف تقني */}
+            <button type="button" onClick={() => navigateTo('#/story')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">من نحن</button>
+            <button type="button" onClick={() => navigateTo('#/warranty')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">سياسة الضمان</button>
             <a href={MAP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">موقعنا على الخريطة</a>
           </nav>
           
@@ -228,14 +230,8 @@ const App: React.FC = () => {
         </div>
       </footer>
 
-      {isStoryOpen && <StoryModal onClose={() => setIsStoryOpen(false)} />}
-      {isWarrantyOpen && <WarrantyModal onClose={() => setIsWarrantyOpen(false)} />}
-      {reviewsToShow && <AllReviewsModal reviews={reviewsToShow} onClose={() => setReviewsToShow(null)} />}
-      
-      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} items={cart} onRemove={removeFromCart} onUpdateQty={updateQuantity} user={user} />
-      <AuthSidebar isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} user={user} onUserUpdate={handleUserUpdate} />
-      <AiAssistant products={products} isContactOpen={isContactOpen} />
-      <FloatingContact isOpen={isContactOpen} onToggle={() => setIsContactOpen(!isContactOpen)} />
+      <AiAssistant products={products} />
+      <FloatingContact isOpen={false} onToggle={() => {}} />
     </div>
   );
 };

@@ -8,7 +8,7 @@ const AnimatedBackground: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d', { alpha: true });
+    const ctx = canvas.getContext('2d', { alpha: false }); // تحسين الأداء عبر تعطيل الشفافية المعقدة في السياق
     if (!ctx) return;
 
     let animationFrameId: number;
@@ -17,6 +17,7 @@ const AnimatedBackground: React.FC = () => {
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      init(); // إعادة التهيئة عند تغيير الحجم لضبط عدد الجزيئات
     };
 
     class Particle {
@@ -34,11 +35,10 @@ const AnimatedBackground: React.FC = () => {
       init(firstTime = false) {
         this.x = Math.random() * canvas.width;
         this.y = firstTime ? Math.random() * canvas.height : canvas.height + 10;
-        this.size = Math.random() * 2 + 0.5;
-        this.speedY = -(Math.random() * 0.3 + 0.1);
-        this.opacity = Math.random() * 0.3;
-        const colors = ['#86efac', '#4ade80', '#ffffff'];
-        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.size = Math.random() * 1.5 + 0.5; // حجم أصغر قليلاً
+        this.speedY = -(Math.random() * 0.2 + 0.1); // سرعة أبطأ لتوفير المعالجة
+        this.opacity = Math.random() * 0.2 + 0.1;
+        this.color = '#86efac';
       }
 
       update() {
@@ -58,16 +58,20 @@ const AnimatedBackground: React.FC = () => {
 
     const init = () => {
       particles = [];
-      // عدد جزيئات قليل جداً للجوال لضمان السلاسة
       const isMobile = window.innerWidth < 768;
-      const particleCount = isMobile ? 30 : 80;
+      // تقليل عدد الجزيئات لزيادة السلاسة
+      const particleCount = isMobile ? 15 : 40; 
       for (let i = 0; i < particleCount; i++) {
         particles.push(new Particle());
       }
     };
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // استخدام لون ثابت للخلفية بدلاً من clearRect لتحسين أداء الرسم في بعض المتصفحات
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#f0fdf4';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
       for (let i = 0; i < particles.length; i++) {
         particles[i].update();
         particles[i].draw();
@@ -75,9 +79,8 @@ const AnimatedBackground: React.FC = () => {
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', resize, { passive: true });
     resize();
-    init();
     animate();
 
     return () => {
@@ -88,12 +91,8 @@ const AnimatedBackground: React.FC = () => {
 
   return (
     <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none bg-[#f0fdf4]">
-      {/* هالات لونية ثابتة بدلاً من المتحركة لسرعة الأداء */}
-      <div className="absolute top-[-10%] left-[-20%] w-[120%] h-[120%] bg-emerald-100/30 blur-[120px]" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[100%] h-[100%] bg-green-100/20 blur-[150px]" />
-      
-      {/* نسيج خفيف جداً */}
-      <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      <div className="absolute top-[-10%] left-[-20%] w-[120%] h-[120%] bg-emerald-100/30 blur-[100px]" />
+      <div className="absolute inset-0 opacity-[0.02] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
       <canvas
         ref={canvasRef}

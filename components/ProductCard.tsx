@@ -13,16 +13,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onViewD
   return (
     <div 
       onClick={() => onViewDetails(product)}
-      className="bg-white rounded-[2rem] overflow-hidden border border-emerald-50 hover:border-emerald-200 transition-all duration-300 group cursor-pointer relative w-full shadow-sm hover:shadow-xl"
+      className="bg-white rounded-[2rem] overflow-hidden border border-emerald-50 hover:border-emerald-200 transition-all duration-300 group cursor-pointer relative w-full shadow-sm hover:shadow-xl will-change-transform"
     >
-      <div className="relative aspect-square overflow-hidden bg-emerald-50">
+      <div className="relative aspect-square overflow-hidden bg-emerald-50/50">
         <img 
           src={product.image} 
           alt={product.name} 
           loading="lazy"
+          decoding="async"
           width="400"
           height="400"
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute top-3 right-3 flex flex-col gap-1">
           <span className="bg-white/95 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black text-emerald-700 shadow-lg border border-emerald-50">

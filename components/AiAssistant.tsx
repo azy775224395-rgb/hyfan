@@ -2,23 +2,34 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { geminiService } from '../services/geminiService';
 import { NotificationService } from '../services/notificationService';
+import { ProductService } from '../services/productService';
 import { ChatMessage, Product } from '../types';
 
 interface AiAssistantProps {
-  products: Product[];
+  products: Product[]; // هذه ستكون كنسخة احتياطية
   isContactOpen?: boolean;
 }
 
-const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) => {
+const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, isContactOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [liveProducts, setLiveProducts] = useState<Product[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'أهلاً بك في حيفان للطاقة. أنا خبير المبيعات هنا، مستعد لتزويدك بأفضل حلول الطاقة الشمسية والبطاريات. كيف يمكنني خدمتك اليوم؟' }
+    { role: 'model', text: 'أهلاً بك في حيفان للطاقة. أنا مهندس المبيعات الخاص بك، مستعد لتصميم أفضل منظومة طاقة لمنزلك بناءً على المخزون المتوفر حالياً. كيف أخدمك يا غالي؟' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const LOGO_URL = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
+
+  useEffect(() => {
+    // جلب المنتجات الحية من السحابة عند تشغيل المساعد
+    const fetchCloudInventory = async () => {
+      const data = await ProductService.getLiveProducts();
+      setLiveProducts(data);
+    };
+    fetchCloudInventory();
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -35,15 +46,16 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
     setIsLoading(true);
 
     try {
-      // إعداد بيانات المنتجات بدقة للمساعد
-      const context = products.map(p => 
-        `- المنتج: ${p.name} | السعر: ${p.price} ر.س | الفئة: ${p.category} | المعرف: ${p.id} | المواصفات: ${p.specs?.join(', ')} | الوصف: ${p.description}`
+      // استخدام المنتجات الحية إذا توفرت، وإلا العودة للاحتياطية
+      const currentInventory = liveProducts.length > 0 ? liveProducts : fallbackProducts;
+      
+      const context = currentInventory.map(p => 
+        `- المنتج: ${p.name} | السعر: ${p.price} ر.س | الفئة: ${p.category} | المعرف: ${p.id} | المواصفات: ${p.specs?.join(', ')} | الحالة: ${p.status || 'متوفر'}`
       ).join('\n');
       
       const response = await geminiService.chatWithCustomer(userMsg, context);
       setMessages(prev => [...prev, { role: 'model', text: response }]);
       
-      // إرسال الإشعار فقط إذا كان طول الرسالة أكثر من 15 حرفاً
       if (userMsg.length > 15) {
         NotificationService.sendTelegramNotification(
           NotificationService.formatAiChatMessage(userMsg, response)
@@ -51,8 +63,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
       }
       
     } catch (error) {
-      // رد واثق حتى في حالات الفشل
-      setMessages(prev => [...prev, { role: 'model', text: 'أهلاً بك. لدينا حالياً أفضل عروض الألواح والبطاريات في اليمن بضمان حقيقي. تفضل بسؤالك التقني وسأجيبك فوراً.' }]);
+      setMessages(prev => [...prev, { role: 'model', text: 'أهلاً بك. لدينا حالياً أفضل عروض الألواح والبطاريات بضمان حقيقي. تفضل بسؤالك عن أي منتج وسأعطيك البديل الأنسب فوراً.' }]);
     } finally {
       setIsLoading(false);
     }
@@ -101,10 +112,10 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
                  <img src={LOGO_URL} alt="حيفان" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h3 className="font-black text-base">مبيعات حيفان</h3>
+                <h3 className="font-black text-base">مهندس مبيعات حيفان</h3>
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                  <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">مستشار الطاقة المتوفر حالياً</p>
+                  <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">مخزون السحابة متصل</p>
                 </div>
               </div>
             </div>
@@ -131,7 +142,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products, isContactOpen }) =>
                     <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                     <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                  <span className="text-[11px] text-emerald-800 font-black italic">جاري مراجعة المخزن الفعلي...</span>
+                  <span className="text-[11px] text-emerald-800 font-black italic">أبحث في المستودع السحابي عن بدائل...</span>
                 </div>
               </div>
             )}

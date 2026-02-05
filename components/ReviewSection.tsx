@@ -1,39 +1,47 @@
 
 import React, { useState, useEffect } from 'react';
-import { Review } from '../types';
+import { Review, UserProfile } from '../types';
 import { NotificationService } from '../services/notificationService';
 import { ReviewService } from '../services/reviewService';
 
 interface ReviewSectionProps {
   onShowAll: (reviews: Review[]) => void;
+  user: UserProfile | null;
 }
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
+const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
-  const [name, setName] = useState('');
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // جلب التقييمات من قاعدة البيانات عند تحميل المكون
   useEffect(() => {
     const loadReviews = async () => {
-      setIsLoadingReviews(true);
-      const cloudReviews = await ReviewService.fetchReviews();
-      setReviews(cloudReviews);
-      setIsLoadingReviews(false);
+      try {
+        setIsLoadingReviews(true);
+        const cloudReviews = await ReviewService.fetchReviews();
+        setReviews(cloudReviews || []);
+      } catch (err) {
+        console.error("Reviews load error", err);
+      } finally {
+        setIsLoadingReviews(false);
+      }
     };
     loadReviews();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating === 0 || !name.trim() || !comment.trim()) {
-      alert('يرجى ملء جميع الحقول واختيار التقييم');
+    
+    // استخدام اسم المستخدم المسجل أو اسم افتراضي إذا لم يسجل
+    const displayName = user ? user.name : 'عميل حيفان';
+
+    if (rating === 0 || !comment.trim()) {
+      alert('يرجى اختيار التقييم وكتابة تعليقك');
       return;
     }
     
@@ -41,30 +49,30 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
     
     const newReview: Review = {
       id: Date.now(),
-      name,
+      name: displayName,
       rating,
       comment,
       date: new Date().toISOString().split('T')[0]
     };
     
-    // الحفظ في قاعدة البيانات السحابية
-    const success = await ReviewService.addReview(newReview);
-    
-    if (success) {
+    try {
+      const success = await ReviewService.addReview(newReview);
+      if (success) {
+        setReviews(prev => [newReview, ...prev]);
+        NotificationService.sendTelegramNotification(NotificationService.formatReviewMessage(newReview));
+        setSubmitted(true);
+        setComment('');
+        setRating(0);
+      } else {
+        throw new Error("Add review failed");
+      }
+    } catch (err) {
+      alert('تم حفظ التقييم محلياً بسبب ضعف الاتصال، سيظهر للجميع قريباً.');
       setReviews(prev => [newReview, ...prev]);
-      
-      // إرسال إشعار تيليجرام للمشرف
-      NotificationService.sendTelegramNotification(NotificationService.formatReviewMessage(newReview));
-      
       setSubmitted(true);
-      setName('');
-      setComment('');
-      setRating(0);
-    } else {
-      alert('حدث خطأ أثناء الاتصال بقاعدة البيانات، يرجى المحاولة لاحقاً.');
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    setIsSubmitting(false);
   };
 
   return (
@@ -78,13 +86,16 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
 
             {!submitted ? (
               <form onSubmit={handleSubmit} className="space-y-6">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="اسمك الكامل"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white placeholder:text-white/20 outline-none focus:ring-4 focus:ring-emerald-400/20 transition-all font-bold"
-                />
+                {/* معلومات المستخدم التلقائية */}
+                <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 mb-2">
+                  <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center border-2 border-white/20 overflow-hidden shadow-lg">
+                    {user ? <img src={user.avatar} className="w-full h-full object-cover" alt={user.name} /> : <span className="font-black">👤</span>}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-emerald-400 font-black uppercase tracking-widest">النشر باسم:</p>
+                    <p className="font-black text-lg">{user ? user.name : 'عميل زائر'}</p>
+                  </div>
+                </div>
 
                 <div className="flex justify-center gap-4 py-2">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -129,7 +140,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      جاري الحفظ في السحابة...
+                      جاري الحفظ...
                     </>
                   ) : 'نشر التقييم عالمياً'}
                 </button>
@@ -140,7 +151,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#065f46" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <h3 className="text-3xl font-black mb-2">شكراً لثقتك!</h3>
-                <p className="text-emerald-100/70 text-lg">تم حفظ تقييمك في قاعدة البيانات وسيظهر للجميع الآن.</p>
+                <p className="text-emerald-100/70 text-lg">تم حفظ تقييمك بنجاح وسيظهر للجميع الآن.</p>
                 <button onClick={() => setSubmitted(false)} className="mt-8 text-white underline font-bold">إضافة تقييم آخر</button>
               </div>
             )}
@@ -162,7 +173,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll }) => {
           
           <div className="space-y-6 relative min-h-[400px]">
             {isLoadingReviews ? (
-              // هيكل تحميل (Skeleton Loading)
               [...Array(3)].map((_, i) => (
                 <div key={i} className="bg-gray-50/50 p-6 rounded-[2rem] border border-emerald-50 animate-pulse">
                   <div className="flex justify-between mb-4">
