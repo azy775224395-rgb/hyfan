@@ -5,7 +5,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   define: {
-    'process.env': {},
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY),
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
   },
@@ -17,17 +16,16 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    target: 'esnext', // Use modern JS for smaller bundles
-    minify: 'terser', // Better minification than default esbuild
+    target: 'esnext',
+    minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true, // Remove console.logs in production
+        drop_console: true,
         drop_debugger: true,
       },
     },
     rollupOptions: {
       output: {
-        // Code Splitting Strategy
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
             if (id.includes('react')) return 'vendor-react';
