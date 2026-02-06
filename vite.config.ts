@@ -17,23 +17,17 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     target: 'esnext',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
+    minify: 'esbuild', // Use esbuild for faster and error-free minification
+    esbuild: {
+      drop: ['console', 'debugger'],
     },
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react')) return 'vendor-react';
-            if (id.includes('@google/genai')) return 'vendor-genai';
-            if (id.includes('@supabase')) return 'vendor-supabase';
-            return 'vendor-others';
-          }
-        },
+        // Simplified manual chunks to prevent circular dependency warnings
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'framer-motion', 'lucide-react'],
+          utils: ['@google/genai', '@supabase/supabase-js']
+        }
       },
     },
     chunkSizeWarningLimit: 1000,
