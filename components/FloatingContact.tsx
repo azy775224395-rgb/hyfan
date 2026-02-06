@@ -24,7 +24,7 @@ const FloatingContact: React.FC<FloatingContactProps> = ({ isOpen, onToggle }) =
   ];
 
   return (
-    <div className="fixed left-5 bottom-5 md:left-10 md:bottom-10 z-[60] flex flex-col items-center">
+    <div className="fixed left-5 bottom-24 md:left-10 md:bottom-10 z-[60] flex flex-col items-center">
       {/* Sub Buttons Wrapper */}
       <div className={`flex flex-col gap-2.5 mb-3 transition-all duration-500 ease-in-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
         {icons.map((item, idx) => (

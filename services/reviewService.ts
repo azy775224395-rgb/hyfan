@@ -1,86 +1,108 @@
 
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabaseClient';
 import { Review } from '../types';
 
-// القيم المباشرة للربط السحابي (Supabase)
-const SUPABASE_URL = 'https://dmkyurpyqhqwoczmdpeb.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_rjAq009RyqMZ7k1h7TfWDw_T9Xu10zb';
-
-// تهيئة العميل مع معالجة الأخطاء لمنع تعطل الموقع بالكامل
-let supabase: any = null;
-try {
-  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-} catch (error) {
-  console.error("Supabase Connection Error:", error);
-}
-
 export class ReviewService {
-  private static STORAGE_KEY = 'hyfan_cloud_sync_backup';
-
   /**
-   * جلب التقييمات: يحاول السحابة أولاً، وإذا فشلت يعود للتخزين المحلي
+   * Fetch reviews from Supabase and join with Profiles to get names/avatars
    */
   static async fetchReviews(): Promise<Review[]> {
     try {
       if (!supabase) throw new Error("Client not initialized");
 
+      // Join reviews with profiles table
       const { data, error } = await supabase
         .from('reviews')
-        .select('*')
+        .select(`
+          *,
+          profiles (full_name, avatar_url)
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       if (data) {
-        const mappedReviews = data.map((item: any) => ({
+        return data.map((item: any) => ({
           id: item.id,
-          name: item.name,
+          name: item.profiles?.full_name || 'عميل حيفان',
+          avatar_url: item.profiles?.avatar_url,
           rating: item.rating,
           comment: item.comment,
-          date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : item.date
+          image_url: item.image_url,
+          date: new Date(item.created_at).toISOString().split('T')[0]
         }));
-        // تحديث النسخة المحلية للعمل بها عند انقطاع الإنترنت مستقبلاً
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(mappedReviews));
-        return mappedReviews;
       }
       return [];
     } catch (error) {
-      console.warn("Cloud access failed, using local fallback:", error);
-      const saved = localStorage.getItem(this.STORAGE_KEY);
-      // إذا لم يوجد شيء محلياً، نرجع بيانات تجريبية افتراضية
-      return saved ? JSON.parse(saved) : [
-        { id: 1, name: "أحمد صالح", rating: 5, comment: "خدمة ممتازة وسرعة في التوصيل لتعز. الألواح جودتها عالية جداً.", date: "2025-02-15" },
-        { id: 2, name: "محمد العمري", rating: 5, comment: "المساعد الذكي ساعدني جداً في اختيار البطارية المناسبة. أنصح بالتعامل معهم.", date: "2025-02-10" }
-      ];
+      console.warn("Cloud access failed, falling back to local:", error);
+      return [];
     }
   }
 
   /**
-   * إضافة تقييم: يرسل للسحابة فوراً
+   * Uploads image to Supabase Storage and creates a review record
    */
-  static async addReview(review: Review): Promise<boolean> {
+  static async submitReview(
+    userId: string, 
+    productId: string, 
+    rating: number, 
+    comment: string, 
+    imageFile?: File
+  ): Promise<Review | null> {
     try {
       if (!supabase) throw new Error("Cloud not connected");
 
-      const { error } = await supabase
+      let imageUrl = null;
+
+      // 1. Upload Image if exists
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${userId}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('reviews-images')
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('reviews-images')
+          .getPublicUrl(fileName);
+          
+        imageUrl = publicUrl;
+      }
+
+      // 2. Insert Review Data
+      const { data, error } = await supabase
         .from('reviews')
         .insert([{
-          name: review.name,
-          rating: review.rating,
-          comment: review.comment,
-          date: review.date
-        }]);
+          user_id: userId,
+          product_id: productId,
+          rating: rating,
+          comment: comment,
+          image_url: imageUrl
+        }])
+        .select(`
+          *,
+          profiles (full_name, avatar_url)
+        `)
+        .single();
 
       if (error) throw error;
-      return true;
+
+      return {
+        id: data.id,
+        name: data.profiles?.full_name || 'عميل حيفان',
+        avatar_url: data.profiles?.avatar_url,
+        rating: data.rating,
+        comment: data.comment,
+        image_url: data.image_url,
+        date: new Date(data.created_at).toISOString().split('T')[0]
+      };
+
     } catch (error) {
-      console.error("Cloud Save Failed:", error);
-      // في حال الفشل نحفظه محلياً لكي لا يضيع مجهود العميل
-      const current = JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]');
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify([review, ...current]));
-      return true; 
+      console.error("Submit Review Failed:", error);
+      return null;
     }
   }
 }

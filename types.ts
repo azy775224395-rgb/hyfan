@@ -22,10 +22,15 @@ export interface ChatMessage {
 
 export interface Review {
   id: number;
-  name: string;
+  user_id?: string;
+  product_id?: string;
+  name: string; // Display name from joined Profile
+  avatar_url?: string; // Avatar from joined Profile
   rating: number;
   comment: string;
-  date: string;
+  image_url?: string; // New field for review image
+  created_at?: string;
+  date: string; // Computed for display
 }
 
 export interface ShippingInfo {
@@ -39,14 +44,15 @@ export interface Order {
   id: string;
   date: string;
   total: number;
-  status: 'قيد التنفيذ' | 'تم التوصيل' | 'في الشحن';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered';
   itemsCount: number;
 }
 
 export interface UserProfile {
+  id: string;
   name: string;
   email: string;
   avatar: string;
-  provider: 'google' | 'facebook' | 'discord' | null;
+  provider: 'google' | 'facebook' | 'discord' | 'email' | null;
   orders?: Order[];
 }

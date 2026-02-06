@@ -31,11 +31,11 @@ const StoryModal: React.FC<StoryModalProps> = ({ onClose }) => {
         <div>
           <h1 className="text-5xl md:text-8xl font-black text-emerald-950 mb-12 leading-[1.1]">
             نضيء <span className="text-emerald-600 italic">اليمن</span> <br/>
-            بأيدي يمنية
+            بأفضل الحلول
           </h1>
           <div className="space-y-8 text-gray-600 leading-relaxed text-xl md:text-2xl">
             <p className="font-bold">
-              بدأت رحلة حيفان للطاقة المتجددة من قلب تعز، حاملين مهمة واحدة: إنهاء معاناة الظلام عبر حلول طاقة نظيفة واقتصادية.
+              بدأت رحلة حيفان للطاقة المتجددة في السوق اليمني، حاملين مهمة واحدة: إنهاء معاناة الظلام عبر حلول طاقة نظيفة واقتصادية بمواصفات عالمية.
             </p>
             <p className="font-medium opacity-80">
               اليوم، وبفضل ثقة أكثر من 40,000 عميل، أصبحنا الاسم الأول في توريد ألواح جينكو وبطاريات توبو في جميع المحافظات، من المهرة إلى صعدة.

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CartItem, UserProfile } from '../types';
 import { NotificationService } from '../services/notificationService';
 
@@ -16,6 +16,25 @@ interface CartDrawerProps {
 const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpdateQty, user, formatPrice }) => {
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const WHATSAPP_NUMBER = '967784400333';
+
+  // Smart Compatibility Check Logic
+  const voltageWarning = useMemo(() => {
+    const voltages = new Set<string>();
+    items.forEach(item => {
+      // Extract voltage (12V, 24V, 48V) from name or description
+      const match = (item.name + " " + item.description).match(/(\d+)\s*[vVفولت]/);
+      if (match) {
+        voltages.add(match[1]);
+      }
+    });
+    
+    // If we have mixed voltages (e.g., 12 and 24), return warning
+    if (voltages.has('12') && voltages.has('24')) return "تنبيه: يوجد اختلاف في الفولتية (12V و 24V). يرجى التأكد من توافق الأجهزة.";
+    if (voltages.has('12') && voltages.has('48')) return "تنبيه: يوجد اختلاف كبير في الفولتية (12V و 48V).";
+    if (voltages.has('24') && voltages.has('48')) return "تنبيه: يوجد اختلاف في الفولتية (24V و 48V).";
+    
+    return null;
+  }, [items]);
 
   const handleCheckoutWhatsApp = () => {
     let orderSummary = "السلام عليكم، أريد شراء المنتجات التالية:\n\n";
@@ -48,69 +67,82 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpd
   };
 
   return (
-    <div className="container mx-auto px-4 py-12 animate-fade-in min-h-[60vh]">
-      <div className="flex items-center justify-between mb-10">
-        <h2 className="text-3xl md:text-5xl font-black text-emerald-950">سلة المشتريات</h2>
-        <button onClick={onClose} className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-100 transition-all font-black flex items-center gap-2">
+    <div className="container mx-auto px-4 py-8 md:py-12 animate-fade-in min-h-[80vh] pb-32">
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-2xl md:text-5xl font-black text-emerald-950">سلة المشتريات</h2>
+        <button onClick={onClose} className="p-3 md:p-4 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-100 transition-all font-black flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m9 18 6-6-6-6"/></svg>
-          العودة للتسوق
+          <span className="hidden md:inline">العودة للتسوق</span>
         </button>
       </div>
+      
+      {/* Smart Warning Banner */}
+      {voltageWarning && items.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-start gap-3 animate-pulse">
+           <span className="text-2xl">⚠️</span>
+           <div>
+             <h4 className="font-black text-amber-800 text-sm">تحقق من التوافق الهندسي</h4>
+             <p className="text-amber-700 text-xs font-bold">{voltageWarning}</p>
+           </div>
+        </div>
+      )}
 
       {items.length === 0 ? (
-        <div className="bg-white rounded-[3rem] p-20 text-center border border-emerald-50 shadow-xl">
-          <div className="w-32 h-32 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-8">
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-emerald-200"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+        <div className="bg-white/60 backdrop-blur-xl rounded-[2.5rem] p-10 md:p-20 text-center border border-emerald-50 shadow-lg">
+          <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-emerald-300"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
           </div>
-          <h3 className="text-2xl font-black text-emerald-900 mb-4">سلتك فارغة حالياً</h3>
-          <p className="text-gray-400 font-bold mb-10">تصفح منتجاتنا المميزة وأضف ما يعجبك إلى السلة</p>
-          <button onClick={onClose} className="bg-emerald-600 text-white px-12 py-5 rounded-2xl font-black shadow-xl hover:bg-emerald-700 transition-all">ابدأ التسوق الآن</button>
+          <h3 className="text-xl font-black text-emerald-900 mb-2">سلتك فارغة حالياً</h3>
+          <p className="text-gray-400 font-bold mb-8">تصفح منتجاتنا المميزة وأضف ما يعجبك إلى السلة</p>
+          <button onClick={onClose} className="bg-emerald-600 text-white px-8 py-4 rounded-xl font-black shadow-lg hover:bg-emerald-700 transition-all">ابدأ التسوق الآن</button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-4">
             {items.map(item => (
-              <div key={item.id} className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-emerald-50 shadow-sm flex flex-col md:flex-row gap-8 items-center group hover:shadow-md transition-all">
-                <div className="w-32 h-32 rounded-3xl overflow-hidden bg-emerald-50 flex-shrink-0">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+              <div key={item.id} className="bg-white p-4 md:p-6 rounded-[2rem] border border-emerald-50 shadow-sm flex gap-4 items-center group relative overflow-hidden">
+                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
-                <div className="flex-grow text-center md:text-right">
-                  <h4 className="font-black text-emerald-950 text-xl mb-2">{item.name}</h4>
-                  <p className="text-emerald-600 font-black text-2xl">{formatPrice(item.price)} <small className="text-xs font-bold text-gray-400">للقطعة</small></p>
+                <div className="flex-grow min-w-0">
+                  <h4 className="font-black text-emerald-950 text-sm md:text-lg mb-1 truncate">{item.name}</h4>
+                  <p className="text-emerald-600 font-black text-lg">{formatPrice(item.price)}</p>
                 </div>
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center border-2 border-emerald-50 rounded-2xl bg-emerald-50/30 p-1">
-                    <button onClick={() => onUpdateQty(item.id, -1)} className="w-10 h-10 flex items-center justify-center text-emerald-600 hover:bg-white rounded-xl transition-all font-black">-</button>
-                    <span className="w-12 text-center font-black text-lg">{item.quantity}</span>
-                    <button onClick={() => onUpdateQty(item.id, 1)} className="w-10 h-10 flex items-center justify-center text-emerald-600 hover:bg-white rounded-xl transition-all font-black">+</button>
+                
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center border border-gray-100 rounded-xl bg-gray-50 p-1">
+                    <button onClick={() => onUpdateQty(item.id, -1)} className="w-8 h-8 flex items-center justify-center text-emerald-600 bg-white rounded-lg shadow-sm font-black active:scale-90 transition-transform">-</button>
+                    <span className="w-8 text-center font-black text-sm">{item.quantity}</span>
+                    <button onClick={() => onUpdateQty(item.id, 1)} className="w-8 h-8 flex items-center justify-center text-emerald-600 bg-white rounded-lg shadow-sm font-black active:scale-90 transition-transform">+</button>
                   </div>
-                  <button onClick={() => onRemove(item.id)} className="p-4 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+                  <button onClick={() => onRemove(item.id)} className="text-xs text-red-400 hover:text-red-600 font-bold underline p-1">حذف</button>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="bg-emerald-950 text-white p-10 rounded-[3rem] shadow-2xl h-fit sticky top-28">
-            <h3 className="text-2xl font-black mb-8 border-b border-white/10 pb-4">ملخص الطلب</h3>
-            <div className="space-y-4 mb-10">
-              <div className="flex justify-between text-white/60 font-bold">
+          <div className="bg-white/80 backdrop-blur-xl p-6 md:p-8 rounded-[2.5rem] shadow-xl h-fit border border-emerald-50 sticky top-24">
+            <h3 className="text-xl font-black mb-6 border-b border-gray-100 pb-4 text-emerald-950">ملخص الطلب</h3>
+            <div className="space-y-3 mb-8">
+              <div className="flex justify-between text-gray-500 font-bold text-sm">
                 <span>عدد المنتجات</span>
                 <span>{items.reduce((s, i) => s + i.quantity, 0)} قطعة</span>
               </div>
-              <div className="flex justify-between text-white/60 font-bold">
+              <div className="flex justify-between text-gray-500 font-bold text-sm">
                 <span>الشحن</span>
-                <span className="text-emerald-400 font-black">مجاني</span>
+                <span className="text-emerald-600 font-black">مجاني</span>
               </div>
-              <div className="flex justify-between text-2xl font-black pt-4 border-t border-white/10">
+              <div className="flex justify-between text-2xl font-black pt-4 border-t border-gray-100 text-emerald-900">
                 <span>الإجمالي</span>
-                <span className="text-emerald-400">{formatPrice(total)}</span>
+                <span>{formatPrice(total)}</span>
               </div>
             </div>
             <button 
               onClick={handleCheckoutWhatsApp}
-              className="w-full bg-emerald-500 text-white py-6 rounded-2xl font-black text-xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-400 transition-all active:scale-95 flex items-center justify-center gap-3"
+              className="w-full bg-emerald-600 text-white py-4 rounded-xl font-black text-lg shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition-all active:scale-95 flex items-center justify-center gap-2"
             >
-              تأكيد الطلب واتساب
+              <span>تأكيد الطلب واتساب</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             </button>
           </div>
         </div>

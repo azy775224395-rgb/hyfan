@@ -17,9 +17,9 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
   const GOOGLE_CLIENT_ID = "413172724194-1tjqdcb8bv56f4ae1qlsetcr3t5ocvmt.apps.googleusercontent.com";
 
   const defaultOrders: Order[] = [
-    { id: 'HYF-98210', date: '2025-11-12', total: 4500, status: 'تم التوصيل', itemsCount: 3 },
-    { id: 'HYF-77412', date: '2025-12-05', total: 1800, status: 'في الشحن', itemsCount: 1 },
-    { id: 'HYF-11029', date: '2026-01-20', total: 950, status: 'قيد التنفيذ', itemsCount: 2 },
+    { id: 'HYF-98210', date: '2025-11-12', total: 4500, status: 'delivered', itemsCount: 3 },
+    { id: 'HYF-77412', date: '2025-12-05', total: 1800, status: 'shipped', itemsCount: 1 },
+    { id: 'HYF-11029', date: '2026-01-20', total: 950, status: 'processing', itemsCount: 2 },
   ];
 
   useEffect(() => {
@@ -66,6 +66,7 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
       const payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
       
       const userData: UserProfile = {
+        id: payload.sub,
         name: payload.name,
         email: payload.email,
         avatar: payload.picture,
@@ -86,6 +87,7 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
     setIsProcessing(true);
     setTimeout(() => {
       const userData: UserProfile = {
+        id: `user-${Date.now()}`,
         name: "عميل حيفان",
         email: "customer@example.com",
         avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",

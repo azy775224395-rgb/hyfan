@@ -1,17 +1,7 @@
 
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabaseClient';
 import { Product } from '../types';
 import { INITIAL_PRODUCTS } from '../constants';
-
-const SUPABASE_URL = 'https://dmkyurpyqhqwoczmdpeb.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_rjAq009RyqMZ7k1h7TfWDw_T9Xu10zb';
-
-let supabase: any = null;
-try {
-  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} catch (e) {
-  console.error("ProductService: Supabase init error");
-}
 
 export class ProductService {
   private static STORAGE_KEY = 'hyfan_products_cache';

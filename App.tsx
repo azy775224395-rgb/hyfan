@@ -1,9 +1,9 @@
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Product, CartItem, Review, UserProfile } from './types';
+import React, { useState, useMemo, useEffect, useRef, Suspense } from 'react';
+import { Product, CartItem, UserProfile } from './types';
 import { INITIAL_PRODUCTS } from './constants';
 import Header from './components/Header';
-import ProductCard from './components/ProductCard';
+import GlassProductCard from './components/GlassProductCard';
 import ProductDetail from './components/ProductDetail';
 import CartDrawer from './components/CartDrawer';
 import AiAssistant from './components/AiAssistant';
@@ -11,20 +11,32 @@ import Hero from './components/Hero';
 import FaqSection from './components/FaqSection';
 import ReviewSection from './components/ReviewSection';
 import SolarCalculator from './components/SolarCalculator';
-import BrandSection from './components/BrandSection';
-import StoryModal from './components/StoryModal';
-import WarrantyModal from './components/WarrantyModal';
 import FloatingContact from './components/FloatingContact';
 import AnimatedBackground from './components/AnimatedBackground';
-import AllReviewsModal from './components/AllReviewsModal';
-import CheckoutView from './components/CheckoutView';
-import AuthSidebar from './components/AuthSidebar';
+import MobileNav from './components/MobileNav';
+import SEO from './components/SEO';
+
+// Lazy Load Heavy Components for Performance
+const StoryModal = React.lazy(() => import('./components/StoryModal'));
+const WarrantyModal = React.lazy(() => import('./components/WarrantyModal'));
+const AllReviewsModal = React.lazy(() => import('./components/AllReviewsModal'));
+const CheckoutView = React.lazy(() => import('./components/CheckoutView'));
+const AuthSidebar = React.lazy(() => import('./components/AuthSidebar'));
+
+const LoadingSpinner = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50 backdrop-blur-sm">
+    <div className="w-16 h-16 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
+  </div>
+);
 
 const App: React.FC = () => {
   const [products] = useState<Product[]>(INITIAL_PRODUCTS);
   const [currentHash, setCurrentHash] = useState(window.location.hash || '#/');
   const [searchQuery, setSearchQuery] = useState('');
   
+  // State for Floating Contact Button
+  const [isContactOpen, setIsContactOpen] = useState(false);
+
   const homeScrollPos = useRef(0);
   const isBackAction = useRef(false);
 
@@ -80,7 +92,6 @@ const App: React.FC = () => {
     navigateTo('#/cart');
   };
 
-  // وظيفة تنسيق السعر مبسطة لتكون بالريال السعودي فقط
   const formatPrice = (sarPrice: number) => {
     return `${sarPrice} ر.س`;
   };
@@ -118,11 +129,13 @@ const App: React.FC = () => {
       const id = hash.replace('#/checkout/', '');
       const product = products.find(p => p.id === id);
       if (product) return (
-        <CheckoutView 
-          product={product} 
-          onCancel={() => navigateTo('#/')} 
-          user={user} 
-        />
+        <Suspense fallback={<LoadingSpinner />}>
+          <CheckoutView 
+            product={product} 
+            onCancel={() => navigateTo('#/')} 
+            user={user} 
+          />
+        </Suspense>
       );
     }
 
@@ -140,42 +153,74 @@ const App: React.FC = () => {
           />
         );
       case '#/auth':
-        return <AuthSidebar isOpen={true} onClose={() => navigateTo('#/')} user={user} onUserUpdate={handleUserUpdate} />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AuthSidebar isOpen={true} onClose={() => navigateTo('#/')} user={user} onUserUpdate={handleUserUpdate} />
+          </Suspense>
+        );
+      case '#/calculator':
+        return (
+          <div className="pt-8 pb-32 container mx-auto px-4 animate-fade-in">
+             <div className="flex items-center justify-between mb-6">
+                <h2 className="text-3xl font-black text-emerald-950">حاسبة الطاقة</h2>
+                <button onClick={() => navigateTo('#/')} className="text-emerald-600 font-bold text-sm">عودة للرئيسية</button>
+             </div>
+             <SolarCalculator />
+          </div>
+        );
       case '#/story':
-        return <StoryModal onClose={() => navigateTo('#/')} />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <StoryModal onClose={() => navigateTo('#/')} />
+          </Suspense>
+        );
       case '#/warranty':
-        return <WarrantyModal onClose={() => navigateTo('#/')} />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <WarrantyModal onClose={() => navigateTo('#/')} />
+          </Suspense>
+        );
       case '#/reviews':
-        return <AllReviewsModal reviews={[]} onClose={() => navigateTo('#/')} />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AllReviewsModal reviews={[]} onClose={() => navigateTo('#/')} />
+          </Suspense>
+        );
       case '#/':
       default:
         return (
-          <div className="flex flex-col gap-12 md:gap-20 pb-20 animate-fade-in">
+          <div className="flex flex-col gap-12 md:gap-20 pb-32 animate-fade-in">
+            <SEO 
+              title="الرئيسية" 
+              description="متجر حيفان للطاقة المتجددة - رائدون في حلول الألواح الشمسية والبطاريات والأجهزة المنزلية الموفرة للطاقة في اليمن." 
+            />
             <Hero onOpenStory={() => navigateTo('#/story')} />
             
             <section id="products-grid" className="container mx-auto px-4 scroll-mt-24">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 border-b border-emerald-100 pb-8">
-                <div>
-                  <h2 className="text-2xl md:text-4xl font-black text-emerald-950 underline decoration-emerald-500 decoration-4 underline-offset-8">منتجاتنا المختارة</h2>
-                  <p className="text-emerald-600 font-bold mt-4">أفضل جودة بأفضل سعر في اليمن 2026</p>
+              <div className="sticky top-14 md:top-24 z-30 bg-white/80 backdrop-blur-xl py-4 -mx-4 px-4 mb-6 border-b border-emerald-50">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl md:text-3xl font-black text-emerald-950">منتجاتنا المختارة</h2>
+                  </div>
+                  <nav className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                    {categories.map(cat => (
+                      <button 
+                        key={cat} 
+                        type="button"
+                        aria-label={`تصفح قسم ${cat}`}
+                        onClick={() => { setSelectedCategory(cat); setSearchQuery(''); }} 
+                        className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all whitespace-nowrap active:scale-95 ${selectedCategory === cat && searchQuery === '' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-gray-100/50 text-gray-500 hover:bg-white hover:shadow-md'}`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </nav>
                 </div>
-                <nav className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                  {categories.map(cat => (
-                    <button 
-                      key={cat} 
-                      type="button"
-                      onClick={() => { setSelectedCategory(cat); setSearchQuery(''); }} 
-                      className={`px-6 py-2 rounded-full text-xs font-black border-2 transition-all whitespace-nowrap ${selectedCategory === cat && searchQuery === '' ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg' : 'bg-white text-emerald-800 border-emerald-50 hover:border-emerald-200'}`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </nav>
               </div>
               
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
                 {filteredProducts.map(product => (
-                  <ProductCard 
+                  <GlassProductCard 
                     key={product.id} 
                     product={product} 
                     onAddToCart={addToCart} 
@@ -187,9 +232,7 @@ const App: React.FC = () => {
               </div>
             </section>
 
-            <SolarCalculator />
             <ReviewSection user={user} onShowAll={() => navigateTo('#/reviews')} />
-            <BrandSection />
             <FaqSection />
           </div>
         );
@@ -197,7 +240,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white overflow-x-hidden" dir="rtl">
+    <div className="min-h-screen flex flex-col bg-[#f8fafc] overflow-x-hidden font-sans" dir="rtl">
       <AnimatedBackground />
       <Header 
         cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} 
@@ -213,26 +256,34 @@ const App: React.FC = () => {
         {renderCurrentPage()}
       </main>
 
-      <footer className="bg-emerald-950 text-white py-16 text-center relative z-10">
-        <div className="container mx-auto px-4">
-          <img src="https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg" alt="حيفان للطاقة" className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl border-2 border-emerald-500/30" loading="lazy" />
-          <h3 className="text-xl font-black mb-2">حيفان للطاقة المتجددة</h3>
-          <p className="text-emerald-400 font-bold text-sm mb-8 opacity-80">شريككم الموثوق للطاقة النظيفة في اليمن</p>
-          
-          <nav className="flex justify-center gap-8 mb-12">
-            <button type="button" onClick={() => navigateTo('#/story')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">من نحن</button>
-            <button type="button" onClick={() => navigateTo('#/warranty')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">سياسة الضمان</button>
-            <a href={MAP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">موقعنا على الخريطة</a>
-          </nav>
-          
-          <div className="pt-8 border-t border-white/5">
-            <p className="text-[10px] font-bold text-white/30 tracking-widest uppercase">© 2026 حيفان للطاقة المتجددة - جميع الحقوق محفوظة</p>
+      {!currentHash.includes('cart') && !currentHash.includes('checkout') && !currentHash.includes('calculator') && (
+        <footer className="bg-emerald-950 text-white py-16 text-center relative z-10 pb-24 md:pb-16">
+          <div className="container mx-auto px-4">
+            <img src="https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg" alt="حيفان للطاقة" className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl border-2 border-emerald-500/30 grayscale hover:grayscale-0 transition-all" loading="lazy" />
+            <h3 className="text-xl font-black mb-2">حيفان للطاقة المتجددة</h3>
+            <p className="text-emerald-400 font-bold text-sm mb-8 opacity-80">شريككم الموثوق للطاقة النظيفة في اليمن</p>
+            
+            <nav className="flex justify-center gap-8 mb-12">
+              <button type="button" onClick={() => navigateTo('#/story')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">من نحن</button>
+              <button type="button" onClick={() => navigateTo('#/warranty')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">سياسة الضمان</button>
+              <a href={MAP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">موقعنا على الخريطة</a>
+            </nav>
+            
+            <div className="pt-8 border-t border-white/5">
+              <p className="text-[10px] font-bold text-white/30 tracking-widest uppercase">© 2026 حيفان للطاقة المتجددة - جميع الحقوق محفوظة</p>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
-      <AiAssistant products={products} />
-      <FloatingContact isOpen={false} onToggle={() => {}} />
+      <MobileNav 
+        activeTab={currentHash} 
+        cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
+        onNavigate={navigateTo}
+      />
+      
+      <AiAssistant products={products} isContactOpen={isContactOpen} />
+      <FloatingContact isOpen={isContactOpen} onToggle={() => setIsContactOpen(!isContactOpen)} />
     </div>
   );
 };

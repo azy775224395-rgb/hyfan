@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Product } from '../types';
 
 interface ProductCardProps {
@@ -11,57 +11,78 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onViewDetails, onOrderNow, formatPrice }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
   return (
     <div 
       onClick={() => onViewDetails(product)}
-      className="bg-white rounded-[2rem] overflow-hidden border border-emerald-50 hover:border-emerald-200 transition-all duration-300 group cursor-pointer relative w-full shadow-sm hover:shadow-xl will-change-transform"
+      className="group relative bg-white/60 backdrop-blur-xl border border-white/50 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-emerald-900/10 transition-all duration-500 cursor-pointer active:scale-[0.98] transform"
+      role="article"
+      aria-label={`منتج ${product.name}`}
     >
-      <div className="relative aspect-square overflow-hidden bg-emerald-50/50">
+      {/* Decorative Gradient Blob */}
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-400/20 rounded-full blur-3xl group-hover:bg-emerald-400/30 transition-all" />
+      
+      {/* Image Container with Shimmer Loading */}
+      <div className="relative aspect-square overflow-hidden m-3 rounded-[1.5rem] bg-gray-100">
+        {!isLoaded && (
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-white to-gray-100 animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+        )}
         <img 
           src={product.image} 
           alt={product.name} 
           loading="lazy"
           decoding="async"
-          width="400"
-          height="400"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          onLoad={() => setIsLoaded(true)}
+          className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
         />
+        
+        {/* Status Badge */}
         <div className="absolute top-3 right-3 flex flex-col gap-1">
-          <span className="bg-white/95 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black text-emerald-700 shadow-lg border border-emerald-50">
+          <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-emerald-800 shadow-sm border border-white/50">
             {product.category}
           </span>
+          {product.status && (
+            <span className="bg-amber-400/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-amber-950 shadow-sm border border-white/50">
+              {product.status}
+            </span>
+          )}
         </div>
       </div>
       
-      <div className="p-5">
-        <h3 className="text-sm md:text-lg font-black text-emerald-950 mb-1 truncate leading-tight">{product.name}</h3>
-        <p className="text-emerald-800/60 text-[10px] md:text-sm mb-4 line-clamp-1 font-bold">
-          {product.description}
-        </p>
+      <div className="px-5 pb-5 pt-2">
+        <h3 className="text-base md:text-lg font-black text-emerald-950 mb-2 truncate leading-tight group-hover:text-emerald-700 transition-colors">
+          {product.name}
+        </h3>
         
-        <div className="flex items-center justify-between mb-5">
-          <span className="text-base md:text-2xl font-black text-emerald-700">
-            {formatPrice(product.price)}
-          </span>
-        </div>
-        
-        <div className="flex gap-2">
+        <div className="flex items-end justify-between mb-5">
+          <div className="flex flex-col">
+            <span className="text-xs text-emerald-600/60 font-bold line-through decoration-amber-500/50">
+              {formatPrice(product.price * 1.15)}
+            </span>
+            <span className="text-xl md:text-2xl font-black text-emerald-800">
+              {formatPrice(product.price)}
+            </span>
+          </div>
+          
+          {/* Quick Add Button (Icon Only) */}
           <button 
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onOrderNow(product); }}
-            className="flex-1 bg-emerald-600 text-white py-3 rounded-xl hover:bg-emerald-500 transition-all shadow-lg flex items-center justify-center gap-2 font-black text-[11px] md:text-sm active:scale-95"
+             onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+             className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100"
+             aria-label="أضف للسلة سريعاً"
           >
-            اطلب الآن
-          </button>
-          <button 
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-            className="flex-1 bg-white text-emerald-600 py-3 rounded-xl border-2 border-emerald-100 hover:bg-emerald-50 transition-all shadow-sm flex items-center justify-center gap-2 font-black text-[11px] md:text-sm active:scale-95"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-            للسلة
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
           </button>
         </div>
+        
+        <button 
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onOrderNow(product); }}
+          className="w-full bg-emerald-950 text-white py-3.5 rounded-xl hover:bg-emerald-800 transition-all shadow-lg hover:shadow-emerald-900/20 flex items-center justify-center gap-2 font-black text-sm active:scale-95 group-hover:tracking-wider duration-300"
+        >
+          شراء فوري
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
       </div>
     </div>
   );

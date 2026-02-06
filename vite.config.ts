@@ -5,7 +5,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   define: {
-    // التأكد من أن process.env متاح ككائن فارغ على الأقل لمنع الانهيار
     'process.env': {},
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY),
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
@@ -18,6 +17,27 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    chunkSizeWarningLimit: 1600,
+    target: 'esnext', // Use modern JS for smaller bundles
+    minify: 'terser', // Better minification than default esbuild
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+        drop_debugger: true,
+      },
+    },
+    rollupOptions: {
+      output: {
+        // Code Splitting Strategy
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'vendor-react';
+            if (id.includes('@google/genai')) return 'vendor-genai';
+            if (id.includes('@supabase')) return 'vendor-supabase';
+            return 'vendor-others';
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
   }
 });
