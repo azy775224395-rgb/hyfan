@@ -35,23 +35,28 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const handleSend = async (customMsg?: string) => {
     const userMsg = customMsg || input.trim();
     if (!userMsg || isLoading) return;
 
+    const newUserMessage: ChatMessage = { role: 'user', text: userMsg };
+    
     if (!customMsg) setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setMessages(prev => [...prev, newUserMessage]);
     setIsLoading(true);
 
     try {
       const currentInventory = liveProducts.length > 0 ? liveProducts : fallbackProducts;
       const context = currentInventory.map(p => 
-        `- المنتج: ${p.name} | السعر: ${p.price} ر.س | الفئة: ${p.category} | المعرف: ${p.id} | المواصفات: ${p.specs?.join(', ')} | الحالة: ${p.status || 'متوفر'}`
+        `- [${p.id}] ${p.name} | السعر: ${p.price} ر.س | الفئة: ${p.category} | المواصفات: ${p.specs?.join(', ')}`
       ).join('\n');
       
-      const response = await geminiService.chatWithCustomer(userMsg, context);
+      // إرسال التاريخ الكامل للمحادثة (السجل)
+      const currentHistory = [...messages, newUserMessage];
+      const response = await geminiService.chatWithCustomer(currentHistory, context);
+      
       setMessages(prev => [...prev, { role: 'model', text: response }]);
       
       if (userMsg.length > 15) {
@@ -60,7 +65,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
         );
       }
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: 'أهلاً بك. لدينا حالياً أفضل عروض الألواح والبطاريات بضمان حقيقي. تفضل بسؤالك عن أي منتج وسأعطيك البديل الأنسب فوراً.' }]);
+      setMessages(prev => [...prev, { role: 'model', text: 'يا أهلاً بك. يبدو أن هناك مشكلة بسيطة في الاتصال، لكن لا تقلق، ألواح جينكو وبطاريات توبو متوفرة وبأفضل أسعار 2026. تفضل بسؤالك مرة أخرى.' }]);
     } finally {
       setIsLoading(false);
     }
@@ -136,9 +141,9 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
               <div>
                 <h3 className="font-black text-base">مهندس مبيعات حيفان</h3>
                 <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${isListening ? 'bg-red-500 animate-ping' : 'bg-emerald-400 animate-pulse'}`}></span>
+                  <span className={`w-2 h-2 rounded-full ${isLoading || isListening ? 'bg-emerald-400 animate-ping' : 'bg-emerald-400 opacity-50'}`}></span>
                   <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">
-                    {isListening ? 'جاري الاستماع...' : 'مخزون السحابة متصل'}
+                    {isLoading ? 'جاري التحليل الهندسي...' : isListening ? 'جاري الاستماع...' : 'مخزون السحابة متصل'}
                   </p>
                 </div>
               </div>
@@ -173,7 +178,8 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
           <div className="p-5 border-t bg-white flex gap-2 items-center">
             <button 
               onClick={toggleVoice}
-              className={`p-4 rounded-2xl transition-all shadow-lg active:scale-95 ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}
+              disabled={isLoading}
+              className={`p-4 rounded-2xl transition-all shadow-lg active:scale-95 ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 disabled:opacity-50'}`}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
             </button>
@@ -182,12 +188,13 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="تحدث أو اكتب استفسارك..."
-              className="flex-grow bg-emerald-50/30 rounded-2xl px-6 py-4 text-sm outline-none border-emerald-100 border text-right font-bold placeholder:text-gray-300"
+              placeholder="اسأل المهندس عن أي منظومة..."
+              disabled={isLoading}
+              className="flex-grow bg-emerald-50/30 rounded-2xl px-6 py-4 text-sm outline-none border-emerald-100 border text-right font-bold placeholder:text-gray-300 disabled:opacity-50"
             />
             <button 
               onClick={() => handleSend()}
-              disabled={isLoading}
+              disabled={isLoading || !input.trim()}
               className="bg-emerald-950 text-white p-4.5 rounded-2xl hover:bg-black transition-all disabled:opacity-50 shadow-xl active:scale-95"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="rotate-180"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
