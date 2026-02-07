@@ -21,15 +21,15 @@ const ProductSchema: React.FC<ProductSchemaProps> = ({
   currency,
   brand = "Haifan Energy",
   sku,
-  ratingValue = 4.8, // Default rating to ensure stars appear in search if no real data
-  reviewCount = 24     // Default count
+  ratingValue,
+  reviewCount
 }) => {
   // Calculate price validity (1 year from now)
   const nextYear = new Date();
   nextYear.setFullYear(nextYear.getFullYear() + 1);
   const priceValidUntil = nextYear.toISOString().split('T')[0];
 
-  const schema = {
+  const schema: any = {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": name,
@@ -61,13 +61,17 @@ const ProductSchema: React.FC<ProductSchemaProps> = ({
           "addressCountry": "YE"
         }
       }
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": ratingValue,
-      "reviewCount": reviewCount
     }
   };
+
+  // Only add AggregateRating if data exists
+  if (ratingValue && reviewCount && reviewCount > 0) {
+    schema.aggregateRating = {
+      "@type": "AggregateRating",
+      "ratingValue": ratingValue.toFixed(1),
+      "reviewCount": reviewCount
+    };
+  }
 
   return (
     <script

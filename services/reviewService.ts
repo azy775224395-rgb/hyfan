@@ -40,6 +40,42 @@ export class ReviewService {
   }
 
   /**
+   * Fetch reviews for a SPECIFIC product
+   */
+  static async fetchProductReviews(productId: string): Promise<Review[]> {
+    try {
+      if (!supabase) throw new Error("Client not initialized");
+
+      const { data, error } = await supabase
+        .from('reviews')
+        .select(`
+          *,
+          profiles (full_name, avatar_url)
+        `)
+        .eq('product_id', productId) // Filter by specific product
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (data) {
+        return data.map((item: any) => ({
+          id: item.id,
+          name: item.profiles?.full_name || 'عميل حيفان',
+          avatar_url: item.profiles?.avatar_url,
+          rating: item.rating,
+          comment: item.comment,
+          image_url: item.image_url,
+          date: new Date(item.created_at).toISOString().split('T')[0]
+        }));
+      }
+      return [];
+    } catch (error) {
+      console.warn("Product reviews fetch failed:", error);
+      return [];
+    }
+  }
+
+  /**
    * Uploads image to Supabase Storage and creates a review record
    */
   static async submitReview(

@@ -8,6 +8,7 @@ export interface Product {
   category: string;
   specs?: string[];
   fullDescription?: string;
+  longDescription?: string; // New field for SEO-rich content
   status?: 'الأكثر مبيعاً' | 'جديد' | 'متوفر' | 'خصم';
 }
 
