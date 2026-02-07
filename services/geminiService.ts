@@ -21,9 +21,9 @@ export class GeminiService {
         parts: [{ text: msg.text }]
       }));
 
-      // استخدام gemini-2.0-flash لأنه أكثر استقراراً حالياً للمفاتيح الجديدة
+      // استخدام gemini-3-flash-preview للمهام النصية
       const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash', 
+        model: 'gemini-3-flash-preview', 
         contents: contents,
         config: {
           systemInstruction: `أنت "المهندس حيفان" (Hayfan AI)، الخبير الهندسي ومسؤول المبيعات الأول في "متجر حيفان للطاقة المتجددة" باليمن لعام 2026.
@@ -53,7 +53,6 @@ ${inventoryData}
       return response.text || "حياك الله يا غالي! أنا المهندس حيفان. تفضل بسؤالك عن أي لوح أو بطارية.";
     } catch (e: any) {
       console.error("Hayfan AI Error Details:", e);
-      // إرجاع رسالة خطأ مفصلة قليلاً للمساعدة في التشخيص إذا استمرت المشكلة
       const errorMsg = e.message || "Unknown Error";
       if (errorMsg.includes("404")) {
          return "يا غالي، المعذرة. يبدو أن النموذج الذكي قيد التحديث حالياً (Error 404). يرجى المحاولة بعد قليل أو مراسلتنا واتساب.";
