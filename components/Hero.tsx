@@ -15,11 +15,11 @@ const Hero: React.FC<HeroProps> = ({ onOpenStory }) => {
 
   return (
     <section id="hero-section" className="relative md:rounded-[2.5rem] overflow-hidden mb-6 md:mb-12 bg-[#061e23] min-h-[450px] md:min-h-[600px] flex items-center shadow-2xl border-b md:border border-white/5 group">
-      {/* Background Image - Solar Theme */}
+      {/* Background Image - Solar Theme - Optimized LCP */}
       <div className="absolute inset-0 overflow-hidden">
         <img 
           src="https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?q=80&w=2070&auto=format&fit=crop" 
-          alt="متجر حيفان للطاقة" 
+          alt="ألواح طاقة شمسية حديثة في اليمن - حيفان للطاقة" 
           className="w-full h-full object-cover transition-transform duration-[20s] ease-linear group-hover:scale-110"
           loading="eager"
           fetchPriority="high"

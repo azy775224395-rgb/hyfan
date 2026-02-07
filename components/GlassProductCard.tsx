@@ -42,7 +42,7 @@ const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCar
       <div className="relative aspect-[4/3] m-2 rounded-[1.8rem] overflow-hidden bg-gradient-to-br from-gray-50 to-white">
         <motion.img 
           src={product.image} 
-          alt={product.name} 
+          alt={`صورة منتج ${product.name} - ${product.category}`}
           loading="lazy"
           onLoad={() => setIsLoaded(true)}
           className={`w-full h-full object-contain p-4 mix-blend-multiply transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
@@ -85,6 +85,7 @@ const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCar
             whileTap={{ scale: 0.95 }}
             onClick={(e) => { e.stopPropagation(); onViewDetails(product); }}
             className="col-span-1 bg-white border border-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center hover:bg-emerald-50 transition-colors h-11"
+            aria-label="عرض التفاصيل"
           >
             <Eye size={20} />
           </motion.button>

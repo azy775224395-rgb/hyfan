@@ -15,6 +15,7 @@ import FloatingContact from './components/FloatingContact';
 import AnimatedBackground from './components/AnimatedBackground';
 import MobileNav from './components/MobileNav';
 import SEO from './components/SEO';
+import LocalBusinessSchema from './components/LocalBusinessSchema';
 
 // Lazy Load Heavy Components for Performance
 const StoryModal = React.lazy(() => import('./components/StoryModal'));
@@ -241,6 +242,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f8fafc] overflow-x-hidden font-sans" dir="rtl">
+      {/* Global Structured Data */}
+      <LocalBusinessSchema />
+      
       <AnimatedBackground />
       <Header 
         cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} 

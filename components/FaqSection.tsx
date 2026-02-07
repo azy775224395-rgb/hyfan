@@ -23,15 +23,34 @@ const FAQS = [
 const FaqSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": FAQS.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
+
   return (
     <section className="container mx-auto px-4 mb-24">
+      {/* Inject Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
       <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] p-6 md:p-12 border border-emerald-50 shadow-lg relative overflow-hidden">
         <div className="absolute top-0 left-0 w-32 h-32 bg-emerald-100 blur-[60px] pointer-events-none opacity-40" />
 
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="text-center mb-8">
             <span className="text-emerald-700 font-black uppercase tracking-widest text-[9px] bg-emerald-100 px-4 py-1.5 rounded-full border border-emerald-200 inline-block mb-3">الدعم</span>
-            <h2 className="text-xl md:text-3xl font-black text-emerald-950">الأسئلة الشائعة</h2>
+            <h2 className="text-xl md:text-3xl font-black text-emerald-950">الأسئلة الشائعة حول الطاقة الشمسية</h2>
           </div>
 
           <div className="space-y-3">
@@ -43,10 +62,11 @@ const FaqSection: React.FC = () => {
                 <button
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
                   className="w-full flex items-center justify-between p-4 text-right outline-none"
+                  aria-expanded={openIndex === index}
                 >
-                  <span className={`font-black text-sm md:text-lg transition-colors ${openIndex === index ? 'text-emerald-800' : 'text-emerald-950 group-hover:text-emerald-700'}`}>
+                  <h3 className={`font-black text-sm md:text-lg transition-colors ${openIndex === index ? 'text-emerald-800' : 'text-emerald-950 group-hover:text-emerald-700'}`}>
                     {faq.question}
-                  </span>
+                  </h3>
                   <div className={`transition-all duration-300 p-1.5 rounded-lg flex-shrink-0 mr-3 ${openIndex === index ? 'rotate-180 bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-300'}`}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                   </div>
