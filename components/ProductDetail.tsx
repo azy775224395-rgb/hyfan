@@ -67,7 +67,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
     if (rating === 0) return alert("يرجى اختيار عدد النجوم");
     
     setIsSubmitting(true);
-    const newReview = await ReviewService.submitReview(user.id, product.id, rating, comment);
+    // Updated call to include user profile for fallback
+    const newReview = await ReviewService.submitReview(
+      user.id, 
+      product.id, 
+      rating, 
+      comment,
+      { name: user.name, avatar: user.avatar }
+    );
     
     if (newReview) {
       setReviews([newReview, ...reviews]);

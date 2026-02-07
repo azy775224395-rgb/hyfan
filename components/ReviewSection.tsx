@@ -67,11 +67,13 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
     setIsSubmitting(true);
     
     try {
+      // Updated call to include user profile for fallback
       const newReview = await ReviewService.submitReview(
         user.id || 'auth-missing', 
         'general', 
         rating, 
         comment, 
+        { name: user.name, avatar: user.avatar },
         imageFile || undefined
       );
 
