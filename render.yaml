@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: hyfan-renewable-energy
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: API_KEY
+        value: AIzaSyA7v1RrMhFWNZLKqX1slA88Piv_Ca9KLls
