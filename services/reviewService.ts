@@ -94,6 +94,10 @@ export class ReviewService {
   ): Promise<Review | null> {
     try {
       if (!supabase) throw new Error("Cloud not connected");
+      if (!userId) {
+        alert("خطأ: لم يتم العثور على معرف المستخدم. يرجى إعادة تسجيل الدخول.");
+        return null;
+      }
 
       // 1. Ensure User Profile Exists in Supabase (Double Check)
       // This is crucial because if AuthSidebar failed to sync, the foreign key constraint will fail here.
@@ -148,6 +152,7 @@ export class ReviewService {
         .single();
 
       if (error) {
+        console.error("Supabase Insert Error:", error);
         alert("فشل في حفظ التقييم بقاعدة البيانات: " + error.message);
         throw error;
       }

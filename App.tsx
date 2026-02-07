@@ -48,7 +48,16 @@ const App: React.FC = () => {
 
   const [user, setUser] = useState<UserProfile | null>(() => {
     const saved = localStorage.getItem('hyfan_user');
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Ensure user has an ID, otherwise discard it
+        if (parsed && parsed.id) return parsed;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   });
 
   const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=حيفان+للطاقة+المتجددة+اليمن';
@@ -111,6 +120,7 @@ const App: React.FC = () => {
       if (product) return (
         <ProductDetail 
           product={product} 
+          user={user} // Pass user prop here
           onClose={() => navigateTo('#/')} 
           onAddToCart={addToCart} 
           onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 

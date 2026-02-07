@@ -8,13 +8,14 @@ import { NotificationService } from '../services/notificationService';
 
 interface ProductDetailProps {
   product: Product;
+  user: UserProfile | null; // Receive user as prop
   onClose: () => void;
   onAddToCart: (p: Product) => void;
   onOrderNow: (p: Product) => void;
   formatPrice: (p: number) => string;
 }
 
-const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddToCart, onOrderNow, formatPrice }) => {
+const ProductDetail: React.FC<ProductDetailProps> = ({ product, user, onClose, onAddToCart, onOrderNow, formatPrice }) => {
   // State for Real Reviews
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
@@ -25,7 +26,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
-  const [user, setUser] = useState<UserProfile | null>(null);
 
   // Stats for Schema
   const [averageRating, setAverageRating] = useState<number | undefined>(undefined);
@@ -33,10 +33,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
   // Scroll to top on mount and fetch reviews
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    // Load User
-    const savedUser = localStorage.getItem('hyfan_user');
-    if (savedUser) setUser(JSON.parse(savedUser));
 
     // Load Reviews for THIS product
     const loadData = async () => {
@@ -91,8 +87,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
       NotificationService.sendTelegramNotification(
         `⭐ تقييم جديد للمنتج: ${product.name}\n👤 العميل: ${user.name}\n💬 التعليق: ${comment}`
       );
-    } else {
-      // The service alert handles error display
     }
     setIsSubmitting(false);
   };

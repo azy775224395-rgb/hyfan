@@ -117,8 +117,8 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
     e.preventDefault();
     setIsProcessing(true);
     
-    // Simulate ID generation (in a real app, use auth.signUp)
-    const fakeId = `user-${Date.now()}`;
+    // Generate valid UUID for compatibility with Supabase 'uuid' columns if required
+    const fakeId = crypto.randomUUID();
     
     const userData: UserProfile = {
       id: fakeId,

@@ -1,3 +1,4 @@
+
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -9,8 +10,14 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // Prioritize the loaded env, fallback to process.env, then empty string
-      'process.env.API_KEY': JSON.stringify(env.API_KEY || process.env.API_KEY || ''),
+      // Prioritize VITE_GEMINI_API_KEY as requested, then fallback to API_KEY
+      'process.env.API_KEY': JSON.stringify(
+        env.VITE_GEMINI_API_KEY || 
+        env.API_KEY || 
+        process.env.VITE_GEMINI_API_KEY || 
+        process.env.API_KEY || 
+        ''
+      ),
       // We do NOT polyfill the entire process.env object as it causes issues in browser
     },
     server: {
