@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { Product } from '../types';
 import SEO from './SEO';
+import ProductSchema from './ProductSchema';
 
 interface ProductDetailProps {
   product: Product;
@@ -13,30 +14,6 @@ interface ProductDetailProps {
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddToCart, onOrderNow, formatPrice }) => {
   
-  // Create structured data for Google (SEO)
-  const structuredData = {
-    "@context": "https://schema.org/",
-    "@type": "Product",
-    "name": product.name,
-    "image": [product.image],
-    "description": product.description,
-    "sku": product.id,
-    "mpn": product.id,
-    "brand": {
-      "@type": "Brand",
-      "name": "حيفان"
-    },
-    "offers": {
-      "@type": "Offer",
-      "url": window.location.href,
-      "priceCurrency": "SAR",
-      "price": product.price,
-      "priceValidUntil": "2026-12-31",
-      "availability": "https://schema.org/InStock",
-      "itemCondition": "https://schema.org/NewCondition"
-    }
-  };
-
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -50,9 +27,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
         image={product.image}
         type="product"
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      
+      {/* Google Merchant Structured Data */}
+      <ProductSchema 
+        name={product.name}
+        description={product.fullDescription || product.description}
+        image={product.image}
+        price={product.price}
+        currency="SAR"
+        sku={product.id}
+        brand="حيفان للطاقة"
       />
 
       {/* Glassy Navbar */}
