@@ -5,7 +5,10 @@ import { ChatMessage } from "../types";
 export class GeminiService {
   private getClient() {
     const apiKey = process.env.API_KEY;
-    if (!apiKey) throw new Error("API Key is missing");
+    if (!apiKey) {
+      console.error("Gemini API Error: API_KEY is missing. Please add it to your Render Environment Variables.");
+      throw new Error("API Key is missing");
+    }
     return new GoogleGenAI({ apiKey });
   }
 
@@ -50,7 +53,7 @@ ${inventoryData}
       return response.text || "حياك الله يا غالي! أنا المهندس حيفان. يبدو أن الاتصال ضعيف قليلاً، لكن تفضل بسؤالك عن أي لوح أو بطارية، وأنا جاهز لخدمتك بعيوني.";
     } catch (e: any) {
       console.error("Hayfan AI Error:", e);
-      return "يا غالي، المعذرة منك. يبدو أن هناك ضغط كبير على السيرفرات حالياً. لكن لا تقلق، يمكنك تصفح المنتجات مباشرة أو مراسلتنا واتساب إذا كان الأمر عاجلاً. نحن بخدمتك!";
+      return "يا غالي، المعذرة منك. يبدو أن هناك ضغط كبير على السيرفرات حالياً أو أن مفتاح التفعيل غير موجود في الإعدادات (API Key Missing). لكن لا تقلق، يمكنك تصفح المنتجات مباشرة أو مراسلتنا واتساب إذا كان الأمر عاجلاً. نحن بخدمتك!";
     }
   }
 }

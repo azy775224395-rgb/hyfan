@@ -5,12 +5,12 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   define: {
-    'process.env.API_KEY': JSON.stringify(process.env.API_KEY),
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
   },
-  // Correct placement of esbuild options at the root level
+  // Removed aggressive console dropping to allow seeing errors on Render
   esbuild: {
-    drop: ['console', 'debugger'],
+    // drop: ['console', 'debugger'], 
   },
   server: {
     port: 3000,
