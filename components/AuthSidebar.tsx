@@ -136,7 +136,7 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
 
     setIsProcessing(true);
     
-    // Trim and Lowercase Email for Consistency
+    // Strict cleaning: trim and lowercase
     const cleanEmail = emailInput.trim().toLowerCase();
     
     const userId = await generateDeterministicUUID(cleanEmail);

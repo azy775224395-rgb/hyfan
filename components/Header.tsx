@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
 
 interface HeaderProps {
   cartCount: number;
@@ -17,46 +16,21 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
   const [isAdmin, setIsAdmin] = useState(false);
   const ADMIN_EMAIL = "azy775224395@gmail.com";
 
-  // Step 1: Secure Navigation Logic
   useEffect(() => {
-    // Immediate check for specific email (Primary Security)
-    // Case-insensitive check and trim to avoid whitespace issues
+    // Logic: If user email matches ADMIN_EMAIL (case insensitive, trimmed), show button.
+    // Removed dependency on DB role check for button visibility to ensure it appears immediately.
     if (user && user.email) {
-      const userEmail = user.email.trim().toLowerCase();
+      const userEmail = user.email.toString().trim().toLowerCase();
       const adminEmail = ADMIN_EMAIL.trim().toLowerCase();
       
       if (userEmail === adminEmail) {
         setIsAdmin(true);
-        return;
+      } else {
+        setIsAdmin(false);
       }
+    } else {
+      setIsAdmin(false);
     }
-    
-    setIsAdmin(false);
-
-    // Secondary DB Check
-    const checkUserRole = async () => {
-      if (!user || !user.id) return;
-
-      try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-
-        const userEmail = user.email?.trim().toLowerCase();
-        const adminEmail = ADMIN_EMAIL.trim().toLowerCase();
-
-        // Only allow if DB says admin AND email matches
-        if (data && data.role === 'admin' && userEmail === adminEmail) {
-          setIsAdmin(true);
-        }
-      } catch (err) {
-        console.error('Role check failed:', err);
-      }
-    };
-
-    checkUserRole();
   }, [user]);
 
   return (
@@ -101,11 +75,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
 
         {/* Actions */}
         <div className="flex items-center gap-2 md:gap-4 shrink-0">
-          {/* Admin Dashboard Button - Only Visible to the SPECIFIC Admin */}
+          {/* Admin Dashboard Button */}
           {isAdmin && (
             <button
               onClick={() => window.location.hash = '#/admin'}
-              className="hidden md:flex items-center gap-2 bg-emerald-950 text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-black transition-colors shadow-lg"
+              className="hidden md:flex items-center gap-2 bg-emerald-950 text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-black transition-colors shadow-lg animate-fade-in"
             >
               <span>⚙️</span>
               لوحة التحكم

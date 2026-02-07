@@ -3,9 +3,6 @@ import { supabase } from '../lib/supabaseClient';
 import { Review } from '../types';
 
 export class ReviewService {
-  /**
-   * Fetch reviews
-   */
   static async fetchReviews(): Promise<Review[]> {
     try {
       if (!supabase) throw new Error("Client not initialized");
@@ -55,9 +52,6 @@ export class ReviewService {
     } catch { return []; }
   }
 
-  /**
-   * Submit review with robust profile checking
-   */
   static async submitReview(
     userId: string, 
     productId: string, 
@@ -73,42 +67,27 @@ export class ReviewService {
         return null;
       }
 
-      // --- STEP 1: Ensure User Exists in Profiles Table ---
-      // We do this explicitly to avoid silent Upsert failures due to RLS
-      
-      // A. Check if user exists
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', userId)
-        .single();
-
-      if (!existingUser && userProfile) {
-        // B. If not exists, insert
-        const { error: insertError } = await supabase
+      // --- CRITICAL FIX: Ensure User Exists in Profiles Table ---
+      if (userProfile) {
+        // Use Upsert: Insert if not exists, Update if exists.
+        // This satisfies the Foreign Key constraint for 'reviews'
+        const { error: profileError } = await supabase
           .from('profiles')
-          .insert([{
+          .upsert({
             id: userId,
             full_name: userProfile.name,
             avatar_url: userProfile.avatar,
             updated_at: new Date().toISOString()
-          }]);
-        
-        if (insertError) {
-          console.error("Profile Creation Error:", insertError);
-          // If insert fails, it might be RLS. We can't proceed with review safely.
-          // However, we'll try to proceed anyway hoping the check was a false negative.
+            // We do NOT set role here to avoid overwriting existing admins
+          }, { onConflict: 'id' });
+
+        if (profileError) {
+          console.error("Profile Upsert Error:", profileError);
+          // Proceed anyway, maybe the profile exists and the error is RLS related
         }
-      } else if (existingUser && userProfile) {
-         // C. If exists, try update (optional, ignore error)
-         await supabase.from('profiles').update({
-            full_name: userProfile.name,
-            avatar_url: userProfile.avatar,
-            updated_at: new Date().toISOString()
-         }).eq('id', userId);
       }
 
-      // --- STEP 2: Handle Image ---
+      // --- Upload Image ---
       let imageUrl = null;
       if (imageFile) {
         try {
@@ -122,7 +101,7 @@ export class ReviewService {
         } catch (e) { console.warn("Image upload failed", e); }
       }
 
-      // --- STEP 3: Insert Review ---
+      // --- Insert Review ---
       const { data, error } = await supabase
         .from('reviews')
         .insert([{
@@ -138,7 +117,18 @@ export class ReviewService {
       if (error) {
         console.error("Review Insert Error:", error);
         if (error.message.includes("foreign key")) {
-          alert("فشل الحفظ: حساب المستخدم غير مفعل في قاعدة البيانات. يرجى التواصل مع الإدارة لتفعيل حسابك.");
+          // If upsert failed silently earlier, we try one last explicit insert attempt
+           if (userProfile) {
+              await supabase.from('profiles').insert([{
+                 id: userId, 
+                 full_name: userProfile.name, 
+                 avatar_url: userProfile.avatar
+              }]);
+              // Retry review insert logic could go here, but usually asking user to retry is safer
+              alert("حدث خطأ في مزامنة الحساب. يرجى المحاولة مرة أخرى الآن.");
+              return null;
+           }
+           alert("خطأ: حسابك غير مسجل في قاعدة البيانات. يرجى تسجيل الخروج والدخول مجدداً.");
         } else {
           alert("فشل حفظ التقييم: " + error.message);
         }
