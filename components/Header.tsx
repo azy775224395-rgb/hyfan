@@ -1,5 +1,6 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
 
 interface HeaderProps {
   cartCount: number;
@@ -13,6 +14,36 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, searchQuery, setSearchQuery, onLogoClick, user }) => {
   const LOGO_URL = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Step 1: Secure Navigation Logic
+  useEffect(() => {
+    const checkUserRole = async () => {
+      if (!user || !user.id) {
+        setIsAdmin(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        if (data && data.role === 'admin') {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } catch (err) {
+        console.error('Role check failed:', err);
+        setIsAdmin(false);
+      }
+    };
+
+    checkUserRole();
+  }, [user]);
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/40 backdrop-blur-2xl border-b border-emerald-100 shadow-xl shadow-emerald-900/5">
@@ -56,6 +87,17 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
 
         {/* Actions */}
         <div className="flex items-center gap-2 md:gap-4 shrink-0">
+          {/* Admin Dashboard Button - Only Visible to Admins */}
+          {isAdmin && (
+            <button
+              onClick={() => window.location.hash = '#/admin'}
+              className="hidden md:flex items-center gap-2 bg-emerald-950 text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-black transition-colors shadow-lg"
+            >
+              <span>⚙️</span>
+              لوحة التحكم
+            </button>
+          )}
+
           <button 
             onClick={onOpenAuth}
             className="p-1.5 md:p-4 text-emerald-800 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-full md:rounded-[1.2rem] transition-all border border-emerald-50 hover:border-emerald-200 shadow-lg relative"

@@ -47,6 +47,8 @@ export interface Order {
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered';
   itemsCount: number;
+  customerName?: string; // For Admin View
+  customerEmail?: string; // For Admin View
 }
 
 export interface UserProfile {
@@ -55,5 +57,6 @@ export interface UserProfile {
   email: string;
   avatar: string;
   provider: 'google' | 'facebook' | 'discord' | 'email' | null;
+  role?: 'admin' | 'customer'; // Added Role
   orders?: Order[];
 }

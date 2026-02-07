@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect, useRef, Suspense } from 'react';
-import { Product, CartItem, UserProfile } from './types';
+import { Product, UserProfile } from './types';
 import { INITIAL_PRODUCTS } from './constants';
 import Header from './components/Header';
 import GlassProductCard from './components/GlassProductCard';
@@ -16,6 +16,7 @@ import AnimatedBackground from './components/AnimatedBackground';
 import MobileNav from './components/MobileNav';
 import SEO from './components/SEO';
 import LocalBusinessSchema from './components/LocalBusinessSchema';
+import { useCart } from './context/CartContext';
 
 // Lazy Load Heavy Components for Performance
 const StoryModal = React.lazy(() => import('./components/StoryModal'));
@@ -23,6 +24,7 @@ const WarrantyModal = React.lazy(() => import('./components/WarrantyModal'));
 const AllReviewsModal = React.lazy(() => import('./components/AllReviewsModal'));
 const CheckoutView = React.lazy(() => import('./components/CheckoutView'));
 const AuthSidebar = React.lazy(() => import('./components/AuthSidebar'));
+const AdminDashboard = React.lazy(() => import('./components/AdminDashboard'));
 
 const LoadingSpinner = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50 backdrop-blur-sm">
@@ -41,7 +43,9 @@ const App: React.FC = () => {
   const homeScrollPos = useRef(0);
   const isBackAction = useRef(false);
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+  // Use Cart Context
+  const { cart, addToCart, removeFromCart, updateQuantity, cartCount } = useCart();
+
   const [user, setUser] = useState<UserProfile | null>(() => {
     const saved = localStorage.getItem('hyfan_user');
     return saved ? JSON.parse(saved) : null;
@@ -80,17 +84,6 @@ const App: React.FC = () => {
     setUser(newUser);
     localStorage.setItem('hyfan_user', JSON.stringify(newUser));
     navigateTo('#/');
-  };
-
-  const addToCart = (product: Product) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
-      }
-      return [...prev, { ...product, quantity: 1 }];
-    });
-    navigateTo('#/cart');
   };
 
   const formatPrice = (sarPrice: number) => {
@@ -141,14 +134,20 @@ const App: React.FC = () => {
     }
 
     switch (hash) {
+      case '#/admin':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdminDashboard user={user} onNavigate={navigateTo} />
+          </Suspense>
+        );
       case '#/cart':
         return (
           <CartDrawer 
             isOpen={true} 
             onClose={() => navigateTo('#/')} 
             items={cart} 
-            onRemove={(id) => setCart(prev => prev.filter(item => item.id !== id))} 
-            onUpdateQty={(id, delta) => setCart(prev => prev.map(item => item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item))} 
+            onRemove={removeFromCart} 
+            onUpdateQty={updateQuantity} 
             user={user} 
             formatPrice={formatPrice} 
           />
@@ -246,21 +245,24 @@ const App: React.FC = () => {
       <LocalBusinessSchema />
       
       <AnimatedBackground />
-      <Header 
-        cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} 
-        onOpenCart={() => navigateTo('#/cart')} 
-        onOpenAuth={() => navigateTo('#/auth')} 
-        searchQuery={searchQuery} 
-        setSearchQuery={setSearchQuery} 
-        onLogoClick={() => navigateTo('#/', true)} 
-        user={user}
-      />
+      {/* Hide Header on Admin Dashboard */}
+      {currentHash !== '#/admin' && (
+        <Header 
+          cartCount={cartCount} 
+          onOpenCart={() => navigateTo('#/cart')} 
+          onOpenAuth={() => navigateTo('#/auth')} 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          onLogoClick={() => navigateTo('#/', true)} 
+          user={user}
+        />
+      )}
       
       <main className="flex-grow relative z-10" role="main">
         {renderCurrentPage()}
       </main>
 
-      {!currentHash.includes('cart') && !currentHash.includes('checkout') && !currentHash.includes('calculator') && (
+      {!currentHash.includes('cart') && !currentHash.includes('checkout') && !currentHash.includes('calculator') && !currentHash.includes('admin') && (
         <footer className="bg-emerald-950 text-white py-16 text-center relative z-10 pb-24 md:pb-16">
           <div className="container mx-auto px-4">
             <img src="https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg" alt="حيفان للطاقة" className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl border-2 border-emerald-500/30 grayscale hover:grayscale-0 transition-all" loading="lazy" />
@@ -280,11 +282,13 @@ const App: React.FC = () => {
         </footer>
       )}
 
-      <MobileNav 
-        activeTab={currentHash} 
-        cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
-        onNavigate={navigateTo}
-      />
+      {currentHash !== '#/admin' && (
+        <MobileNav 
+          activeTab={currentHash} 
+          cartCount={cartCount}
+          onNavigate={navigateTo}
+        />
+      )}
       
       <AiAssistant products={products} isContactOpen={isContactOpen} />
       <FloatingContact isOpen={isContactOpen} onToggle={() => setIsContactOpen(!isContactOpen)} />

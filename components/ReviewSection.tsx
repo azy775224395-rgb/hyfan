@@ -2,14 +2,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Review, UserProfile } from '../types';
 import { NotificationService } from '../services/notificationService';
-import { ReviewService } from '../services/reviewService';
+import { supabase } from '../lib/supabaseClient';
 
 interface ReviewSectionProps {
   onShowAll: (reviews: Review[]) => void;
   user: UserProfile | null;
+  productId?: string; // Optional filtering by product
 }
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
+const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productId }) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   
@@ -23,20 +24,65 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  useEffect(() => {
-    const loadReviews = async () => {
-      try {
-        setIsLoadingReviews(true);
-        const cloudReviews = await ReviewService.fetchReviews();
-        setReviews(cloudReviews || []);
-      } catch (err) {
-        console.error("Reviews load error", err);
-      } finally {
-        setIsLoadingReviews(false);
+  // Fetch Reviews with Filter
+  const fetchReviews = async () => {
+    if (!supabase) return;
+    try {
+      let query = supabase
+        .from('reviews')
+        .select(`*, profiles (full_name, avatar_url)`)
+        .order('created_at', { ascending: false });
+
+      if (productId) {
+        query = query.eq('product_id', productId);
       }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      if (data) {
+        const formattedReviews = data.map((item: any) => ({
+          id: item.id,
+          name: item.profiles?.full_name || 'عميل حيفان',
+          avatar_url: item.profiles?.avatar_url,
+          rating: item.rating,
+          comment: item.comment,
+          image_url: item.image_url,
+          date: new Date(item.created_at).toISOString().split('T')[0]
+        }));
+        setReviews(formattedReviews);
+      }
+    } catch (err) {
+      console.error("Reviews load error", err);
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  };
+
+  // Initial Fetch & Real-time Subscription
+  useEffect(() => {
+    fetchReviews();
+
+    const channel = supabase.channel('realtime_reviews')
+      .on(
+        'postgres_changes',
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'reviews',
+          filter: productId ? `product_id=eq.${productId}` : undefined 
+        },
+        () => {
+          fetchReviews();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
-    loadReviews();
-  }, []);
+  }, [productId]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -67,28 +113,64 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
     setIsSubmitting(true);
     
     try {
-      // Updated call to include user profile for fallback
-      const newReview = await ReviewService.submitReview(
-        user.id || 'auth-missing', 
-        'general', 
-        rating, 
-        comment, 
-        { name: user.name, avatar: user.avatar },
-        imageFile || undefined
-      );
+      let imageUrl = null;
 
-      if (newReview) {
-        setReviews(prev => [newReview, ...prev]);
-        NotificationService.sendTelegramNotification(NotificationService.formatReviewMessage(newReview));
-        setSubmitted(true);
-        setComment('');
-        setRating(0);
-        setImageFile(null);
-        setPreviewUrl(null);
-      } else {
-        throw new Error("Add review failed");
+      // Upload image if present
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${user.id.replace(/[^a-zA-Z0-9]/g, '')}/${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('reviews-images')
+          .upload(fileName, imageFile);
+
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('reviews-images')
+            .getPublicUrl(fileName);
+          imageUrl = publicUrl;
+        }
       }
+
+      // Insert Review
+      const reviewData = {
+        user_id: user.id,
+        product_id: productId || 'general',
+        rating: rating,
+        comment: comment,
+        image_url: imageUrl
+      };
+
+      const { data, error } = await supabase
+        .from('reviews')
+        .insert([reviewData])
+        .select(`*, profiles (full_name, avatar_url)`)
+        .single();
+
+      if (error) throw error;
+
+      // Construct local review object for instant feedback (though realtime will also catch it)
+      const newReview: Review = {
+        id: data.id,
+        name: data.profiles?.full_name || user.name,
+        avatar_url: data.profiles?.avatar_url || user.avatar,
+        rating: data.rating,
+        comment: data.comment,
+        image_url: data.image_url,
+        date: new Date(data.created_at).toISOString().split('T')[0]
+      };
+
+      NotificationService.sendTelegramNotification(NotificationService.formatReviewMessage(newReview));
+      setSubmitted(true);
+      setComment('');
+      setRating(0);
+      setImageFile(null);
+      setPreviewUrl(null);
+      
+      // Explicit refresh to ensure sync
+      fetchReviews();
+
     } catch (err) {
+      console.error("Submit error:", err);
       alert('حدث خطأ أثناء الاتصال بالسيرفر. يرجى المحاولة لاحقاً.');
     } finally {
       setIsSubmitting(false);
@@ -99,7 +181,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
     <section className="container mx-auto px-4 mb-8">
       <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] p-5 md:p-12 border border-emerald-50 shadow-lg">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16">
-          {/* Review Form - Compact Mobile */}
+          {/* Review Form */}
           <div className="bg-emerald-950 rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 text-white relative overflow-hidden shadow-xl order-2 lg:order-1">
             <div className="relative z-10">
               <h2 className="text-xl md:text-3xl font-black mb-2">قيم تجربتك</h2>
@@ -107,7 +189,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
 
               {!submitted ? (
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* User Info - Compact */}
+                  {/* User Info */}
                   <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
                     <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center border-2 border-white/20 overflow-hidden shadow-lg shrink-0">
                       {user ? <img src={user.avatar} className="w-full h-full object-cover" alt={user.name} /> : <span className="font-black text-sm">👤</span>}
@@ -118,7 +200,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
                     </div>
                   </div>
 
-                  {/* Star Rating - Compact */}
+                  {/* Star Rating */}
                   <div className="flex justify-center gap-2 py-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -144,7 +226,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
                     ))}
                   </div>
 
-                  {/* Comment Area - Compact */}
+                  {/* Comment Area */}
                   <textarea
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
@@ -152,7 +234,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
                     className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white placeholder:text-white/20 outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all min-h-[80px] text-sm font-bold"
                   />
 
-                  {/* Image Upload - Compact */}
+                  {/* Image Upload */}
                   <div 
                     onClick={() => fileInputRef.current?.click()}
                     className={`w-full border border-dashed border-white/20 rounded-xl p-2 text-center cursor-pointer transition-all hover:bg-white/5 flex items-center justify-center gap-2 ${previewUrl ? 'h-24' : 'h-16'}`}
@@ -195,7 +277,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user }) => {
             </div>
           </div>
 
-          {/* Reviews List - Compact */}
+          {/* Reviews List */}
           <div className="flex flex-col gap-4 order-1 lg:order-2">
             <div className="flex items-center justify-between px-2">
               <h3 className="text-xl md:text-2xl font-black text-emerald-950">آراء العملاء</h3>
