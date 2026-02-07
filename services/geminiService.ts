@@ -1,10 +1,11 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { ChatMessage } from "../types";
 
 export class GeminiService {
   private getClient() {
+    // Try to get key from standard process.env or Vite's import.meta.env
     const apiKey = process.env.API_KEY;
+    
     if (!apiKey || apiKey === "undefined" || apiKey === "") {
       console.error("Gemini API Error: API_KEY is missing/empty.");
       throw new Error("API Key is missing from configuration");
@@ -58,7 +59,7 @@ ${inventoryData}
          return "يا غالي، المعذرة. يبدو أن النموذج الذكي قيد التحديث حالياً (Error 404). يرجى المحاولة بعد قليل أو مراسلتنا واتساب.";
       }
       if (errorMsg.includes("API Key")) {
-         return "يا غالي، يبدو أن مفتاح التفعيل (API Key) غير مربوط بشكل صحيح في إعدادات الموقع. يرجى التأكد من إضافته في Render.";
+         return "يا غالي، يبدو أن مفتاح التفعيل (API Key) غير مربوط بشكل صحيح في إعدادات الموقع. يرجى التأكد من إضافته في Render ثم عمل Redeploy.";
       }
       return `يا غالي، المعذرة منك. واجهت مشكلة فنية بسيطة (${errorMsg.substring(0, 50)}...). يمكنك تصفح المنتجات مباشرة أو مراسلتنا واتساب.`;
     }
