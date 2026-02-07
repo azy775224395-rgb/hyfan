@@ -4,9 +4,7 @@ import { ChatMessage } from "../types";
 
 export class GeminiService {
   private getClient() {
-    // Try to get key from standard process.env or Vite's import.meta.env
     const apiKey = process.env.API_KEY;
-    
     if (!apiKey || apiKey === "undefined" || apiKey === "") {
       console.error("Gemini API Error: API_KEY is missing/empty.");
       throw new Error("API Key is missing from configuration");
@@ -21,78 +19,65 @@ export class GeminiService {
   async chatWithCustomer(history: ChatMessage[], inventoryData: string): Promise<string> {
     const ai = this.getClient();
       
-    const contents = history.map(msg => ({
+    // Optimize history: Keep only last 10 messages to reduce token usage and avoid 429
+    const recentHistory = history.slice(-10).map(msg => ({
       role: msg.role === 'model' ? 'model' : 'user',
       parts: [{ text: msg.text }]
     }));
 
     const config = {
-      systemInstruction: `أنت "المهندس حيفان" (Hayfan AI)، الخبير الهندسي ومسؤول المبيعات الأول في "متجر حيفان للطاقة المتجددة" باليمن لعام 2026.
-      
-المخزون المتوفر والأسعار (هذا هو مصدرك الوحيد):
+      systemInstruction: `أنت "المهندس حيفان"، خبير مبيعات "متجر حيفان للطاقة" باليمن.
+المخزون:
 ${inventoryData}
 
-قواعد الذكاء الاصطناعي الصارمة:
-1. **الشخصية:** تحدث كمهندس يمني خبير ("يا غالي"، "أبشر"، "على عيني"). أنت لست مجرد بوت، أنت مستشار يهدف للبيع بذكاء.
-2. **الهدف:** لا تجب فقط، بل **بع**. إذا سأل العميل عن "مروحة"، اقترح عليه "منظومة كاملة" أو "بطارية" معها.
-3. **الدقة الهندسية:**
-   - إذا ذكر العميل أحمال (مثلاً: ثلاجة ومكيف)، قم بحساب الواط والساعات بسرعة في عقلك واقترح السعة المناسبة.
-   - مثال: "لتشغيل ثلاجة 24 ساعة، تحتاج على الأقل 4 ألواح وبطاريتين 200 أمبير".
-4. **تفعيل الشراء (هام جداً):**
-   - عندما تقترح أي منتج من المخزون، يجب أن ترفق معه زر الشراء باستخدام الكود: [#product-ID].
-   - مثال: "أنصحك ببطارية توبو العملاقة [#product-b2] لأنها الأقوى في السوق حالياً."
-   - لا تذكر منتجاً دون الكود الخاص به إذا كان متوفراً في المخزون أعلاه.
-5. **الإغلاق:** حاول دائماً إغلاق البيعة. "هل أضيفها لسلتك الآن؟"، "الكمية محدودة، أحجز لك واحدة؟".
-
-تذكر: أنت واجهة المتجر. اجعل العميل يشعر بالثقة والاحترافية.`,
-      temperature: 0.6,
+تعليمات:
+1. بع بذكاء. اقترح منتجات بديلة إذا لم يتوفر الطلب.
+2. استخدم كود الشراء [#product-ID] عند اقتراح منتج.
+3. اختصر الإجابة (لا تتجاوز 50 كلمة إلا للشرح الهندسي).
+4. اللهجة يمنية محترمة ("يا غالي").`,
+      temperature: 0.7,
       topP: 0.95,
-      topK: 64,
+      maxOutputTokens: 500, // Limit output to save quota
     };
 
-    // Retry Logic for Error 429 (Too Many Requests)
     let attempts = 0;
-    const maxAttempts = 3;
+    // Increased delay times: 2s, 5s, 8s
+    const backoffDelays = [2000, 5000, 8000]; 
 
-    while (attempts < maxAttempts) {
+    while (attempts < 3) {
       try {
-        // استخدام gemini-3-flash-preview للمهام النصية
         const response = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview', 
-          contents: contents,
+          model: 'gemini-3-flash-preview',
+          contents: recentHistory,
           config: config
         });
         
-        return response.text || "حياك الله يا غالي! أنا المهندس حيفان. تفضل بسؤالك عن أي لوح أو بطارية.";
+        return response.text || "حياك الله يا غالي! تفضل بسؤالك.";
 
       } catch (e: any) {
-        const errorMsg = e.message || "Unknown Error";
-        
-        // Handle 429 (Too Many Requests) specifically
-        if (errorMsg.includes("429") || errorMsg.includes("exceeded")) {
-          attempts++;
-          console.warn(`Gemini 429 Error. Retrying attempt ${attempts}/${maxAttempts}...`);
-          if (attempts < maxAttempts) {
-            await this.delay(2000 * attempts); // Wait 2s, then 4s, then 6s
-            continue;
-          } else {
-            return "يا غالي، المعذرة منك. الضغط عليّ كبير جداً الآن (المخدم مشغول). هل يمكنك إعادة السؤال بعد دقيقة؟";
-          }
-        }
+        attempts++;
+        const errorMsg = e.message || "";
+        console.warn(`Gemini Attempt ${attempts} failed: ${errorMsg}`);
 
-        console.error("Hayfan AI Error Details:", e);
-        
-        if (errorMsg.includes("404")) {
-           return "يا غالي، المعذرة. يبدو أن النموذج الذكي قيد التحديث حالياً (Error 404). يرجى المحاولة بعد قليل أو مراسلتنا واتساب.";
+        if (errorMsg.includes("429") || errorMsg.includes("exceeded") || errorMsg.includes("quota")) {
+           if (attempts < 3) {
+             await this.delay(backoffDelays[attempts - 1]);
+             continue;
+           } else {
+             return "يا غالي، السيرفر عليه ضغط حالياً. ممكن تعيد السؤال بعد دقيقة؟ أو راسلنا واتساب للسرعة.";
+           }
         }
-        if (errorMsg.includes("API Key")) {
-           return "يا غالي، يبدو أن مفتاح التفعيل (API Key) غير مربوط بشكل صحيح في إعدادات الموقع. يرجى التأكد من إضافته في Render ثم عمل Redeploy.";
+        
+        // Critical Error (Auth or Model missing)
+        if (errorMsg.includes("API Key") || errorMsg.includes("404")) {
+           return "عذراً، نظام الذكاء الاصطناعي قيد الصيانة. يرجى التواصل عبر الواتساب.";
         }
         
-        return `يا غالي، المعذرة منك. واجهت مشكلة فنية بسيطة. يمكنك تصفح المنتجات مباشرة أو مراسلتنا واتساب.`;
+        // Generic error retry
+        await this.delay(2000);
       }
     }
-    return "نعتذر، حدث خطأ غير متوقع.";
+    return "واجهت مشكلة تقنية بسيطة. تفضل بتصفح المنتجات أو راسلنا واتساب.";
   }
 }
 

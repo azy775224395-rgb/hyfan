@@ -4,26 +4,17 @@ import { Review } from '../types';
 
 export class ReviewService {
   /**
-   * Fetch reviews from Supabase and join with Profiles to get names/avatars
+   * Fetch reviews
    */
   static async fetchReviews(): Promise<Review[]> {
     try {
       if (!supabase) throw new Error("Client not initialized");
-
-      // Join reviews with profiles table
       const { data, error } = await supabase
         .from('reviews')
-        .select(`
-          *,
-          profiles (full_name, avatar_url)
-        `)
+        .select(`*, profiles (full_name, avatar_url)`)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Supabase Fetch Error:", error);
-        return [];
-      }
-
+      if (error) return [];
       if (data) {
         return data.map((item: any) => ({
           id: item.id,
@@ -36,33 +27,19 @@ export class ReviewService {
         }));
       }
       return [];
-    } catch (error) {
-      console.error("Critical Fetch Error:", error);
-      return [];
-    }
+    } catch { return []; }
   }
 
-  /**
-   * Fetch reviews for a SPECIFIC product
-   */
   static async fetchProductReviews(productId: string): Promise<Review[]> {
     try {
       if (!supabase) throw new Error("Client not initialized");
-
       const { data, error } = await supabase
         .from('reviews')
-        .select(`
-          *,
-          profiles (full_name, avatar_url)
-        `)
-        .eq('product_id', productId) // Filter by specific product
+        .select(`*, profiles (full_name, avatar_url)`)
+        .eq('product_id', productId)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Supabase Product Review Fetch Error:", error);
-        return [];
-      }
-
+      if (error) return [];
       if (data) {
         return data.map((item: any) => ({
           id: item.id,
@@ -75,14 +52,11 @@ export class ReviewService {
         }));
       }
       return [];
-    } catch (error) {
-      console.warn("Product reviews fetch failed:", error);
-      return [];
-    }
+    } catch { return []; }
   }
 
   /**
-   * Uploads image to Supabase Storage and creates a review record
+   * Submit review with robust profile checking
    */
   static async submitReview(
     userId: string, 
@@ -95,52 +69,60 @@ export class ReviewService {
     try {
       if (!supabase) throw new Error("Cloud not connected");
       if (!userId) {
-        alert("خطأ: لم يتم العثور على معرف المستخدم. يرجى إعادة تسجيل الدخول.");
+        alert("خطأ: يرجى تسجيل الدخول.");
         return null;
       }
 
-      // 1. Force Upsert User Profile to ensure Foreign Key Integrity
-      // This is CRITICAL. The user ID must exist in 'profiles' before being used in 'reviews'
-      if (userProfile) {
-        const { error: profileError } = await supabase.from('profiles').upsert({
-          id: userId,
-          full_name: userProfile.name,
-          avatar_url: userProfile.avatar,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'id' });
+      // --- STEP 1: Ensure User Exists in Profiles Table ---
+      // We do this explicitly to avoid silent Upsert failures due to RLS
+      
+      // A. Check if user exists
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single();
 
-        if (profileError) {
-          console.error("Profile Sync Failed:", profileError);
-          // We don't return null here, we attempt to proceed, as the user might already exist
+      if (!existingUser && userProfile) {
+        // B. If not exists, insert
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert([{
+            id: userId,
+            full_name: userProfile.name,
+            avatar_url: userProfile.avatar,
+            updated_at: new Date().toISOString()
+          }]);
+        
+        if (insertError) {
+          console.error("Profile Creation Error:", insertError);
+          // If insert fails, it might be RLS. We can't proceed with review safely.
+          // However, we'll try to proceed anyway hoping the check was a false negative.
         }
+      } else if (existingUser && userProfile) {
+         // C. If exists, try update (optional, ignore error)
+         await supabase.from('profiles').update({
+            full_name: userProfile.name,
+            avatar_url: userProfile.avatar,
+            updated_at: new Date().toISOString()
+         }).eq('id', userId);
       }
 
+      // --- STEP 2: Handle Image ---
       let imageUrl = null;
-
-      // 2. Upload Image if exists
       if (imageFile) {
         try {
           const fileExt = imageFile.name.split('.').pop();
           const fileName = `${userId.replace(/[^a-zA-Z0-9]/g, '')}/${Date.now()}.${fileExt}`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from('reviews-images')
-            .upload(fileName, imageFile);
-
+          const { error: uploadError } = await supabase.storage.from('reviews-images').upload(fileName, imageFile);
           if (!uploadError) {
-            const { data: { publicUrl } } = supabase.storage
-              .from('reviews-images')
-              .getPublicUrl(fileName);
+            const { data: { publicUrl } } = supabase.storage.from('reviews-images').getPublicUrl(fileName);
             imageUrl = publicUrl;
-          } else {
-             console.error("Image Upload Error:", uploadError);
           }
-        } catch (e) {
-          console.warn("Image upload exception", e);
-        }
+        } catch (e) { console.warn("Image upload failed", e); }
       }
 
-      // 3. Insert Review Data
+      // --- STEP 3: Insert Review ---
       const { data, error } = await supabase
         .from('reviews')
         .insert([{
@@ -150,52 +132,23 @@ export class ReviewService {
           comment: comment,
           image_url: imageUrl
         }])
-        .select(`
-          *,
-          profiles (full_name, avatar_url)
-        `)
+        .select(`*, profiles (full_name, avatar_url)`)
         .single();
 
       if (error) {
-        console.error("Supabase Insert Error:", error);
-        
+        console.error("Review Insert Error:", error);
         if (error.message.includes("foreign key")) {
-          // Double check attempt: try to re-sync profile then retry review
-           if (userProfile) {
-              await supabase.from('profiles').upsert({
-                id: userId,
-                full_name: userProfile.name,
-                avatar_url: userProfile.avatar,
-                updated_at: new Date().toISOString()
-              });
-              // Retry insert once
-              const { data: retryData, error: retryError } = await supabase.from('reviews').insert([{
-                  user_id: userId, product_id: productId, rating, comment, image_url: imageUrl
-              }]).select('*, profiles(full_name, avatar_url)').single();
-              
-              if (!retryError && retryData) {
-                 return {
-                    id: retryData.id,
-                    name: retryData.profiles?.full_name || userProfile?.name,
-                    avatar_url: retryData.profiles?.avatar_url,
-                    rating: retryData.rating,
-                    comment: retryData.comment,
-                    image_url: retryData.image_url,
-                    date: new Date(retryData.created_at).toISOString().split('T')[0]
-                  };
-              }
-           }
-          alert("فشل في حفظ التقييم: مشكلة في ربط البيانات (Foreign Key). يرجى تسجيل الخروج والدخول مجدداً.");
+          alert("فشل الحفظ: حساب المستخدم غير مفعل في قاعدة البيانات. يرجى التواصل مع الإدارة لتفعيل حسابك.");
         } else {
-          alert("فشل في حفظ التقييم: " + error.message);
+          alert("فشل حفظ التقييم: " + error.message);
         }
         throw error;
       }
 
       return {
         id: data.id,
-        name: data.profiles?.full_name || userProfile?.name || 'عميل حيفان',
-        avatar_url: data.profiles?.avatar_url || userProfile?.avatar,
+        name: data.profiles?.full_name || userProfile?.name || 'عميل',
+        avatar_url: data.profiles?.avatar_url,
         rating: data.rating,
         comment: data.comment,
         image_url: data.image_url,
@@ -203,7 +156,6 @@ export class ReviewService {
       };
 
     } catch (error) {
-      console.error("Submit Review Failed:", error);
       return null;
     }
   }

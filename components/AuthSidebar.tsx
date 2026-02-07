@@ -105,11 +105,10 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
       
-      // Generate a valid UUID from the Google numeric ID
       const userId = await generateDeterministicUUID(payload.sub);
 
       const userData: UserProfile = {
-        id: userId, // Now sending a valid UUID
+        id: userId,
         name: payload.name,
         email: payload.email,
         avatar: payload.picture,
@@ -117,10 +116,7 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
         orders: defaultOrders
       };
 
-      // 1. Sync to Cloud DB
       await syncUserToSupabase(userData);
-      
-      // 2. Local Update
       onUserUpdate(userData);
       NotificationService.sendTelegramNotification(NotificationService.formatLoginMessage(userData));
     } catch (e) {
@@ -140,24 +136,21 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
 
     setIsProcessing(true);
     
-    // For email login, we generate a deterministic UUID based on email to allow Admin matching
-    // NOTE: In a real app, this should be handled by Supabase Auth with passwords.
-    // Here we simulate it so the Admin can log in.
-    const userId = await generateDeterministicUUID(emailInput.toLowerCase());
+    // Trim and Lowercase Email for Consistency
+    const cleanEmail = emailInput.trim().toLowerCase();
+    
+    const userId = await generateDeterministicUUID(cleanEmail);
     
     const userData: UserProfile = {
       id: userId,
       name: "مستخدم حيفان",
-      email: emailInput, // Use the ACTUAL typed email
+      email: cleanEmail,
       avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
       provider: 'email',
       orders: defaultOrders
     };
 
-    // 1. Sync to Cloud DB
     await syncUserToSupabase(userData);
-
-    // 2. Local Update
     onUserUpdate(userData);
     NotificationService.sendTelegramNotification(NotificationService.formatLoginMessage(userData));
     setIsProcessing(false);

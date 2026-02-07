@@ -20,15 +20,20 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
   // Step 1: Secure Navigation Logic
   useEffect(() => {
     // Immediate check for specific email (Primary Security)
-    // Case-insensitive check to avoid issues
-    if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      setIsAdmin(true);
-      return;
-    } else {
-      setIsAdmin(false);
+    // Case-insensitive check and trim to avoid whitespace issues
+    if (user && user.email) {
+      const userEmail = user.email.trim().toLowerCase();
+      const adminEmail = ADMIN_EMAIL.trim().toLowerCase();
+      
+      if (userEmail === adminEmail) {
+        setIsAdmin(true);
+        return;
+      }
     }
+    
+    setIsAdmin(false);
 
-    // Secondary DB Check (Optional, but prioritizing Email as requested)
+    // Secondary DB Check
     const checkUserRole = async () => {
       if (!user || !user.id) return;
 
@@ -39,8 +44,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
           .eq('id', user.id)
           .single();
 
-        // Only allow if DB says admin AND email matches (Double Lock)
-        if (data && data.role === 'admin' && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+        const userEmail = user.email?.trim().toLowerCase();
+        const adminEmail = ADMIN_EMAIL.trim().toLowerCase();
+
+        // Only allow if DB says admin AND email matches
+        if (data && data.role === 'admin' && userEmail === adminEmail) {
           setIsAdmin(true);
         }
       } catch (err) {
