@@ -1,7 +1,4 @@
 User-agent: *
 Allow: /
-Allow: /google0ed1dcb16768642e.html
-Disallow: /admin/
-Disallow: /checkout/
 
 Sitemap: https://hyfn-czzv.onrender.com/sitemap.xml
