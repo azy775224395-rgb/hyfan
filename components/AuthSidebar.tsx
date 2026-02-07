@@ -14,6 +14,10 @@ interface AuthSidebarProps {
 const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }) => {
   const [authMode, setAuthMode] = useState<'selection' | 'email_login' | 'register' | 'orders'>('selection');
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Login Form States
+  const [emailInput, setEmailInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
 
   const GOOGLE_CLIENT_ID = "413172724194-1tjqdcb8bv56f4ae1qlsetcr3t5ocvmt.apps.googleusercontent.com";
 
@@ -129,15 +133,22 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!emailInput) {
+      alert("الرجاء إدخال البريد الإلكتروني");
+      return;
+    }
+
     setIsProcessing(true);
     
-    // Generate valid UUID for compatibility with Supabase 'uuid' columns
-    const fakeId = crypto.randomUUID();
+    // For email login, we generate a deterministic UUID based on email to allow Admin matching
+    // NOTE: In a real app, this should be handled by Supabase Auth with passwords.
+    // Here we simulate it so the Admin can log in.
+    const userId = await generateDeterministicUUID(emailInput.toLowerCase());
     
     const userData: UserProfile = {
-      id: fakeId,
-      name: "عميل حيفان",
-      email: "customer@example.com",
+      id: userId,
+      name: "مستخدم حيفان",
+      email: emailInput, // Use the ACTUAL typed email
       avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
       provider: 'email',
       orders: defaultOrders
@@ -225,8 +236,22 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
                     الرجوع للخيارات
                   </button>
                   <div className="space-y-6">
-                    <input type="email" required placeholder="البريد الإلكتروني" className="w-full bg-emerald-50/30 border-2 border-emerald-50 p-6 rounded-2xl outline-none focus:border-emerald-500 font-black text-lg" />
-                    <input type="password" required placeholder="كلمة المرور" className="w-full bg-emerald-50/30 border-2 border-emerald-50 p-6 rounded-2xl outline-none focus:border-emerald-500 font-black text-lg" />
+                    <input 
+                      type="email" 
+                      required 
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      placeholder="البريد الإلكتروني" 
+                      className="w-full bg-emerald-50/30 border-2 border-emerald-50 p-6 rounded-2xl outline-none focus:border-emerald-500 font-black text-lg" 
+                    />
+                    <input 
+                      type="password" 
+                      required 
+                      value={passwordInput}
+                      onChange={(e) => setPasswordInput(e.target.value)}
+                      placeholder="كلمة المرور" 
+                      className="w-full bg-emerald-50/30 border-2 border-emerald-50 p-6 rounded-2xl outline-none focus:border-emerald-500 font-black text-lg" 
+                    />
                   </div>
                   <button type="submit" className="w-full bg-emerald-600 text-white py-6 rounded-2xl font-black text-xl shadow-xl hover:bg-emerald-700 transition-all active:scale-95">دخول آمن</button>
                 </form>

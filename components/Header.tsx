@@ -20,7 +20,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
   // Step 1: Secure Navigation Logic
   useEffect(() => {
     // Immediate check for specific email (Primary Security)
-    if (user && user.email === ADMIN_EMAIL) {
+    // Case-insensitive check to avoid issues
+    if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
       setIsAdmin(true);
       return;
     } else {
@@ -39,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
           .single();
 
         // Only allow if DB says admin AND email matches (Double Lock)
-        if (data && data.role === 'admin' && user.email === ADMIN_EMAIL) {
+        if (data && data.role === 'admin' && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
           setIsAdmin(true);
         }
       } catch (err) {

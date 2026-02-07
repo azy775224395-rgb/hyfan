@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { ChatMessage } from "../types";
 
@@ -13,22 +14,21 @@ export class GeminiService {
     return new GoogleGenAI({ apiKey });
   }
 
-  async chatWithCustomer(history: ChatMessage[], inventoryData: string): Promise<string> {
-    try {
-      const ai = this.getClient();
-      
-      const contents = history.map(msg => ({
-        role: msg.role === 'model' ? 'model' : 'user',
-        parts: [{ text: msg.text }]
-      }));
+  private async delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
-      // استخدام gemini-3-flash-preview للمهام النصية
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview', 
-        contents: contents,
-        config: {
-          systemInstruction: `أنت "المهندس حيفان" (Hayfan AI)، الخبير الهندسي ومسؤول المبيعات الأول في "متجر حيفان للطاقة المتجددة" باليمن لعام 2026.
-          
+  async chatWithCustomer(history: ChatMessage[], inventoryData: string): Promise<string> {
+    const ai = this.getClient();
+      
+    const contents = history.map(msg => ({
+      role: msg.role === 'model' ? 'model' : 'user',
+      parts: [{ text: msg.text }]
+    }));
+
+    const config = {
+      systemInstruction: `أنت "المهندس حيفان" (Hayfan AI)، الخبير الهندسي ومسؤول المبيعات الأول في "متجر حيفان للطاقة المتجددة" باليمن لعام 2026.
+      
 المخزون المتوفر والأسعار (هذا هو مصدرك الوحيد):
 ${inventoryData}
 
@@ -45,24 +45,54 @@ ${inventoryData}
 5. **الإغلاق:** حاول دائماً إغلاق البيعة. "هل أضيفها لسلتك الآن؟"، "الكمية محدودة، أحجز لك واحدة؟".
 
 تذكر: أنت واجهة المتجر. اجعل العميل يشعر بالثقة والاحترافية.`,
-          temperature: 0.6,
-          topP: 0.95,
-          topK: 64,
+      temperature: 0.6,
+      topP: 0.95,
+      topK: 64,
+    };
+
+    // Retry Logic for Error 429 (Too Many Requests)
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (attempts < maxAttempts) {
+      try {
+        // استخدام gemini-3-flash-preview للمهام النصية
+        const response = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview', 
+          contents: contents,
+          config: config
+        });
+        
+        return response.text || "حياك الله يا غالي! أنا المهندس حيفان. تفضل بسؤالك عن أي لوح أو بطارية.";
+
+      } catch (e: any) {
+        const errorMsg = e.message || "Unknown Error";
+        
+        // Handle 429 (Too Many Requests) specifically
+        if (errorMsg.includes("429") || errorMsg.includes("exceeded")) {
+          attempts++;
+          console.warn(`Gemini 429 Error. Retrying attempt ${attempts}/${maxAttempts}...`);
+          if (attempts < maxAttempts) {
+            await this.delay(2000 * attempts); // Wait 2s, then 4s, then 6s
+            continue;
+          } else {
+            return "يا غالي، المعذرة منك. الضغط عليّ كبير جداً الآن (المخدم مشغول). هل يمكنك إعادة السؤال بعد دقيقة؟";
+          }
         }
-      });
-      
-      return response.text || "حياك الله يا غالي! أنا المهندس حيفان. تفضل بسؤالك عن أي لوح أو بطارية.";
-    } catch (e: any) {
-      console.error("Hayfan AI Error Details:", e);
-      const errorMsg = e.message || "Unknown Error";
-      if (errorMsg.includes("404")) {
-         return "يا غالي، المعذرة. يبدو أن النموذج الذكي قيد التحديث حالياً (Error 404). يرجى المحاولة بعد قليل أو مراسلتنا واتساب.";
+
+        console.error("Hayfan AI Error Details:", e);
+        
+        if (errorMsg.includes("404")) {
+           return "يا غالي، المعذرة. يبدو أن النموذج الذكي قيد التحديث حالياً (Error 404). يرجى المحاولة بعد قليل أو مراسلتنا واتساب.";
+        }
+        if (errorMsg.includes("API Key")) {
+           return "يا غالي، يبدو أن مفتاح التفعيل (API Key) غير مربوط بشكل صحيح في إعدادات الموقع. يرجى التأكد من إضافته في Render ثم عمل Redeploy.";
+        }
+        
+        return `يا غالي، المعذرة منك. واجهت مشكلة فنية بسيطة. يمكنك تصفح المنتجات مباشرة أو مراسلتنا واتساب.`;
       }
-      if (errorMsg.includes("API Key")) {
-         return "يا غالي، يبدو أن مفتاح التفعيل (API Key) غير مربوط بشكل صحيح في إعدادات الموقع. يرجى التأكد من إضافته في Render ثم عمل Redeploy.";
-      }
-      return `يا غالي، المعذرة منك. واجهت مشكلة فنية بسيطة (${errorMsg.substring(0, 50)}...). يمكنك تصفح المنتجات مباشرة أو مراسلتنا واتساب.`;
     }
+    return "نعتذر، حدث خطأ غير متوقع.";
   }
 }
 

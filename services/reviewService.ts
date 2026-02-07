@@ -99,15 +99,20 @@ export class ReviewService {
         return null;
       }
 
-      // 1. Ensure User Profile Exists in Supabase (Double Check)
-      // This is crucial because if AuthSidebar failed to sync, the foreign key constraint will fail here.
+      // 1. Force Upsert User Profile to ensure Foreign Key Integrity
+      // This is CRITICAL. The user ID must exist in 'profiles' before being used in 'reviews'
       if (userProfile) {
-        await supabase.from('profiles').upsert({
+        const { error: profileError } = await supabase.from('profiles').upsert({
           id: userId,
           full_name: userProfile.name,
           avatar_url: userProfile.avatar,
           updated_at: new Date().toISOString()
         }, { onConflict: 'id' });
+
+        if (profileError) {
+          console.error("Profile Sync Failed:", profileError);
+          // We don't return null here, we attempt to proceed, as the user might already exist
+        }
       }
 
       let imageUrl = null;
@@ -153,7 +158,37 @@ export class ReviewService {
 
       if (error) {
         console.error("Supabase Insert Error:", error);
-        alert("فشل في حفظ التقييم بقاعدة البيانات: " + error.message);
+        
+        if (error.message.includes("foreign key")) {
+          // Double check attempt: try to re-sync profile then retry review
+           if (userProfile) {
+              await supabase.from('profiles').upsert({
+                id: userId,
+                full_name: userProfile.name,
+                avatar_url: userProfile.avatar,
+                updated_at: new Date().toISOString()
+              });
+              // Retry insert once
+              const { data: retryData, error: retryError } = await supabase.from('reviews').insert([{
+                  user_id: userId, product_id: productId, rating, comment, image_url: imageUrl
+              }]).select('*, profiles(full_name, avatar_url)').single();
+              
+              if (!retryError && retryData) {
+                 return {
+                    id: retryData.id,
+                    name: retryData.profiles?.full_name || userProfile?.name,
+                    avatar_url: retryData.profiles?.avatar_url,
+                    rating: retryData.rating,
+                    comment: retryData.comment,
+                    image_url: retryData.image_url,
+                    date: new Date(retryData.created_at).toISOString().split('T')[0]
+                  };
+              }
+           }
+          alert("فشل في حفظ التقييم: مشكلة في ربط البيانات (Foreign Key). يرجى تسجيل الخروج والدخول مجدداً.");
+        } else {
+          alert("فشل في حفظ التقييم: " + error.message);
+        }
         throw error;
       }
 
