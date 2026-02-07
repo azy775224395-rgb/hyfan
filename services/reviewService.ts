@@ -19,7 +19,10 @@ export class ReviewService {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase Fetch Error:", error);
+        return [];
+      }
 
       if (data) {
         return data.map((item: any) => ({
@@ -34,7 +37,7 @@ export class ReviewService {
       }
       return [];
     } catch (error) {
-      console.warn("Cloud access failed, falling back to local:", error);
+      console.error("Critical Fetch Error:", error);
       return [];
     }
   }
@@ -55,7 +58,10 @@ export class ReviewService {
         .eq('product_id', productId) // Filter by specific product
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase Product Review Fetch Error:", error);
+        return [];
+      }
 
       if (data) {
         return data.map((item: any) => ({
@@ -77,22 +83,32 @@ export class ReviewService {
 
   /**
    * Uploads image to Supabase Storage and creates a review record
-   * Includes fallback logic to ensure UI works even if DB rejects the ID
    */
   static async submitReview(
     userId: string, 
     productId: string, 
     rating: number, 
     comment: string, 
-    userProfile?: { name: string, avatar?: string }, // Added profile info for fallback
+    userProfile?: { name: string, avatar?: string }, 
     imageFile?: File
   ): Promise<Review | null> {
     try {
       if (!supabase) throw new Error("Cloud not connected");
 
+      // 1. Ensure User Profile Exists in Supabase (Double Check)
+      // This is crucial because if AuthSidebar failed to sync, the foreign key constraint will fail here.
+      if (userProfile) {
+        await supabase.from('profiles').upsert({
+          id: userId,
+          full_name: userProfile.name,
+          avatar_url: userProfile.avatar,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'id' });
+      }
+
       let imageUrl = null;
 
-      // 1. Upload Image if exists
+      // 2. Upload Image if exists
       if (imageFile) {
         try {
           const fileExt = imageFile.name.split('.').pop();
@@ -107,13 +123,15 @@ export class ReviewService {
               .from('reviews-images')
               .getPublicUrl(fileName);
             imageUrl = publicUrl;
+          } else {
+             console.error("Image Upload Error:", uploadError);
           }
         } catch (e) {
-          console.warn("Image upload failed, proceeding without image");
+          console.warn("Image upload exception", e);
         }
       }
 
-      // 2. Insert Review Data
+      // 3. Insert Review Data
       const { data, error } = await supabase
         .from('reviews')
         .insert([{
@@ -129,7 +147,10 @@ export class ReviewService {
         `)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        alert("فشل في حفظ التقييم بقاعدة البيانات: " + error.message);
+        throw error;
+      }
 
       return {
         id: data.id,
@@ -142,22 +163,7 @@ export class ReviewService {
       };
 
     } catch (error) {
-      console.error("Submit Review Failed (DB Error):", error);
-      
-      // FALLBACK: If DB fails (e.g. user ID doesn't exist in auth table), 
-      // return a local successful object so the UI updates correctly.
-      if (userProfile) {
-        return {
-          id: Math.floor(Math.random() * 100000),
-          name: userProfile.name,
-          avatar_url: userProfile.avatar,
-          rating: rating,
-          comment: comment,
-          image_url: undefined,
-          date: new Date().toISOString().split('T')[0]
-        };
-      }
-      
+      console.error("Submit Review Failed:", error);
       return null;
     }
   }

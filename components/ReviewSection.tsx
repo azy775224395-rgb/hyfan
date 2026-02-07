@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Review, UserProfile } from '../types';
 import { NotificationService } from '../services/notificationService';
 import { supabase } from '../lib/supabaseClient';
+import { ReviewService } from '../services/reviewService';
 
 interface ReviewSectionProps {
   onShowAll: (reviews: Review[]) => void;
@@ -26,38 +27,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
 
   // Fetch Reviews with Filter
   const fetchReviews = async () => {
-    if (!supabase) return;
-    try {
-      let query = supabase
-        .from('reviews')
-        .select(`*, profiles (full_name, avatar_url)`)
-        .order('created_at', { ascending: false });
-
-      if (productId) {
-        query = query.eq('product_id', productId);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      if (data) {
-        const formattedReviews = data.map((item: any) => ({
-          id: item.id,
-          name: item.profiles?.full_name || 'عميل حيفان',
-          avatar_url: item.profiles?.avatar_url,
-          rating: item.rating,
-          comment: item.comment,
-          image_url: item.image_url,
-          date: new Date(item.created_at).toISOString().split('T')[0]
-        }));
-        setReviews(formattedReviews);
-      }
-    } catch (err) {
-      console.error("Reviews load error", err);
-    } finally {
-      setIsLoadingReviews(false);
+    setIsLoadingReviews(true);
+    let data = [];
+    if (productId) {
+      data = await ReviewService.fetchProductReviews(productId);
+    } else {
+      data = await ReviewService.fetchReviews();
     }
+    setReviews(data);
+    setIsLoadingReviews(false);
   };
 
   // Initial Fetch & Real-time Subscription
@@ -112,53 +90,17 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
     
     setIsSubmitting(true);
     
-    try {
-      let imageUrl = null;
+    // Use the Service which now guarantees profile sync
+    const newReview = await ReviewService.submitReview(
+      user.id,
+      productId || 'general',
+      rating,
+      comment,
+      { name: user.name, avatar: user.avatar },
+      imageFile || undefined
+    );
 
-      // Upload image if present
-      if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${user.id.replace(/[^a-zA-Z0-9]/g, '')}/${Date.now()}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage
-          .from('reviews-images')
-          .upload(fileName, imageFile);
-
-        if (!uploadError) {
-          const { data: { publicUrl } } = supabase.storage
-            .from('reviews-images')
-            .getPublicUrl(fileName);
-          imageUrl = publicUrl;
-        }
-      }
-
-      // Insert Review
-      const reviewData = {
-        user_id: user.id,
-        product_id: productId || 'general',
-        rating: rating,
-        comment: comment,
-        image_url: imageUrl
-      };
-
-      const { data, error } = await supabase
-        .from('reviews')
-        .insert([reviewData])
-        .select(`*, profiles (full_name, avatar_url)`)
-        .single();
-
-      if (error) throw error;
-
-      // Construct local review object for instant feedback (though realtime will also catch it)
-      const newReview: Review = {
-        id: data.id,
-        name: data.profiles?.full_name || user.name,
-        avatar_url: data.profiles?.avatar_url || user.avatar,
-        rating: data.rating,
-        comment: data.comment,
-        image_url: data.image_url,
-        date: new Date(data.created_at).toISOString().split('T')[0]
-      };
-
+    if (newReview) {
       NotificationService.sendTelegramNotification(NotificationService.formatReviewMessage(newReview));
       setSubmitted(true);
       setComment('');
@@ -168,13 +110,11 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
       
       // Explicit refresh to ensure sync
       fetchReviews();
-
-    } catch (err) {
-      console.error("Submit error:", err);
-      alert('حدث خطأ أثناء الاتصال بالسيرفر. يرجى المحاولة لاحقاً.');
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      // Error handled in service via alert
     }
+    
+    setIsSubmitting(false);
   };
 
   return (

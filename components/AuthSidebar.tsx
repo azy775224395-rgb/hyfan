@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile, Order } from '../types';
 import { NotificationService } from '../services/notificationService';
+import { supabase } from '../lib/supabaseClient';
 
 interface AuthSidebarProps {
   isOpen: boolean;
@@ -58,7 +59,31 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
     }
   }, [user, authMode]);
 
-  const handleGoogleCredential = (response: any) => {
+  // Sync user to Supabase Profiles Table
+  const syncUserToSupabase = async (userData: UserProfile) => {
+    try {
+      if (!supabase) return;
+      
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: userData.id,
+          full_name: userData.name,
+          email: userData.email,
+          avatar_url: userData.avatar,
+          role: userData.role || 'customer',
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'id' });
+
+      if (error) {
+        console.error("Supabase Sync Error:", error);
+      }
+    } catch (err) {
+      console.error("Sync Exception:", err);
+    }
+  };
+
+  const handleGoogleCredential = async (response: any) => {
     setIsProcessing(true);
     try {
       const base64Url = response.credential.split('.')[1];
@@ -74,30 +99,43 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
         orders: defaultOrders
       };
 
+      // 1. Sync to Cloud DB
+      await syncUserToSupabase(userData);
+      
+      // 2. Local Update
       onUserUpdate(userData);
       NotificationService.sendTelegramNotification(NotificationService.formatLoginMessage(userData));
-      setIsProcessing(false);
     } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء تسجيل الدخول بجوجل");
+    } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleEmailLogin = (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    setTimeout(() => {
-      const userData: UserProfile = {
-        id: `user-${Date.now()}`,
-        name: "عميل حيفان",
-        email: "customer@example.com",
-        avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-        provider: null,
-        orders: defaultOrders
-      };
-      onUserUpdate(userData);
-      NotificationService.sendTelegramNotification(NotificationService.formatLoginMessage(userData));
-      setIsProcessing(false);
-    }, 800);
+    
+    // Simulate ID generation (in a real app, use auth.signUp)
+    const fakeId = `user-${Date.now()}`;
+    
+    const userData: UserProfile = {
+      id: fakeId,
+      name: "عميل حيفان",
+      email: "customer@example.com",
+      avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+      provider: 'email',
+      orders: defaultOrders
+    };
+
+    // 1. Sync to Cloud DB (Vital for Foreign Key relations)
+    await syncUserToSupabase(userData);
+
+    // 2. Local Update
+    onUserUpdate(userData);
+    NotificationService.sendTelegramNotification(NotificationService.formatLoginMessage(userData));
+    setIsProcessing(false);
   };
 
   return (

@@ -15,30 +15,35 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, searchQuery, setSearchQuery, onLogoClick, user }) => {
   const LOGO_URL = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
   const [isAdmin, setIsAdmin] = useState(false);
+  const ADMIN_EMAIL = "azy775224395@gmail.com";
 
   // Step 1: Secure Navigation Logic
   useEffect(() => {
+    // Immediate check for specific email (Primary Security)
+    if (user && user.email === ADMIN_EMAIL) {
+      setIsAdmin(true);
+      return;
+    } else {
+      setIsAdmin(false);
+    }
+
+    // Secondary DB Check (Optional, but prioritizing Email as requested)
     const checkUserRole = async () => {
-      if (!user || !user.id) {
-        setIsAdmin(false);
-        return;
-      }
+      if (!user || !user.id) return;
 
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
           .single();
 
-        if (data && data.role === 'admin') {
+        // Only allow if DB says admin AND email matches (Double Lock)
+        if (data && data.role === 'admin' && user.email === ADMIN_EMAIL) {
           setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
         }
       } catch (err) {
         console.error('Role check failed:', err);
-        setIsAdmin(false);
       }
     };
 
@@ -87,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
 
         {/* Actions */}
         <div className="flex items-center gap-2 md:gap-4 shrink-0">
-          {/* Admin Dashboard Button - Only Visible to Admins */}
+          {/* Admin Dashboard Button - Only Visible to the SPECIFIC Admin */}
           {isAdmin && (
             <button
               onClick={() => window.location.hash = '#/admin'}

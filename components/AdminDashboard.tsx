@@ -15,31 +15,43 @@ interface DashboardStats {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => {
+  // Security State
+  const [isLocked, setIsLocked] = useState(true);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [authError, setAuthError] = useState('');
+  
+  // Data State
   const [stats, setStats] = useState<DashboardStats>({ revenue: 0, totalOrders: 0, activeUsers: 0 });
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'users'>('overview');
 
-  // Step 2: Security Guard - Check role on mount
+  const ALLOWED_EMAIL = "azy775224395@gmail.com";
+  const DASHBOARD_PASSWORD = "azy_715371939";
+
+  // Step 1: Strict Email Check on Mount
   useEffect(() => {
-    const verifyAdmin = async () => {
-      if (!user) {
-        onNavigate('#/');
-        return;
-      }
-      
-      // Double check against DB for security
-      const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      if (data?.role !== 'admin') {
-        alert("عذراً، ليس لديك صلاحية الوصول لهذه الصفحة.");
-        onNavigate('#/');
-      } else {
-        fetchDashboardData();
-      }
-    };
+    if (!user) {
+      onNavigate('#/');
+      return;
+    }
     
-    verifyAdmin();
-  }, [user]);
+    if (user.email !== ALLOWED_EMAIL) {
+      alert("عذراً، هذا الحساب غير مصرح له بالدخول.");
+      onNavigate('#/');
+    }
+  }, [user, onNavigate]);
+
+  const handleUnlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === DASHBOARD_PASSWORD) {
+      setIsLocked(false);
+      fetchDashboardData();
+    } else {
+      setAuthError("كلمة المرور غير صحيحة");
+      setPasswordInput('');
+    }
+  };
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -107,6 +119,48 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
 
   const formatPrice = (p: number) => `${p.toLocaleString()} ر.س`;
 
+  // Render Lock Screen
+  if (isLocked) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4" dir="rtl">
+        <div className="bg-gray-800 p-8 rounded-3xl shadow-2xl border border-gray-700 w-full max-w-md text-center">
+          <div className="w-20 h-20 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-600/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h2 className="text-2xl font-black text-white mb-2">منطقة محمية</h2>
+          <p className="text-gray-400 font-bold text-sm mb-8">أهلاً بك يا أدمن. يرجى إدخال كود الحماية للمتابعة.</p>
+          
+          <form onSubmit={handleUnlock} className="space-y-4">
+            <input 
+              type="password" 
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              placeholder="كلمة المرور..."
+              className="w-full bg-gray-900 border border-gray-700 text-white px-5 py-4 rounded-xl outline-none focus:border-emerald-500 font-black tracking-widest text-center"
+              autoFocus
+            />
+            {authError && <p className="text-red-500 text-xs font-bold">{authError}</p>}
+            
+            <button 
+              type="submit"
+              className="w-full bg-emerald-600 text-white py-4 rounded-xl font-black hover:bg-emerald-500 transition-all shadow-lg active:scale-95"
+            >
+              فتح اللوحة
+            </button>
+            <button 
+              type="button" 
+              onClick={() => onNavigate('#/')}
+              className="text-gray-500 text-xs font-bold hover:text-white transition-colors"
+            >
+              العودة للمتجر
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Render Dashboard Content
   return (
     <div className="min-h-screen bg-gray-900 text-white font-sans text-right" dir="rtl">
       <div className="flex h-screen overflow-hidden">
@@ -131,6 +185,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
               <span>📦</span> الطلبات
             </button>
             <div className="border-t border-white/10 my-4 pt-4">
+              <button onClick={() => setIsLocked(true)} className="w-full flex items-center gap-3 p-3 text-yellow-400 hover:bg-yellow-500/10 rounded-xl font-bold">
+                 <span>🔒</span> قفل الشاشة
+              </button>
               <button onClick={() => onNavigate('#/')} className="w-full flex items-center gap-3 p-3 text-red-400 hover:bg-red-500/10 rounded-xl font-bold">
                  <span>🚪</span> خروج للمتجر
               </button>
@@ -143,7 +200,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
           {/* Header Mobile */}
           <div className="md:hidden flex justify-between items-center mb-6">
             <h1 className="text-xl font-black">لوحة الإدارة</h1>
-            <button onClick={() => onNavigate('#/')} className="text-sm bg-white/10 px-3 py-1 rounded-lg">خروج</button>
+            <div className="flex gap-2">
+              <button onClick={() => setIsLocked(true)} className="text-xs bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-lg">قفل</button>
+              <button onClick={() => onNavigate('#/')} className="text-xs bg-white/10 px-3 py-1 rounded-lg">خروج</button>
+            </div>
           </div>
 
           {loading ? (

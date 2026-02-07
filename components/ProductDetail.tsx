@@ -44,10 +44,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
       const data = await ReviewService.fetchProductReviews(product.id);
       setReviews(data);
       
-      // Calculate Average
+      // Calculate Average for Schema and UI
       if (data.length > 0) {
         const sum = data.reduce((acc, curr) => acc + curr.rating, 0);
         setAverageRating(sum / data.length);
+      } else {
+        setAverageRating(undefined);
       }
       
       setLoadingReviews(false);
@@ -67,7 +69,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
     if (rating === 0) return alert("يرجى اختيار عدد النجوم");
     
     setIsSubmitting(true);
-    // Updated call to include user profile for fallback
+    
     const newReview = await ReviewService.submitReview(
       user.id, 
       product.id, 
@@ -77,18 +79,20 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
     );
     
     if (newReview) {
-      setReviews([newReview, ...reviews]);
+      const updatedList = [newReview, ...reviews];
+      setReviews(updatedList);
       setReviewSubmitted(true);
-      // Recalculate average immediately for UI update
-      const newTotal = reviews.length + 1;
-      const newSum = (averageRating ? averageRating * reviews.length : 0) + rating;
+      
+      // Recalculate average immediately
+      const newTotal = updatedList.length;
+      const newSum = updatedList.reduce((acc, curr) => acc + curr.rating, 0);
       setAverageRating(newSum / newTotal);
       
       NotificationService.sendTelegramNotification(
         `⭐ تقييم جديد للمنتج: ${product.name}\n👤 العميل: ${user.name}\n💬 التعليق: ${comment}`
       );
     } else {
-      alert("حدث خطأ أثناء إرسال التقييم");
+      // The service alert handles error display
     }
     setIsSubmitting(false);
   };
@@ -280,8 +284,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose, onAddTo
               ) : reviews.length > 0 ? (
                 reviews.map(review => (
                   <div key={review.id} className="bg-white p-4 rounded-2xl border border-gray-100 flex gap-4">
-                    <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-800 font-bold shrink-0">
-                      {review.avatar_url ? <img src={review.avatar_url} className="w-full h-full rounded-full object-cover" /> : review.name[0]}
+                    <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-800 font-bold shrink-0 overflow-hidden">
+                      {review.avatar_url ? <img src={review.avatar_url} className="w-full h-full object-cover" /> : review.name[0]}
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
