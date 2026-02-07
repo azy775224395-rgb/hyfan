@@ -83,6 +83,17 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
     }
   };
 
+  // Helper to generate a deterministic UUID from the Google ID
+  const generateDeterministicUUID = async (input: string): Promise<string> => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(input);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    // Format as UUID (8-4-4-4-12)
+    return `${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20, 32)}`;
+  };
+
   const handleGoogleCredential = async (response: any) => {
     setIsProcessing(true);
     try {
@@ -90,8 +101,11 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
       
+      // Generate a valid UUID from the Google numeric ID
+      const userId = await generateDeterministicUUID(payload.sub);
+
       const userData: UserProfile = {
-        id: payload.sub,
+        id: userId, // Now sending a valid UUID
         name: payload.name,
         email: payload.email,
         avatar: payload.picture,
@@ -117,7 +131,7 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
     e.preventDefault();
     setIsProcessing(true);
     
-    // Generate valid UUID for compatibility with Supabase 'uuid' columns if required
+    // Generate valid UUID for compatibility with Supabase 'uuid' columns
     const fakeId = crypto.randomUUID();
     
     const userData: UserProfile = {
@@ -129,7 +143,7 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
       orders: defaultOrders
     };
 
-    // 1. Sync to Cloud DB (Vital for Foreign Key relations)
+    // 1. Sync to Cloud DB
     await syncUserToSupabase(userData);
 
     // 2. Local Update

@@ -51,8 +51,14 @@ const App: React.FC = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Ensure user has an ID, otherwise discard it
-        if (parsed && parsed.id) return parsed;
+        // Validating ID format: Must contain hyphens to be a UUID.
+        // If it's the old numeric Google ID, force logout to fix DB issue.
+        if (parsed && parsed.id && typeof parsed.id === 'string' && parsed.id.includes('-')) {
+          return parsed;
+        }
+        // Invalid or old ID format -> clear session
+        localStorage.removeItem('hyfan_user');
+        return null;
       } catch (e) {
         return null;
       }
