@@ -6,11 +6,7 @@ export default defineConfig({
   plugins: [react()],
   define: {
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
-  },
-  // Removed aggressive console dropping to allow seeing errors on Render
-  esbuild: {
-    // drop: ['console', 'debugger'], 
+    'process.env': process.env, // Ensure other env vars are passed if needed
   },
   server: {
     port: 3000,
