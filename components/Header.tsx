@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 interface HeaderProps {
   cartCount: number;
@@ -13,30 +13,15 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, searchQuery, setSearchQuery, onLogoClick, user }) => {
   const LOGO_URL = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
-  const [isAdmin, setIsAdmin] = useState(false);
   const ADMIN_EMAIL = "azy775224395@gmail.com";
 
-  useEffect(() => {
-    // Logic: If user email matches ADMIN_EMAIL (case insensitive, trimmed), show button.
-    // Removed dependency on DB role check for button visibility to ensure it appears immediately.
-    if (user && user.email) {
-      const userEmail = user.email.toString().trim().toLowerCase();
-      const adminEmail = ADMIN_EMAIL.trim().toLowerCase();
-      
-      if (userEmail === adminEmail) {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-      }
-    } else {
-      setIsAdmin(false);
-    }
-  }, [user]);
+  // فحص الأدمن بشكل دقيق (بدون حساسيه لحالة الأحرف)
+  const isAdmin = user && user.email && (user.email.trim().toLowerCase() === ADMIN_EMAIL.trim().toLowerCase());
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/40 backdrop-blur-2xl border-b border-emerald-100 shadow-xl shadow-emerald-900/5">
       <div className="container mx-auto px-3 h-14 md:h-24 flex items-center justify-between gap-2 md:gap-6">
-        {/* Brand Section */}
+        {/* Logo Section */}
         <div 
           className="relative flex items-center gap-1.5 md:gap-4 group cursor-pointer shrink-0"
           onClick={onLogoClick}
@@ -73,16 +58,17 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
           </div>
         </div>
 
-        {/* Actions */}
+        {/* Actions Section */}
         <div className="flex items-center gap-2 md:gap-4 shrink-0">
-          {/* Admin Dashboard Button */}
+          
+          {/* Admin Button - يظهر دائماً للأدمن */}
           {isAdmin && (
             <button
               onClick={() => window.location.hash = '#/admin'}
-              className="hidden md:flex items-center gap-2 bg-emerald-950 text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-black transition-colors shadow-lg animate-fade-in"
+              className="flex items-center gap-1.5 bg-emerald-950 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-black text-[10px] md:text-xs hover:bg-black transition-colors shadow-lg animate-fade-in border border-emerald-800"
             >
               <span>⚙️</span>
-              لوحة التحكم
+              <span>الإدارة</span>
             </button>
           )}
 

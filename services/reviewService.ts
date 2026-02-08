@@ -5,13 +5,12 @@ import { Review } from '../types';
 export class ReviewService {
   static async fetchReviews(): Promise<Review[]> {
     try {
-      if (!supabase) throw new Error("Client not initialized");
-      const { data, error } = await supabase
+      if (!supabase) return [];
+      const { data } = await supabase
         .from('reviews')
         .select(`*, profiles (full_name, avatar_url)`)
         .order('created_at', { ascending: false });
 
-      if (error) return [];
       if (data) {
         return data.map((item: any) => ({
           id: item.id,
@@ -29,14 +28,13 @@ export class ReviewService {
 
   static async fetchProductReviews(productId: string): Promise<Review[]> {
     try {
-      if (!supabase) throw new Error("Client not initialized");
-      const { data, error } = await supabase
+      if (!supabase) return [];
+      const { data } = await supabase
         .from('reviews')
         .select(`*, profiles (full_name, avatar_url)`)
         .eq('product_id', productId)
         .order('created_at', { ascending: false });
 
-      if (error) return [];
       if (data) {
         return data.map((item: any) => ({
           id: item.id,
@@ -61,47 +59,40 @@ export class ReviewService {
     imageFile?: File
   ): Promise<Review | null> {
     try {
-      if (!supabase) throw new Error("Cloud not connected");
-      if (!userId) {
-        alert("خطأ: يرجى تسجيل الدخول.");
-        return null;
-      }
+      if (!supabase) throw new Error("Cloud disconnected");
 
-      // --- CRITICAL FIX: Ensure User Exists in Profiles Table ---
-      if (userProfile) {
-        // Use Upsert: Insert if not exists, Update if exists.
-        // This satisfies the Foreign Key constraint for 'reviews'
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert({
-            id: userId,
-            full_name: userProfile.name,
-            avatar_url: userProfile.avatar,
-            updated_at: new Date().toISOString()
-            // We do NOT set role here to avoid overwriting existing admins
-          }, { onConflict: 'id' });
-
-        if (profileError) {
-          console.error("Profile Upsert Error:", profileError);
-          // Proceed anyway, maybe the profile exists and the error is RLS related
-        }
-      }
-
-      // --- Upload Image ---
+      // 1. Upload Image (Independent step)
       let imageUrl = null;
       if (imageFile) {
         try {
           const fileExt = imageFile.name.split('.').pop();
-          const fileName = `${userId.replace(/[^a-zA-Z0-9]/g, '')}/${Date.now()}.${fileExt}`;
-          const { error: uploadError } = await supabase.storage.from('reviews-images').upload(fileName, imageFile);
-          if (!uploadError) {
-            const { data: { publicUrl } } = supabase.storage.from('reviews-images').getPublicUrl(fileName);
-            imageUrl = publicUrl;
+          const fileName = `review_${Date.now()}.${fileExt}`;
+          const { error } = await supabase.storage.from('reviews-images').upload(fileName, imageFile);
+          if (!error) {
+            const { data } = supabase.storage.from('reviews-images').getPublicUrl(fileName);
+            imageUrl = data.publicUrl;
           }
-        } catch (e) { console.warn("Image upload failed", e); }
+        } catch (e) { console.warn("Image upload skipped"); }
       }
 
-      // --- Insert Review ---
+      // 2. Try to Sync Profile
+      // We wrap this in a try-catch and proceed even if it fails,
+      // because sometimes the user ID exists but we lack permissions to UPDATE it.
+      if (userProfile) {
+        try {
+          await supabase.from('profiles').upsert({
+            id: userId,
+            full_name: userProfile.name,
+            avatar_url: userProfile.avatar,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'id' });
+        } catch (e) {
+          console.warn("Profile sync warning (ignoring):", e);
+        }
+      }
+
+      // 3. Insert Review
+      // Attempt 1: Standard Insert
       const { data, error } = await supabase
         .from('reviews')
         .insert([{
@@ -115,23 +106,33 @@ export class ReviewService {
         .single();
 
       if (error) {
-        console.error("Review Insert Error:", error);
+        // If Foreign Key fails, it means the ID is truly missing from profiles.
+        // We will try to create a 'stub' profile one last time or fail gracefully.
+        console.error("Review Insert Failed:", error);
+        
+        // Last Resort: Insert without user_id if table allows (Guest Review)
+        // OR alert user to re-login.
         if (error.message.includes("foreign key")) {
-          // If upsert failed silently earlier, we try one last explicit insert attempt
-           if (userProfile) {
-              await supabase.from('profiles').insert([{
-                 id: userId, 
-                 full_name: userProfile.name, 
-                 avatar_url: userProfile.avatar
-              }]);
-              // Retry review insert logic could go here, but usually asking user to retry is safer
-              alert("حدث خطأ في مزامنة الحساب. يرجى المحاولة مرة أخرى الآن.");
-              return null;
+           // Try to insert the profile forcefully as a new record
+           const { error: finalProfileError } = await supabase.from('profiles').insert({
+              id: userId,
+              full_name: userProfile?.name || 'Guest',
+              email: 'guest@temp.com', // Dummy email to satisfy constraints
+              role: 'customer'
+           });
+           
+           if (!finalProfileError) {
+             // Retry review insert
+             const retry = await supabase.from('reviews').insert([{
+                user_id: userId, product_id: productId, rating, comment, image_url: imageUrl
+             }]).select().single();
+             if (retry.data) return { ...retry.data, name: userProfile?.name, date: new Date().toISOString() };
            }
-           alert("خطأ: حسابك غير مسجل في قاعدة البيانات. يرجى تسجيل الخروج والدخول مجدداً.");
-        } else {
-          alert("فشل حفظ التقييم: " + error.message);
+           
+           alert("عذراً، نظام التقييم يتطلب تحديث حسابك. يرجى تسجيل الخروج والدخول مرة أخرى.");
+           return null;
         }
+        
         throw error;
       }
 
@@ -146,6 +147,7 @@ export class ReviewService {
       };
 
     } catch (error) {
+      console.error("Critical Review Error:", error);
       return null;
     }
   }
