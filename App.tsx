@@ -1,12 +1,12 @@
 
 import React, { useState, useMemo, useEffect, useRef, Suspense } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Product, UserProfile } from './types';
 import { INITIAL_PRODUCTS } from './constants';
 import Header from './components/Header';
 import GlassProductCard from './components/GlassProductCard';
 import ProductDetail from './components/ProductDetail';
 import CartDrawer from './components/CartDrawer';
-import AiAssistant from './components/AiAssistant';
 import Hero from './components/Hero';
 import FaqSection from './components/FaqSection';
 import ReviewSection from './components/ReviewSection';
@@ -32,6 +32,19 @@ const LoadingSpinner = () => (
   </div>
 );
 
+// 3D Scroll Reveal Wrapper
+const SectionReveal = ({ children, delay = 0 }: { children?: React.ReactNode, delay?: number }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 50, rotateX: 5 }}
+    whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.8, delay, ease: "easeOut" }}
+    style={{ transformStyle: "preserve-3d" }}
+  >
+    {children}
+  </motion.div>
+);
+
 const App: React.FC = () => {
   const [products] = useState<Product[]>(INITIAL_PRODUCTS);
   const [currentHash, setCurrentHash] = useState(window.location.hash || '#/');
@@ -51,12 +64,9 @@ const App: React.FC = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Validating ID format: Must contain hyphens to be a UUID.
-        // If it's the old numeric Google ID, force logout to fix DB issue.
         if (parsed && parsed.id && typeof parsed.id === 'string' && parsed.id.includes('-')) {
           return parsed;
         }
-        // Invalid or old ID format -> clear session
         localStorage.removeItem('hyfan_user');
         return null;
       } catch (e) {
@@ -126,7 +136,7 @@ const App: React.FC = () => {
       if (product) return (
         <ProductDetail 
           product={product} 
-          user={user} // Pass user prop here
+          user={user}
           onClose={() => navigateTo('#/')} 
           onAddToCart={addToCart} 
           onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
@@ -176,7 +186,7 @@ const App: React.FC = () => {
         );
       case '#/calculator':
         return (
-          <div className="pt-8 pb-32 container mx-auto px-4 animate-fade-in">
+          <div className="pt-8 pb-32 container mx-auto px-4">
              <div className="flex items-center justify-between mb-6">
                 <h2 className="text-3xl font-black text-emerald-950">حاسبة الطاقة</h2>
                 <button onClick={() => navigateTo('#/')} className="text-emerald-600 font-bold text-sm">عودة للرئيسية</button>
@@ -205,7 +215,7 @@ const App: React.FC = () => {
       case '#/':
       default:
         return (
-          <div className="flex flex-col gap-12 md:gap-20 pb-32 animate-fade-in">
+          <div className="flex flex-col gap-12 md:gap-20 pb-32">
             <SEO 
               title="الرئيسية" 
               description="متجر حيفان للطاقة المتجددة - رائدون في حلول الألواح الشمسية والبطاريات والأجهزة المنزلية الموفرة للطاقة في اليمن." 
@@ -213,11 +223,11 @@ const App: React.FC = () => {
             <Hero onOpenStory={() => navigateTo('#/story')} />
             
             <section id="products-grid" className="container mx-auto px-4 scroll-mt-24">
-              <div className="sticky top-14 md:top-24 z-30 bg-white/80 backdrop-blur-xl py-4 -mx-4 px-4 mb-6 border-b border-emerald-50">
+              <div className="sticky top-14 md:top-24 z-30 bg-white/80 backdrop-blur-xl py-4 -mx-4 px-4 mb-6 border-b border-emerald-50 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
+                  <SectionReveal>
                     <h2 className="text-xl md:text-3xl font-black text-emerald-950">منتجاتنا المختارة</h2>
-                  </div>
+                  </SectionReveal>
                   <nav className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                     {categories.map(cat => (
                       <button 
@@ -234,22 +244,29 @@ const App: React.FC = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
-                {filteredProducts.map(product => (
-                  <GlassProductCard 
-                    key={product.id} 
-                    product={product} 
-                    onAddToCart={addToCart} 
-                    onViewDetails={(p) => navigateTo(`#/product/${p.id}`)} 
-                    onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
-                    formatPrice={formatPrice}
-                  />
-                ))}
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8 perspective-1000">
+                <AnimatePresence>
+                  {filteredProducts.map(product => (
+                    <GlassProductCard 
+                      key={product.id} 
+                      product={product} 
+                      onAddToCart={addToCart} 
+                      onViewDetails={(p) => navigateTo(`#/product/${p.id}`)} 
+                      onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
+                      formatPrice={formatPrice}
+                    />
+                  ))}
+                </AnimatePresence>
               </div>
             </section>
 
-            <ReviewSection user={user} onShowAll={() => navigateTo('#/reviews')} />
-            <FaqSection />
+            <SectionReveal delay={0.2}>
+              <ReviewSection user={user} onShowAll={() => navigateTo('#/reviews')} />
+            </SectionReveal>
+
+            <SectionReveal delay={0.3}>
+              <FaqSection />
+            </SectionReveal>
           </div>
         );
     }
@@ -279,23 +296,25 @@ const App: React.FC = () => {
       </main>
 
       {!currentHash.includes('cart') && !currentHash.includes('checkout') && !currentHash.includes('calculator') && !currentHash.includes('admin') && (
-        <footer className="bg-emerald-950 text-white py-16 text-center relative z-10 pb-24 md:pb-16">
-          <div className="container mx-auto px-4">
-            <img src="https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg" alt="حيفان للطاقة" className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl border-2 border-emerald-500/30 grayscale hover:grayscale-0 transition-all" loading="lazy" />
-            <h3 className="text-xl font-black mb-2">حيفان للطاقة المتجددة</h3>
-            <p className="text-emerald-400 font-bold text-sm mb-8 opacity-80">شريككم الموثوق للطاقة النظيفة في اليمن</p>
-            
-            <nav className="flex justify-center gap-8 mb-12">
-              <button type="button" onClick={() => navigateTo('#/story')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">من نحن</button>
-              <button type="button" onClick={() => navigateTo('#/warranty')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">سياسة الضمان</button>
-              <a href={MAP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">موقعنا على الخريطة</a>
-            </nav>
-            
-            <div className="pt-8 border-t border-white/5">
-              <p className="text-[10px] font-bold text-white/30 tracking-widest uppercase">© 2026 حيفان للطاقة المتجددة - جميع الحقوق محفوظة</p>
+        <SectionReveal>
+          <footer className="bg-emerald-950 text-white py-16 text-center relative z-10 pb-24 md:pb-16">
+            <div className="container mx-auto px-4">
+              <img src="https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg" alt="حيفان للطاقة" className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl border-2 border-emerald-500/30 grayscale hover:grayscale-0 transition-all" loading="lazy" />
+              <h3 className="text-xl font-black mb-2">حيفان للطاقة المتجددة</h3>
+              <p className="text-emerald-400 font-bold text-sm mb-8 opacity-80">شريككم الموثوق للطاقة النظيفة في اليمن</p>
+              
+              <nav className="flex justify-center gap-8 mb-12">
+                <button type="button" onClick={() => navigateTo('#/story')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">من نحن</button>
+                <button type="button" onClick={() => navigateTo('#/warranty')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">سياسة الضمان</button>
+                <a href={MAP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">موقعنا على الخريطة</a>
+              </nav>
+              
+              <div className="pt-8 border-t border-white/5">
+                <p className="text-[10px] font-bold text-white/30 tracking-widest uppercase">© 2026 حيفان للطاقة المتجددة - جميع الحقوق محفوظة</p>
+              </div>
             </div>
-          </div>
-        </footer>
+          </footer>
+        </SectionReveal>
       )}
 
       {currentHash !== '#/admin' && (
@@ -306,7 +325,6 @@ const App: React.FC = () => {
         />
       )}
       
-      <AiAssistant products={products} isContactOpen={isContactOpen} />
       <FloatingContact isOpen={isContactOpen} onToggle={() => setIsContactOpen(!isContactOpen)} />
     </div>
   );

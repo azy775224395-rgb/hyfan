@@ -67,8 +67,7 @@ export class GeminiService {
     `;
 
     try {
-      // المحاولة الأولى: موديل ذكي (Gemini 3) بمهلة قصيرة نسبياً (12 ثانية)
-      // إذا تأخر، نعتبره فشل وننتقل للموديل الأسرع
+      // المحاولة الأولى: موديل ذكي (Gemini 3) بمهلة 20 ثانية (معدلة)
       const response: any = await Promise.race([
         ai.models.generateContent({
           model: 'gemini-3-flash-preview',
@@ -79,7 +78,7 @@ export class GeminiService {
             maxOutputTokens: 300,
           },
         }),
-        this.timeout(12000) // Timeout after 12 seconds
+        this.timeout(20000) // Timeout after 20 seconds
       ]);
 
       const text = response?.text;
@@ -87,20 +86,22 @@ export class GeminiService {
       return text;
 
     } catch (error: any) {
-      console.warn("Gemini Primary Model Error:", error.message || error);
+      console.warn("Gemini Primary Model Error (switching to backup):", error.message || error);
       
-      // المحاولة الثانية: الموديل السريع جداً (Gemini 2.5 Flash Latest)
-      // نلجأ إليه فوراً عند تأخر الموديل الأول
+      // المحاولة الثانية: الموديل السريع جداً (Gemini 2.5) مع مهلة 25 ثانية
       try {
-        console.log("Switching to fast fallback model...");
-        const retryResponse: any = await ai.models.generateContent({
-          model: 'gemini-2.5-flash-latest',
-          contents: contents,
-          config: { 
-            systemInstruction, 
-            temperature: 0.4 
-          }
-        });
+        const retryResponse: any = await Promise.race([
+          ai.models.generateContent({
+            model: 'gemini-2.5-flash-latest',
+            contents: contents,
+            config: { 
+              systemInstruction, 
+              temperature: 0.4 
+            }
+          }),
+          this.timeout(25000) // Extended Timeout
+        ]);
+        
         if (retryResponse?.text) return retryResponse.text;
       } catch (retryError) {
         console.error("Retry failed:", retryError);

@@ -56,18 +56,16 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
-    // Safety: Ensure loading never sticks for more than 40 seconds (increased from 12s)
-    // This allows the service ample time to try primary and fallback models
+    // Safety: Increased to 60s to prevent premature timeout UI
     const safetyTimeout = setTimeout(() => {
       setIsLoading((current) => {
         if (current) {
-           // Only add error message if still loading
-           setMessages(prev => [...prev, { role: 'model', text: 'يبدو أن الخادم مشغول جداً حالياً. 😅\nتفضل بمراسلتنا عبر واتساب لخدمتك فوراً!' }]);
+           setMessages(prev => [...prev, { role: 'model', text: 'يبدو أن الاتصال أخذ وقتاً أطول من المعتاد. 🔌\nيرجى المحاولة مرة أخرى أو التواصل واتساب.' }]);
            return false;
         }
         return false;
       });
-    }, 40000);
+    }, 60000);
 
     try {
       const inventory = liveProducts.length > 0 ? liveProducts : fallbackProducts;
@@ -77,13 +75,11 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
 
       const response = await geminiService.chatWithCustomer([...messages, userMsg], context);
       
-      // Clear safety timeout as we got a response
       clearTimeout(safetyTimeout);
       
       setMessages(prev => [...prev, { role: 'model', text: response }]);
 
       if (text.length > 5) {
-        // Send notification quietly in background
         NotificationService.sendTelegramNotification(
           NotificationService.formatAiChatMessage(text, response)
         ).catch(() => {});
@@ -113,11 +109,13 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
   };
 
   return (
-    <div className={`fixed left-6 z-[80] transition-all duration-500 ease-in-out ${isContactOpen ? 'bottom-[380px] md:bottom-[480px]' : 'bottom-32'}`}>
+    // Added pointer-events-none to container to prevent blocking the site
+    <div className={`fixed left-6 z-[80] transition-all duration-500 ease-in-out pointer-events-none ${isContactOpen ? 'bottom-[380px] md:bottom-[480px]' : 'bottom-32'}`}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 bg-emerald-950 rounded-full flex items-center justify-center text-white shadow-4xl hover:bg-black transition-all active:scale-90 border-4 border-white overflow-hidden group"
+        // Added pointer-events-auto to button so it remains clickable
+        className="pointer-events-auto w-16 h-16 bg-emerald-950 rounded-full flex items-center justify-center text-white shadow-4xl hover:bg-black transition-all active:scale-90 border-4 border-white overflow-hidden group"
       >
         {isOpen ? (
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -130,7 +128,8 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-20 left-0 w-[320px] sm:w-[450px] bg-white rounded-[2.5rem] shadow-4xl border border-emerald-50 flex flex-col h-[500px] md:h-[600px] overflow-hidden animate-chat-pop origin-bottom-left">
+        // Added pointer-events-auto to chat window
+        <div className="pointer-events-auto absolute bottom-20 left-0 w-[320px] sm:w-[450px] bg-white rounded-[2.5rem] shadow-4xl border border-emerald-50 flex flex-col h-[500px] md:h-[600px] overflow-hidden animate-chat-pop origin-bottom-left">
           <div className="bg-emerald-950 p-5 text-white flex items-center gap-4 border-b border-emerald-900">
             <div className="w-12 h-12 bg-white rounded-2xl overflow-hidden shadow-xl shrink-0">
               <img src={LOGO_URL} alt="حيفان" className="w-full h-full object-cover" />
@@ -175,10 +174,6 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
             )}
           </div>
 
-          {/* 
-            Important: This section is a div, NOT a form. 
-            Inputs and buttons have explicit handling to prevent page reloads/overlays.
-          */}
           <div className="p-3 bg-white border-t border-gray-100 flex gap-2 items-center">
             <button 
               type="button"
@@ -194,7 +189,7 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  e.preventDefault(); // CRITICAL: Prevent form submission overlay
+                  e.preventDefault(); 
                   handleSend();
                 }
               }}
