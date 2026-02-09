@@ -1,3 +1,4 @@
+
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -9,8 +10,6 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // Robustly define process.env.API_KEY from various possible sources
-      // This allows accessing process.env.API_KEY in the client code
       'process.env.API_KEY': JSON.stringify(
         env.API_KEY || 
         env.VITE_API_KEY || 
@@ -28,12 +27,13 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       sourcemap: false,
       target: 'esnext',
-      minify: 'esbuild',
+      minify: 'esbuild', // Use esbuild for faster and efficient minification
       rollupOptions: {
         output: {
           manualChunks: {
-            vendor: ['react', 'react-dom', 'framer-motion', 'lucide-react'],
-            utils: ['@google/genai', '@supabase/supabase-js']
+            'vendor-react': ['react', 'react-dom'],
+            'vendor-ui': ['framer-motion', 'lucide-react'],
+            'vendor-utils': ['@google/genai', '@supabase/supabase-js'],
           }
         },
       },

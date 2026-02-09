@@ -4,27 +4,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Product, UserProfile } from './types';
 import { INITIAL_PRODUCTS } from './constants';
 import Header from './components/Header';
-import GlassProductCard from './components/GlassProductCard';
-import ProductDetail from './components/ProductDetail';
-import CartDrawer from './components/CartDrawer';
+// Hero and GlassProductCard kept eager for LCP (Largest Contentful Paint) optimization
 import Hero from './components/Hero';
-import FaqSection from './components/FaqSection';
-import ReviewSection from './components/ReviewSection';
-import SolarCalculator from './components/SolarCalculator';
-import FloatingContact from './components/FloatingContact';
+import GlassProductCard from './components/GlassProductCard';
 import AnimatedBackground from './components/AnimatedBackground';
 import MobileNav from './components/MobileNav';
 import SEO from './components/SEO';
 import LocalBusinessSchema from './components/LocalBusinessSchema';
 import { useCart } from './context/CartContext';
 
-// Lazy Load Heavy Components for Performance
+// --- Step 1: Lazy Load Heavy Page/Section Components ---
+const ProductDetail = React.lazy(() => import('./components/ProductDetail'));
+const CartDrawer = React.lazy(() => import('./components/CartDrawer'));
+const FaqSection = React.lazy(() => import('./components/FaqSection'));
+const ReviewSection = React.lazy(() => import('./components/ReviewSection'));
+const SolarCalculator = React.lazy(() => import('./components/SolarCalculator'));
 const StoryModal = React.lazy(() => import('./components/StoryModal'));
 const WarrantyModal = React.lazy(() => import('./components/WarrantyModal'));
 const AllReviewsModal = React.lazy(() => import('./components/AllReviewsModal'));
 const CheckoutView = React.lazy(() => import('./components/CheckoutView'));
 const AuthSidebar = React.lazy(() => import('./components/AuthSidebar'));
 const AdminDashboard = React.lazy(() => import('./components/AdminDashboard'));
+const FloatingContact = React.lazy(() => import('./components/FloatingContact'));
 
 const LoadingSpinner = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50 backdrop-blur-sm">
@@ -121,14 +122,16 @@ const App: React.FC = () => {
       const id = hash.replace('#/product/', '');
       const product = products.find(p => p.id === id);
       if (product) return (
-        <ProductDetail 
-          product={product} 
-          user={user}
-          onClose={() => navigateTo('#/')} 
-          onAddToCart={addToCart} 
-          onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
-          formatPrice={formatPrice}
-        />
+        <Suspense fallback={<LoadingSpinner />}>
+          <ProductDetail 
+            product={product} 
+            user={user}
+            onClose={() => navigateTo('#/')} 
+            onAddToCart={addToCart} 
+            onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
+            formatPrice={formatPrice}
+          />
+        </Suspense>
       );
     }
 
@@ -155,15 +158,17 @@ const App: React.FC = () => {
         );
       case '#/cart':
         return (
-          <CartDrawer 
-            isOpen={true} 
-            onClose={() => navigateTo('#/')} 
-            items={cart} 
-            onRemove={removeFromCart} 
-            onUpdateQty={updateQuantity} 
-            user={user} 
-            formatPrice={formatPrice} 
-          />
+          <Suspense fallback={<LoadingSpinner />}>
+            <CartDrawer 
+              isOpen={true} 
+              onClose={() => navigateTo('#/')} 
+              items={cart} 
+              onRemove={removeFromCart} 
+              onUpdateQty={updateQuantity} 
+              user={user} 
+              formatPrice={formatPrice} 
+            />
+          </Suspense>
         );
       case '#/auth':
         return (
@@ -178,7 +183,9 @@ const App: React.FC = () => {
                 <h2 className="text-3xl font-black text-emerald-950">حاسبة الطاقة</h2>
                 <button onClick={() => navigateTo('#/')} className="text-emerald-600 font-bold text-sm">عودة للرئيسية</button>
              </div>
-             <SolarCalculator />
+             <Suspense fallback={<div className="h-64 bg-gray-100 rounded-3xl animate-pulse" />}>
+               <SolarCalculator />
+             </Suspense>
           </div>
         );
       case '#/story':
@@ -247,9 +254,13 @@ const App: React.FC = () => {
               </div>
             </section>
 
-            <ReviewSection user={user} onShowAll={() => navigateTo('#/reviews')} />
+            <Suspense fallback={<div className="h-64 bg-gray-50/50 rounded-3xl" />}>
+              <ReviewSection user={user} onShowAll={() => navigateTo('#/reviews')} />
+            </Suspense>
 
-            <FaqSection />
+            <Suspense fallback={null}>
+              <FaqSection />
+            </Suspense>
           </div>
         );
     }
@@ -306,7 +317,9 @@ const App: React.FC = () => {
         />
       )}
       
-      <FloatingContact isOpen={isContactOpen} onToggle={() => setIsContactOpen(!isContactOpen)} />
+      <Suspense fallback={null}>
+        <FloatingContact isOpen={isContactOpen} onToggle={() => setIsContactOpen(!isContactOpen)} />
+      </Suspense>
     </div>
   );
 };

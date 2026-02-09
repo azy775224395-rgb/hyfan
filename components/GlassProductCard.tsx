@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Eye, Zap, CheckCircle2 } from 'lucide-react';
 import { Product } from '../types';
+import OptimizedImage from './ui/OptimizedImage';
 
 interface GlassProductCardProps {
   product: Product;
@@ -13,8 +14,6 @@ interface GlassProductCardProps {
 }
 
 const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCart, onViewDetails, onOrderNow, formatPrice }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -44,16 +43,12 @@ const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCar
       <div 
         className="relative aspect-[4/3] m-2 rounded-[1.8rem] overflow-hidden bg-gradient-to-br from-gray-50 to-white"
       >
-        <img 
+        <OptimizedImage 
           src={product.image} 
           alt={`صورة منتج ${product.name} - ${product.category}`}
-          loading="lazy"
-          onLoad={() => setIsLoaded(true)}
-          className={`w-full h-full object-contain p-4 mix-blend-multiply transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'} group-hover:scale-105 transition-transform duration-500`}
+          wrapperClassName="w-full h-full"
+          className="w-full h-full object-contain p-4 mix-blend-multiply group-hover:scale-105"
         />
-        {!isLoaded && (
-           <div className="absolute inset-0 bg-gray-100 animate-pulse" />
-        )}
       </div>
 
       {/* Content Area */}

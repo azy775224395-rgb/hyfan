@@ -1,6 +1,7 @@
 
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
+import OptimizedImage from './ui/OptimizedImage';
 
 interface HeroProps {
   onOpenStory: () => void;
@@ -22,21 +23,18 @@ const Hero: React.FC<HeroProps> = ({ onOpenStory }) => {
       id="hero-section" 
       className="relative md:rounded-[2.5rem] overflow-hidden mb-6 md:mb-12 bg-[#061e23] min-h-[450px] md:min-h-[600px] flex items-center shadow-2xl border-b md:border border-white/5 group"
     >
-      {/* Background Image - Static now */}
-      <div 
-        className="absolute inset-0 overflow-hidden"
-      >
-        <img 
+      {/* Background Image - Optimized */}
+      <div className="absolute inset-0 overflow-hidden">
+        <OptimizedImage 
           src="https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?q=80&w=2070&auto=format&fit=crop" 
           alt="ألواح طاقة شمسية حديثة في اليمن - حيفان للطاقة" 
           className="w-full h-full object-cover" 
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
+          priority={true} // Priority loading for Hero
+          wrapperClassName="w-full h-full"
         />
         {/* Modern Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-900/50 to-emerald-900/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-transparent to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-900/50 to-emerald-900/10 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-transparent to-transparent opacity-80 z-0" />
       </div>
 
       <div className="relative container mx-auto px-4 md:px-12 z-10 text-right flex items-center">
