@@ -22,7 +22,8 @@ const Hero: React.FC<HeroProps> = ({ onOpenStory }) => {
     <section 
       ref={ref} 
       id="hero-section" 
-      className="relative md:rounded-[2.5rem] overflow-hidden mb-8 md:mb-12 bg-[#061e23] min-h-[400px] md:min-h-[550px] flex items-center shadow-lg border-b md:border border-gray-200 group"
+      // Ensure mb-0 is strictly applied and no border at bottom creates visual gap
+      className="relative md:rounded-b-[2.5rem] md:rounded-t-none overflow-hidden mb-0 bg-[#061e23] min-h-[400px] md:min-h-[550px] flex items-center shadow-lg group"
     >
       {/* Background Image - Optimized */}
       <div className="absolute inset-0 overflow-hidden">

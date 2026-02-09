@@ -119,103 +119,81 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
 
   return (
     <section className="container mx-auto px-4 mb-8">
-      <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] p-5 md:p-12 border border-emerald-50 shadow-lg">
-        {/* Layout changed to Flex Column: Form Top, Reviews Bottom */}
-        <div className="flex flex-col gap-12">
+      {/* Main Container - Full Width Rectangular */}
+      <div className="w-full bg-white/60 backdrop-blur-xl rounded-[2rem] p-5 md:p-8 border border-emerald-50 shadow-lg">
+        
+        <div className="flex flex-col gap-8">
           
-          {/* Review Form - Full Width (Rectangular) */}
-          <div className="w-full bg-emerald-950 rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 text-white relative overflow-hidden shadow-xl">
+          {/* Review Form - Horizontal Rectangle Layout */}
+          <div className="w-full bg-emerald-950 rounded-[1.5rem] p-6 text-white relative overflow-hidden shadow-xl">
             <div className="relative z-10">
-              <h2 className="text-xl md:text-3xl font-black mb-2">قيم تجربتك</h2>
-              <p className="text-emerald-100/70 font-bold mb-6 text-xs md:text-base">رأيك يهمنا! شاركنا تجربتك.</p>
-
-              {!submitted ? (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* User Info */}
-                  <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
-                    <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center border-2 border-white/20 overflow-hidden shadow-lg shrink-0">
-                      {user ? <img src={user.avatar} className="w-full h-full object-cover" alt={user.name} /> : <span className="font-black text-sm">👤</span>}
-                    </div>
-                    <div className="text-right overflow-hidden">
-                      <p className="text-[9px] text-emerald-400 font-black uppercase">النشر باسم:</p>
-                      <p className="font-black text-sm truncate">{user ? user.name : 'زائر'}</p>
-                    </div>
-                  </div>
-
-                  {/* Star Rating */}
-                  <div className="flex justify-center gap-2 py-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        disabled={isSubmitting}
-                        onClick={() => setRating(star)}
-                        onMouseEnter={() => setHover(star)}
-                        onMouseLeave={() => setHover(0)}
-                        className="transition-transform active:scale-95"
-                      >
-                        <svg 
-                          className="w-8 h-8"
-                          xmlns="http://www.w3.org/2000/svg" 
-                          viewBox="0 0 24 24" 
-                          fill={(hover || rating) >= star ? "#fbbf24" : "transparent"} 
-                          stroke={(hover || rating) >= star ? "#fbbf24" : "rgba(255,255,255,0.3)"} 
-                          strokeWidth="1.5"
-                        >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                        </svg>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Comment Area */}
-                  <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="اكتب تعليقك هنا..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white placeholder:text-white/20 outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all min-h-[80px] text-sm font-bold"
-                  />
-
-                  {/* Image Upload */}
-                  <div 
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`w-full border border-dashed border-white/20 rounded-xl p-2 text-center cursor-pointer transition-all hover:bg-white/5 flex items-center justify-center gap-2 ${previewUrl ? 'h-24' : 'h-16'}`}
-                  >
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      onChange={handleImageChange} 
-                      className="hidden" 
-                      accept="image/*"
-                    />
-                    {previewUrl ? (
-                      <img src={previewUrl} alt="Preview" className="h-full rounded-lg object-contain" />
-                    ) : (
-                      <>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-400"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                        <span className="text-[10px] font-bold text-emerald-100/60">صورة (اختياري)</span>
-                      </>
-                    )}
-                  </div>
-
-                  <button 
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-white text-emerald-900 py-3 rounded-xl font-black hover:bg-emerald-50 transition-all shadow-lg active:scale-95 text-sm flex items-center justify-center gap-2 disabled:opacity-70"
-                  >
-                    {isSubmitting ? 'جاري النشر...' : 'نشر التقييم'}
-                  </button>
-                </form>
-              ) : (
-                <div className="text-center py-8 animate-fade-in">
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#065f46" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </div>
-                  <h3 className="text-xl font-black mb-1">شكراً لك!</h3>
-                  <p className="text-emerald-100/70 text-sm">تم نشر تقييمك بنجاح.</p>
-                  <button onClick={() => { setSubmitted(false); setPreviewUrl(null); }} className="mt-4 text-white text-xs underline font-bold">تقييم آخر</button>
+              <div className="flex flex-col lg:flex-row gap-6 items-center">
+                
+                {/* Header (Left) */}
+                <div className="w-full lg:w-1/4 flex flex-col gap-2 border-b lg:border-b-0 lg:border-l border-white/10 pb-4 lg:pb-0 pl-0 lg:pl-6 text-center lg:text-right">
+                    <h2 className="text-xl font-black mb-1">قيم تجربتك</h2>
+                    <p className="text-emerald-100/70 font-bold text-xs">رأيك يهمنا! شاركنا تجربتك.</p>
                 </div>
-              )}
+
+                {/* Form Inputs (Right - Horizontal) */}
+                <div className="w-full lg:w-3/4">
+                  {!submitted ? (
+                    <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-center">
+                         {/* Rating - Horizontal */}
+                         <div className="flex items-center justify-center bg-white/5 rounded-xl px-3 py-2 border border-white/10 shrink-0">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                disabled={isSubmitting}
+                                onClick={() => setRating(star)}
+                                onMouseEnter={() => setHover(star)}
+                                onMouseLeave={() => setHover(0)}
+                                className="transition-transform active:scale-95 px-0.5"
+                              >
+                                <svg 
+                                  className="w-8 h-8 md:w-6 md:h-6"
+                                  xmlns="http://www.w3.org/2000/svg" 
+                                  viewBox="0 0 24 24" 
+                                  fill={(hover || rating) >= star ? "#fbbf24" : "transparent"} 
+                                  stroke={(hover || rating) >= star ? "#fbbf24" : "rgba(255,255,255,0.3)"} 
+                                  strokeWidth="1.5"
+                                >
+                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                              </button>
+                            ))}
+                         </div>
+                         
+                         {/* Comment - Grow */}
+                         <input
+                            type="text"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="اكتب تعليقك هنا..."
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all text-sm font-bold h-12"
+                          />
+
+                          {/* Action Button */}
+                          <button 
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full md:w-auto px-6 bg-white text-emerald-900 h-12 rounded-xl font-black hover:bg-emerald-50 transition-all shadow-lg active:scale-95 text-sm flex items-center justify-center gap-2 disabled:opacity-70 whitespace-nowrap shrink-0"
+                          >
+                            {isSubmitting ? 'جاري...' : 'نشر'}
+                          </button>
+                    </form>
+                  ) : (
+                    <div className="h-full flex flex-row justify-center items-center gap-4 animate-fade-in text-center py-2">
+                      <div className="flex items-center gap-2 text-emerald-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <h3 className="text-base font-black text-white">شكراً لك!</h3>
+                      </div>
+                      <button onClick={() => { setSubmitted(false); setPreviewUrl(null); }} className="text-white/50 hover:text-white text-xs underline font-bold">تقييم آخر</button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 

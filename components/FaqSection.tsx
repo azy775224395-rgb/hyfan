@@ -44,16 +44,17 @@ const FaqSection: React.FC = () => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] p-6 md:p-12 border border-emerald-50 shadow-lg relative overflow-hidden">
+      {/* Expanded to full width (max-w-7xl) for horizontal rectangle look */}
+      <div className="w-full bg-white/60 backdrop-blur-xl rounded-[2rem] p-6 md:p-12 border border-emerald-50 shadow-lg relative overflow-hidden">
         <div className="absolute top-0 left-0 w-32 h-32 bg-emerald-100 blur-[60px] pointer-events-none opacity-40" />
 
-        <div className="max-w-3xl mx-auto relative z-10">
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-8">
             <span className="text-emerald-700 font-black uppercase tracking-widest text-[9px] bg-emerald-100 px-4 py-1.5 rounded-full border border-emerald-200 inline-block mb-3">الدعم</span>
             <h2 className="text-xl md:text-3xl font-black text-emerald-950">الأسئلة الشائعة حول الطاقة الشمسية</h2>
           </div>
 
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {FAQS.map((faq, index) => (
               <div 
                 key={index} 
@@ -61,10 +62,10 @@ const FaqSection: React.FC = () => {
               >
                 <button
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                  className="w-full flex items-center justify-between p-4 text-right outline-none"
+                  className="w-full flex items-center justify-between p-4 text-right outline-none h-full"
                   aria-expanded={openIndex === index}
                 >
-                  <h3 className={`font-black text-sm md:text-lg transition-colors ${openIndex === index ? 'text-emerald-800' : 'text-emerald-950 group-hover:text-emerald-700'}`}>
+                  <h3 className={`font-black text-sm md:text-base transition-colors ${openIndex === index ? 'text-emerald-800' : 'text-emerald-950 group-hover:text-emerald-700'}`}>
                     {faq.question}
                   </h3>
                   <div className={`transition-all duration-300 p-1.5 rounded-lg flex-shrink-0 mr-3 ${openIndex === index ? 'rotate-180 bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-300'}`}>
@@ -74,7 +75,7 @@ const FaqSection: React.FC = () => {
                 <div 
                   className={`overflow-hidden transition-all duration-300 ${openIndex === index ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'}`}
                 >
-                  <div className="px-4 pb-4 pt-0 text-emerald-800/80 leading-relaxed text-xs md:text-base border-t border-emerald-50/50 mt-1 font-medium">
+                  <div className="px-4 pb-4 pt-0 text-emerald-800/80 leading-relaxed text-xs md:text-sm border-t border-emerald-50/50 mt-1 font-medium">
                     <div className="pt-3">
                       {faq.answer}
                     </div>

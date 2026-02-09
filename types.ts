@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -9,7 +8,7 @@ export interface Product {
   specs?: string[];
   fullDescription?: string;
   longDescription?: string; // New field for SEO-rich content
-  status?: 'الأكثر مبيعاً' | 'جديد' | 'متوفر' | 'خصم';
+  status?: 'الأكثر مبيعاً' | 'جديد' | 'متوفر' | 'خصم' | 'مقاوم للكسر';
 }
 
 export interface CartItem extends Product {

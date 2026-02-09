@@ -15,11 +15,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
   const LOGO_URL = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
   const ADMIN_EMAIL = "azy775224395@gmail.com";
 
-  // فحص الأدمن بشكل دقيق (بدون حساسيه لحالة الأحرف)
+  // فحص الأدمن بشكل دقيق
   const isAdmin = user && user.email && (user.email.trim().toLowerCase() === ADMIN_EMAIL.trim().toLowerCase());
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/60 backdrop-blur-2xl border-b border-gray-100 shadow-sm">
+    // Changed bg-emerald-950/90 to bg-[#061e23]/95 (Deep Mysterious Dark Green)
+    <header className="sticky top-0 z-40 w-full bg-[#061e23]/95 backdrop-blur-2xl border-b border-emerald-900/50 shadow-lg transition-colors duration-300">
       <div className="container mx-auto px-3 h-16 md:h-24 flex items-center justify-between gap-2 md:gap-6">
         {/* Logo Section */}
         <div 
@@ -31,18 +32,18 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
           </div>
           
           <div className="flex flex-col">
-            <span className="text-sm md:text-2xl font-black text-emerald-950 leading-none">
+            <span className="text-sm md:text-2xl font-black text-white leading-none">
               حيفان للطاقة
             </span>
             <div className="flex items-center gap-2 mt-0.5 md:mt-1">
-              <span className="text-[8px] md:text-[11px] font-bold text-emerald-600 hidden sm:block tracking-wide uppercase">
+              <span className="text-[8px] md:text-[11px] font-bold text-emerald-400 hidden sm:block tracking-wide uppercase">
                 Energy Solutions
               </span>
             </div>
           </div>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar - Kept White as requested */}
         <div className="flex-grow max-w-xl flex items-center gap-2 md:gap-4 mx-2">
           <div className="flex-grow relative group">
             <input
@@ -50,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ابحث عن منتج..."
-              className="w-full bg-white border border-gray-200 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-300 rounded-full md:rounded-2xl px-4 py-2.5 md:px-6 md:py-3.5 transition-all outline-none text-xs md:text-sm font-bold text-gray-700 placeholder:text-gray-400 shadow-sm"
+              className="w-full bg-white border border-gray-200 focus:ring-4 focus:ring-emerald-500/30 focus:border-emerald-300 rounded-full md:rounded-2xl px-4 py-2.5 md:px-6 md:py-3.5 transition-all outline-none text-xs md:text-sm font-bold text-gray-700 placeholder:text-gray-400 shadow-sm"
             />
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hidden md:block">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -61,17 +62,18 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
         {/* Actions Section */}
         <div className="flex items-center gap-2 md:gap-4 shrink-0">
           
-          {/* Admin Button - يظهر دائماً للأدمن */}
+          {/* Admin Button */}
           {isAdmin && (
             <button
               onClick={() => window.location.hash = '#/admin'}
-              className="flex items-center gap-1.5 bg-emerald-950 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-black text-[10px] md:text-xs hover:bg-black transition-colors shadow-lg animate-fade-in border border-emerald-800"
+              className="flex items-center gap-1.5 bg-white text-emerald-950 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-black text-[10px] md:text-xs hover:bg-gray-100 transition-colors shadow-lg animate-fade-in border border-gray-200"
             >
               <span>⚙️</span>
               <span className="hidden md:inline">الإدارة</span>
             </button>
           )}
 
+          {/* Buttons kept white as requested */}
           <button 
             onClick={onOpenAuth}
             className="w-9 h-9 md:w-12 md:h-12 flex items-center justify-center text-emerald-800 hover:text-emerald-600 bg-white hover:bg-emerald-50 rounded-full md:rounded-2xl transition-all border border-gray-200 hover:border-emerald-200 shadow-sm"

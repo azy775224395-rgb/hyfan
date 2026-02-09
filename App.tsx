@@ -221,14 +221,15 @@ const App: React.FC = () => {
       case '#/':
       default:
         return (
-          <div className="flex flex-col gap-12 md:gap-20 pb-32">
+          // Reduced gap from gap-4 to gap-0 to remove whitespace between Hero and Products
+          <div className="flex flex-col gap-0 pb-32">
             <SEO 
               title="الرئيسية" 
               description="متجر حيفان للطاقة المتجددة - رائدون في حلول الألواح الشمسية والبطاريات والأجهزة المنزلية الموفرة للطاقة في اليمن." 
             />
             <Hero onOpenStory={() => navigateTo('#/story')} />
             
-            <section id="products-grid" className="container mx-auto px-4 scroll-mt-24">
+            <section id="products-grid" className="container mx-auto px-4 scroll-mt-24 pt-6">
               <div className="sticky top-14 md:top-24 z-30 bg-white/80 backdrop-blur-xl py-4 -mx-4 px-4 mb-6 border-b border-emerald-50 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex-shrink-0">
