@@ -120,9 +120,11 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
   return (
     <section className="container mx-auto px-4 mb-8">
       <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] p-5 md:p-12 border border-emerald-50 shadow-lg">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16">
-          {/* Review Form */}
-          <div className="bg-emerald-950 rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 text-white relative overflow-hidden shadow-xl order-2 lg:order-1">
+        {/* Layout changed to Flex Column: Form Top, Reviews Bottom */}
+        <div className="flex flex-col gap-12">
+          
+          {/* Review Form - Full Width (Rectangular) */}
+          <div className="w-full bg-emerald-950 rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 text-white relative overflow-hidden shadow-xl">
             <div className="relative z-10">
               <h2 className="text-xl md:text-3xl font-black mb-2">قيم تجربتك</h2>
               <p className="text-emerald-100/70 font-bold mb-6 text-xs md:text-base">رأيك يهمنا! شاركنا تجربتك.</p>
@@ -217,8 +219,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
             </div>
           </div>
 
-          {/* Reviews List */}
-          <div className="flex flex-col gap-4 order-1 lg:order-2">
+          {/* Reviews List - Below the Form */}
+          <div className="flex flex-col gap-4 w-full">
             <div className="flex items-center justify-between px-2">
               <h3 className="text-xl md:text-2xl font-black text-emerald-950">آراء العملاء</h3>
               <button 
@@ -229,13 +231,14 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
               </button>
             </div>
             
-            <div className="space-y-3 relative">
+            {/* Grid for Reviews - Optimized for bottom layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative">
               {isLoadingReviews ? (
-                [...Array(2)].map((_, i) => (
-                  <div key={i} className="bg-white/40 h-24 rounded-2xl animate-pulse" />
+                [...Array(3)].map((_, i) => (
+                  <div key={i} className="bg-white/40 h-32 rounded-2xl animate-pulse" />
                 ))
               ) : reviews.length > 0 ? (
-                reviews.slice(0, 3).map((review) => (
+                reviews.slice(0, 6).map((review) => (
                   <div key={review.id} className="bg-white p-4 rounded-2xl border border-emerald-50 shadow-sm hover:shadow-md transition-all">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2">
@@ -267,7 +270,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
                   </div>
                 ))
               ) : (
-                <div className="text-center py-10 text-gray-400 font-bold text-sm">كن أول من يضيف تقييماً!</div>
+                <div className="col-span-full text-center py-10 text-gray-400 font-bold text-sm">كن أول من يضيف تقييماً!</div>
               )}
             </div>
           </div>

@@ -12,6 +12,7 @@ import MobileNav from './components/MobileNav';
 import SEO from './components/SEO';
 import LocalBusinessSchema from './components/LocalBusinessSchema';
 import { useCart } from './context/CartContext';
+import { Sun, Battery, Zap, Tv, Flame, Package, LayoutGrid } from 'lucide-react';
 
 // --- Step 1: Lazy Load Heavy Page/Section Components ---
 const ProductDetail = React.lazy(() => import('./components/ProductDetail'));
@@ -32,6 +33,17 @@ const LoadingSpinner = () => (
     <div className="w-16 h-16 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
   </div>
 );
+
+// Helper to map category names to icons
+const getCategoryIcon = (category: string) => {
+  if (category.includes('الالواح') || category.includes('شمسية')) return <Sun size={14} />;
+  if (category.includes('البطاريات')) return <Battery size={14} />;
+  if (category.includes('الانفرترات')) return <Zap size={14} />;
+  if (category.includes('الاجهزة') || category.includes('كهربائية')) return <Tv size={14} />;
+  if (category.includes('الطباخه')) return <Flame size={14} />;
+  if (category.includes('الباقات')) return <Package size={14} />;
+  return <LayoutGrid size={14} />;
+};
 
 const App: React.FC = () => {
   const [products] = useState<Product[]>(INITIAL_PRODUCTS);
@@ -222,15 +234,20 @@ const App: React.FC = () => {
                   <div className="flex-shrink-0">
                     <h2 className="text-xl md:text-3xl font-black text-emerald-950">منتجاتنا المختارة</h2>
                   </div>
-                  <nav className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  <nav className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                     {categories.map(cat => (
                       <button 
                         key={cat} 
                         type="button"
                         aria-label={`تصفح قسم ${cat}`}
                         onClick={() => { setSelectedCategory(cat); setSearchQuery(''); }} 
-                        className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all whitespace-nowrap active:scale-95 ${selectedCategory === cat && searchQuery === '' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-gray-100/50 text-gray-500 hover:bg-white hover:shadow-md'}`}
+                        className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap active:scale-95 flex items-center gap-2 border ${
+                          selectedCategory === cat && searchQuery === '' 
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' 
+                            : 'bg-white text-gray-600 border-gray-200 shadow-sm hover:border-emerald-300'
+                        }`}
                       >
+                        {getCategoryIcon(cat)}
                         {cat}
                       </button>
                     ))}
@@ -238,7 +255,7 @@ const App: React.FC = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
                 <AnimatePresence>
                   {filteredProducts.map(product => (
                     <GlassProductCard 

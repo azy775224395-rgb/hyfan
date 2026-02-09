@@ -70,7 +70,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpd
     <div className="container mx-auto px-4 py-8 md:py-12 animate-fade-in min-h-[80vh] pb-32">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-2xl md:text-5xl font-black text-emerald-950">سلة المشتريات</h2>
-        <button onClick={onClose} className="p-3 md:p-4 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-100 transition-all font-black flex items-center gap-2">
+        <button onClick={onClose} className="p-3 md:p-4 bg-gray-50 text-gray-600 rounded-2xl hover:bg-gray-100 transition-all font-black flex items-center gap-2 border border-gray-200">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m9 18 6-6-6-6"/></svg>
           <span className="hidden md:inline">العودة للتسوق</span>
         </button>
@@ -88,9 +88,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpd
       )}
 
       {items.length === 0 ? (
-        <div className="bg-white/60 backdrop-blur-xl rounded-[2.5rem] p-10 md:p-20 text-center border border-emerald-50 shadow-lg">
-          <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-emerald-300"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+        <div className="bg-white rounded-[2.5rem] p-10 md:p-20 text-center border border-gray-200 shadow-md">
+          <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-300"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
           </div>
           <h3 className="text-xl font-black text-emerald-900 mb-2">سلتك فارغة حالياً</h3>
           <p className="text-gray-400 font-bold mb-8">تصفح منتجاتنا المميزة وأضف ما يعجبك إلى السلة</p>
@@ -100,20 +100,20 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpd
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
             {items.map(item => (
-              <div key={item.id} className="bg-white p-4 md:p-6 rounded-[2rem] border border-emerald-50 shadow-sm flex gap-4 items-center group relative overflow-hidden">
-                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+              <div key={item.id} className="bg-white p-4 md:p-6 rounded-[1.5rem] border border-gray-200 shadow-sm flex gap-4 items-center group relative overflow-hidden">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 flex-shrink-0">
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover mix-blend-multiply" />
                 </div>
                 <div className="flex-grow min-w-0">
                   <h4 className="font-black text-emerald-950 text-sm md:text-lg mb-1 truncate">{item.name}</h4>
-                  <p className="text-emerald-600 font-black text-lg">{formatPrice(item.price)}</p>
+                  <p className="text-emerald-600 font-black text-base md:text-lg">{formatPrice(item.price)}</p>
                 </div>
                 
                 <div className="flex flex-col items-end gap-2">
-                  <div className="flex items-center border border-gray-100 rounded-xl bg-gray-50 p-1">
-                    <button onClick={() => onUpdateQty(item.id, -1)} className="w-8 h-8 flex items-center justify-center text-emerald-600 bg-white rounded-lg shadow-sm font-black active:scale-90 transition-transform">-</button>
+                  <div className="flex items-center border border-gray-200 rounded-xl bg-white p-1 shadow-sm">
+                    <button onClick={() => onUpdateQty(item.id, -1)} className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors font-black">-</button>
                     <span className="w-8 text-center font-black text-sm">{item.quantity}</span>
-                    <button onClick={() => onUpdateQty(item.id, 1)} className="w-8 h-8 flex items-center justify-center text-emerald-600 bg-white rounded-lg shadow-sm font-black active:scale-90 transition-transform">+</button>
+                    <button onClick={() => onUpdateQty(item.id, 1)} className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors font-black">+</button>
                   </div>
                   <button onClick={() => onRemove(item.id)} className="text-xs text-red-400 hover:text-red-600 font-bold underline p-1">حذف</button>
                 </div>
@@ -121,18 +121,18 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ onClose, items, onRemove, onUpd
             ))}
           </div>
 
-          <div className="bg-white/80 backdrop-blur-xl p-6 md:p-8 rounded-[2.5rem] shadow-xl h-fit border border-emerald-50 sticky top-24">
-            <h3 className="text-xl font-black mb-6 border-b border-gray-100 pb-4 text-emerald-950">ملخص الطلب</h3>
-            <div className="space-y-3 mb-8">
-              <div className="flex justify-between text-gray-500 font-bold text-sm">
+          <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-lg h-fit border border-gray-100 sticky top-24">
+            <h3 className="text-xl font-black mb-6 text-emerald-950">ملخص الطلب</h3>
+            <div className="space-y-4 mb-8 divide-y divide-gray-100">
+              <div className="flex justify-between text-gray-500 font-bold text-sm pt-2">
                 <span>عدد المنتجات</span>
                 <span>{items.reduce((s, i) => s + i.quantity, 0)} قطعة</span>
               </div>
-              <div className="flex justify-between text-gray-500 font-bold text-sm">
+              <div className="flex justify-between text-gray-500 font-bold text-sm pt-4">
                 <span>الشحن</span>
                 <span className="text-emerald-600 font-black">مجاني</span>
               </div>
-              <div className="flex justify-between text-2xl font-black pt-4 border-t border-gray-100 text-emerald-900">
+              <div className="flex justify-between text-2xl font-black pt-6 text-emerald-900">
                 <span>الإجمالي</span>
                 <span>{formatPrice(total)}</span>
               </div>
