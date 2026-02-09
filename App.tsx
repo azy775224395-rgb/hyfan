@@ -32,19 +32,6 @@ const LoadingSpinner = () => (
   </div>
 );
 
-// 3D Scroll Reveal Wrapper
-const SectionReveal = ({ children, delay = 0 }: { children?: React.ReactNode, delay?: number }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 50, rotateX: 5 }}
-    whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-    viewport={{ once: true, margin: "-100px" }}
-    transition={{ duration: 0.8, delay, ease: "easeOut" }}
-    style={{ transformStyle: "preserve-3d" }}
-  >
-    {children}
-  </motion.div>
-);
-
 const App: React.FC = () => {
   const [products] = useState<Product[]>(INITIAL_PRODUCTS);
   const [currentHash, setCurrentHash] = useState(window.location.hash || '#/');
@@ -225,9 +212,9 @@ const App: React.FC = () => {
             <section id="products-grid" className="container mx-auto px-4 scroll-mt-24">
               <div className="sticky top-14 md:top-24 z-30 bg-white/80 backdrop-blur-xl py-4 -mx-4 px-4 mb-6 border-b border-emerald-50 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <SectionReveal>
+                  <div className="flex-shrink-0">
                     <h2 className="text-xl md:text-3xl font-black text-emerald-950">منتجاتنا المختارة</h2>
-                  </SectionReveal>
+                  </div>
                   <nav className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                     {categories.map(cat => (
                       <button 
@@ -244,7 +231,7 @@ const App: React.FC = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8 perspective-1000">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
                 <AnimatePresence>
                   {filteredProducts.map(product => (
                     <GlassProductCard 
@@ -260,13 +247,9 @@ const App: React.FC = () => {
               </div>
             </section>
 
-            <SectionReveal delay={0.2}>
-              <ReviewSection user={user} onShowAll={() => navigateTo('#/reviews')} />
-            </SectionReveal>
+            <ReviewSection user={user} onShowAll={() => navigateTo('#/reviews')} />
 
-            <SectionReveal delay={0.3}>
-              <FaqSection />
-            </SectionReveal>
+            <FaqSection />
           </div>
         );
     }
@@ -296,25 +279,23 @@ const App: React.FC = () => {
       </main>
 
       {!currentHash.includes('cart') && !currentHash.includes('checkout') && !currentHash.includes('calculator') && !currentHash.includes('admin') && (
-        <SectionReveal>
-          <footer className="bg-emerald-950 text-white py-16 text-center relative z-10 pb-24 md:pb-16">
-            <div className="container mx-auto px-4">
-              <img src="https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg" alt="حيفان للطاقة" className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl border-2 border-emerald-500/30 grayscale hover:grayscale-0 transition-all" loading="lazy" />
-              <h3 className="text-xl font-black mb-2">حيفان للطاقة المتجددة</h3>
-              <p className="text-emerald-400 font-bold text-sm mb-8 opacity-80">شريككم الموثوق للطاقة النظيفة في اليمن</p>
-              
-              <nav className="flex justify-center gap-8 mb-12">
-                <button type="button" onClick={() => navigateTo('#/story')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">من نحن</button>
-                <button type="button" onClick={() => navigateTo('#/warranty')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">سياسة الضمان</button>
-                <a href={MAP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">موقعنا على الخريطة</a>
-              </nav>
-              
-              <div className="pt-8 border-t border-white/5">
-                <p className="text-[10px] font-bold text-white/30 tracking-widest uppercase">© 2026 حيفان للطاقة المتجددة - جميع الحقوق محفوظة</p>
-              </div>
+        <footer className="bg-emerald-950 text-white py-16 text-center relative z-10 pb-24 md:pb-16">
+          <div className="container mx-auto px-4">
+            <img src="https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg" alt="حيفان للطاقة" className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl border-2 border-emerald-500/30 grayscale hover:grayscale-0 transition-all" loading="lazy" />
+            <h3 className="text-xl font-black mb-2">حيفان للطاقة المتجددة</h3>
+            <p className="text-emerald-400 font-bold text-sm mb-8 opacity-80">شريككم الموثوق للطاقة النظيفة في اليمن</p>
+            
+            <nav className="flex justify-center gap-8 mb-12">
+              <button type="button" onClick={() => navigateTo('#/story')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">من نحن</button>
+              <button type="button" onClick={() => navigateTo('#/warranty')} className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">سياسة الضمان</button>
+              <a href={MAP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white/60 hover:text-emerald-400 transition-colors">موقعنا على الخريطة</a>
+            </nav>
+            
+            <div className="pt-8 border-t border-white/5">
+              <p className="text-[10px] font-bold text-white/30 tracking-widest uppercase">© 2026 حيفان للطاقة المتجددة - جميع الحقوق محفوظة</p>
             </div>
-          </footer>
-        </SectionReveal>
+          </div>
+        </footer>
       )}
 
       {currentHash !== '#/admin' && (
