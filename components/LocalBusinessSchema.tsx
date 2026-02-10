@@ -7,6 +7,7 @@ const LocalBusinessSchema: React.FC = () => {
     "@type": "LocalBusiness",
     "name": "حيفان للطاقة المتجددة",
     "image": "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg",
+    "logo": "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg",
     "url": "https://hyfn-czzv.onrender.com/",
     "telephone": "+967784400333",
     "priceRange": "$$",
