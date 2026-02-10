@@ -4,6 +4,7 @@ import { INITIAL_PRODUCTS } from '../constants';
 
 const PRODUCTS_KEY = 'hyfan_products_db';
 const ORDERS_KEY = 'hyfan_orders_db';
+const SETTINGS_KEY = 'hyfan_store_settings';
 
 export const LocalDataService = {
   // --- Products ---
@@ -59,5 +60,22 @@ export const LocalDataService = {
     const updatedOrders = orders.map(o => o.id === id ? { ...o, status } : o);
     localStorage.setItem(ORDERS_KEY, JSON.stringify(updatedOrders));
     return updatedOrders;
+  },
+
+  // --- Settings ---
+  getStoreSettings: () => {
+    const stored = localStorage.getItem(SETTINGS_KEY);
+    return stored ? JSON.parse(stored) : {
+      storeName: 'حيفان للطاقة المتجددة',
+      supportPhone: '967784400333',
+      currency: 'SAR',
+      maintenanceMode: false,
+      allowOrders: true
+    };
+  },
+
+  saveStoreSettings: (settings: any) => {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    return settings;
   }
 };

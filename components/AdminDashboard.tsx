@@ -5,7 +5,7 @@ import { LocalDataService } from '../services/localDataService';
 import { 
   LayoutDashboard, ShoppingBag, Users, Package, Settings, LogOut, Search, 
   ChevronDown, CheckCircle, XCircle, Clock, Truck, Plus, ArrowLeft,
-  DollarSign, Edit, Trash
+  DollarSign, Edit, Trash, Save, Globe, Phone, CreditCard, ToggleLeft, ToggleRight
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -14,7 +14,7 @@ interface AdminDashboardProps {
 }
 
 // --- Views Enum ---
-type AdminView = 'dashboard' | 'revenue' | 'products' | 'orders' | 'settings' | 'product-editor';
+type AdminView = 'dashboard' | 'revenue' | 'products' | 'orders' | 'settings' | 'product-editor' | 'customers';
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => {
   // --- Security ---
@@ -28,7 +28,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
   const [currentView, setCurrentView] = useState<AdminView>('dashboard');
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [usersCount, setUsersCount] = useState(0); // Mock for now or load from local
+  const [storeSettings, setStoreSettings] = useState<any>({});
   
   // Product Editor State
   const [editingProduct, setEditingProduct] = useState<Partial<Product>>({});
@@ -57,10 +57,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
   const loadData = () => {
     setProducts(LocalDataService.getProducts());
     setOrders(LocalDataService.getOrders());
-    setUsersCount(42); // Mock
+    setStoreSettings(LocalDataService.getStoreSettings());
   };
 
-  const formatPrice = (p: number) => `${p.toLocaleString()} ر.س`;
+  const formatPrice = (p: number) => `${p.toLocaleString()} ${storeSettings.currency || 'ر.س'}`;
 
   // --- Actions ---
 
@@ -100,6 +100,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
     setOrders(updated);
   };
 
+  const handleSaveSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    LocalDataService.saveStoreSettings(storeSettings);
+    alert("تم حفظ إعدادات المتجر بنجاح");
+  };
+
   // --- Sub-Components ---
 
   const Sidebar = () => (
@@ -113,6 +119,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
            { id: 'dashboard', label: 'نظرة عامة', icon: LayoutDashboard },
            { id: 'revenue', label: 'الإيرادات', icon: DollarSign },
            { id: 'orders', label: 'الطلبات', icon: ShoppingBag, badge: orders.filter(o => o.status === 'pending').length },
+           { id: 'customers', label: 'العملاء', icon: Users },
            { id: 'products', label: 'المنتجات', icon: Package },
            { id: 'settings', label: 'الإعدادات', icon: Settings },
          ].map(item => (
@@ -189,6 +196,189 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
     );
   };
 
+  const CustomersView = () => {
+    // Derive unique customers from orders
+    const customersMap = new Map();
+    orders.forEach(order => {
+      const email = order.customerEmail || 'غير معروف';
+      if (!customersMap.has(email)) {
+        customersMap.set(email, {
+          name: order.customerName || 'عميل زائر',
+          email: email,
+          phone: order.customerPhone || '---',
+          totalSpent: 0,
+          ordersCount: 0,
+          lastOrder: order.date
+        });
+      }
+      const customer = customersMap.get(email);
+      customer.totalSpent += order.total;
+      customer.ordersCount += 1;
+      
+      // Simple date comparison - assuming YYYY-MM-DD or similar sortable format
+      if (order.date > customer.lastOrder) {
+        customer.lastOrder = order.date;
+      }
+    });
+    
+    const customers = Array.from(customersMap.values());
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredCustomers = customers.filter(c => 
+      c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      c.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.phone.includes(searchTerm)
+    );
+
+    return (
+      <div className="animate-fade-in space-y-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-black text-white">قاعدة بيانات العملاء ({customers.length})</h2>
+          <div className="relative">
+            <input 
+              type="text" 
+              placeholder="بحث بالاسم أو الهاتف..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-gray-800 border border-gray-700 rounded-xl py-2 px-4 pr-10 text-white outline-none focus:border-emerald-500"
+            />
+            <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
+          </div>
+        </div>
+
+        <div className="bg-gray-800 border border-gray-700 rounded-3xl overflow-hidden">
+          <table className="w-full text-right text-gray-300">
+            <thead className="bg-black/20 text-xs uppercase font-black text-gray-500">
+              <tr>
+                <th className="p-4">العميل</th>
+                <th className="p-4">بيانات الاتصال</th>
+                <th className="p-4">إجمالي المشتريات</th>
+                <th className="p-4">عدد الطلبات</th>
+                <th className="p-4">آخر ظهور</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-700 text-sm font-bold">
+              {filteredCustomers.map((customer, idx) => (
+                <tr key={idx} className="hover:bg-white/5">
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-emerald-900 rounded-full flex items-center justify-center text-emerald-400 font-black">
+                        {customer.name.charAt(0)}
+                      </div>
+                      <span className="text-white">{customer.name}</span>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex flex-col">
+                      <span className="text-gray-300">{customer.email}</span>
+                      <span className="text-xs text-gray-500">{customer.phone}</span>
+                    </div>
+                  </td>
+                  <td className="p-4 text-emerald-400">{formatPrice(customer.totalSpent)}</td>
+                  <td className="p-4">
+                    <span className="bg-blue-500/10 text-blue-400 px-2 py-1 rounded-lg text-xs">
+                      {customer.ordersCount} طلب
+                    </span>
+                  </td>
+                  <td className="p-4 text-gray-400">{customer.lastOrder}</td>
+                </tr>
+              ))}
+              {filteredCustomers.length === 0 && (
+                <tr><td colSpan={5} className="p-8 text-center text-gray-500">لا توجد نتائج مطابقة</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  const SettingsView = () => (
+    <div className="animate-fade-in max-w-3xl mx-auto">
+      <h2 className="text-2xl font-black text-white mb-8">إعدادات المتجر العامة</h2>
+      
+      <form onSubmit={handleSaveSettings} className="space-y-6">
+        {/* General Info */}
+        <div className="bg-gray-800 p-6 rounded-3xl border border-gray-700">
+          <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
+            <Globe size={20} className="text-emerald-500" /> معلومات المتجر
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-gray-400 text-xs mb-2">اسم المتجر</label>
+              <input 
+                type="text" 
+                value={storeSettings.storeName || ''} 
+                onChange={e => setStoreSettings({...storeSettings, storeName: e.target.value})}
+                className="w-full bg-gray-900 border border-gray-600 rounded-xl p-3 text-white focus:border-emerald-500 outline-none" 
+              />
+            </div>
+            <div>
+              <label className="block text-gray-400 text-xs mb-2">رقم دعم الواتساب</label>
+              <input 
+                type="text" 
+                value={storeSettings.supportPhone || ''} 
+                onChange={e => setStoreSettings({...storeSettings, supportPhone: e.target.value})}
+                className="w-full bg-gray-900 border border-gray-600 rounded-xl p-3 text-white focus:border-emerald-500 outline-none" 
+              />
+            </div>
+            <div>
+              <label className="block text-gray-400 text-xs mb-2">العملة الافتراضية</label>
+              <select 
+                value={storeSettings.currency || 'SAR'} 
+                onChange={e => setStoreSettings({...storeSettings, currency: e.target.value})}
+                className="w-full bg-gray-900 border border-gray-600 rounded-xl p-3 text-white outline-none"
+              >
+                <option value="SAR">ريال سعودي (SAR)</option>
+                <option value="YER">ريال يمني (YER)</option>
+                <option value="USD">دولار أمريكي (USD)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* System Controls */}
+        <div className="bg-gray-800 p-6 rounded-3xl border border-gray-700">
+          <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
+            <Settings size={20} className="text-amber-500" /> التحكم بالنظام
+          </h3>
+          
+          <div className="flex items-center justify-between p-4 bg-gray-900 rounded-xl mb-4">
+            <div>
+              <h4 className="text-white font-bold text-sm">وضع الصيانة</h4>
+              <p className="text-xs text-gray-500">إغلاق المتجر مؤقتاً أمام الزوار</p>
+            </div>
+            <button 
+              type="button"
+              onClick={() => setStoreSettings({...storeSettings, maintenanceMode: !storeSettings.maintenanceMode})}
+              className={`p-2 rounded-full transition-colors ${storeSettings.maintenanceMode ? 'text-emerald-400' : 'text-gray-600'}`}
+            >
+              {storeSettings.maintenanceMode ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-gray-900 rounded-xl">
+            <div>
+              <h4 className="text-white font-bold text-sm">استقبال الطلبات</h4>
+              <p className="text-xs text-gray-500">تفعيل/إيقاف زر الشراء في الموقع</p>
+            </div>
+            <button 
+              type="button"
+              onClick={() => setStoreSettings({...storeSettings, allowOrders: !storeSettings.allowOrders})}
+              className={`p-2 rounded-full transition-colors ${storeSettings.allowOrders ? 'text-emerald-400' : 'text-gray-600'}`}
+            >
+              {storeSettings.allowOrders ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" className="w-full bg-emerald-600 text-white py-4 rounded-xl font-black shadow-lg hover:bg-emerald-500 transition-all flex items-center justify-center gap-2 text-lg">
+          <Save size={20} /> حفظ التغييرات
+        </button>
+      </form>
+    </div>
+  );
+
   const ProductEditor = () => (
     <div className="animate-fade-in space-y-6 max-w-4xl mx-auto">
        <div className="flex items-center justify-between">
@@ -210,7 +400,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
              </div>
              <div className="grid grid-cols-2 gap-4">
                 <div>
-                   <label className="block text-gray-400 text-xs mb-1">السعر (ر.س)</label>
+                   <label className="block text-gray-400 text-xs mb-1">السعر</label>
                    <input required type="number" value={editingProduct.price || ''} onChange={e => setEditingProduct({...editingProduct, price: Number(e.target.value)})} className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white focus:border-emerald-500 outline-none" />
                 </div>
                 <div>
@@ -380,10 +570,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
                      <h3 className="text-gray-400 font-bold text-sm">إجمالي الطلبات</h3>
                      <p className="text-3xl font-black text-white">{orders.length}</p>
                   </div>
-                  <div className="bg-gray-800 p-6 rounded-3xl border border-gray-700">
-                     <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400 w-fit mb-4"><Users size={24} /></div>
+                  <div onClick={() => setCurrentView('customers')} className="bg-gray-800 p-6 rounded-3xl border border-gray-700 cursor-pointer hover:border-purple-500/50 transition-all group">
+                     <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400"><Users size={24} /></div>
+                        <span className="text-xs font-bold text-gray-500 group-hover:text-purple-400">عرض التفاصيل &larr;</span>
+                     </div>
                      <h3 className="text-gray-400 font-bold text-sm">العملاء</h3>
-                     <p className="text-3xl font-black text-white">{usersCount}</p>
+                     {/* Calculate unique customers */}
+                     <p className="text-3xl font-black text-white">{new Set(orders.map(o => o.customerEmail)).size}</p>
                   </div>
                   <div onClick={() => setCurrentView('orders')} className="bg-gray-800 p-6 rounded-3xl border border-gray-700 cursor-pointer hover:border-amber-500/50 transition-all">
                      <div className="p-3 bg-amber-500/10 rounded-xl text-amber-400 w-fit mb-4"><Clock size={24} /></div>
@@ -410,6 +604,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
          )}
 
          {currentView === 'revenue' && <RevenueView />}
+         
+         {currentView === 'customers' && <CustomersView />}
+         
+         {currentView === 'settings' && <SettingsView />}
          
          {currentView === 'product-editor' && <ProductEditor />}
 
