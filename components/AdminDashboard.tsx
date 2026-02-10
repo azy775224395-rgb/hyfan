@@ -1,11 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
-import { UserProfile, Order, Product } from '../types';
+import { UserProfile, Order, Product, UserSession } from '../types';
 import { LocalDataService } from '../services/localDataService';
 import { 
   LayoutDashboard, ShoppingBag, Users, Package, Settings, LogOut, Search, 
   ChevronDown, CheckCircle, XCircle, Clock, Truck, Plus, ArrowLeft,
-  DollarSign, Edit, Trash, Save, Globe, Phone, CreditCard, ToggleLeft, ToggleRight
+  DollarSign, Edit, Trash, Save, Globe, Phone, CreditCard, ToggleLeft, ToggleRight,
+  ShieldAlert, Activity
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -28,6 +29,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
   const [currentView, setCurrentView] = useState<AdminView>('dashboard');
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [sessions, setSessions] = useState<UserSession[]>([]);
   const [storeSettings, setStoreSettings] = useState<any>({});
   
   // Product Editor State
@@ -36,6 +38,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
 
   // Buyer Info Modal State
   const [selectedBuyerOrder, setSelectedBuyerOrder] = useState<Order | null>(null);
+
+  // Ban State
+  const [banInput, setBanInput] = useState('');
+  const [bannedIPs, setBannedIPs] = useState<string[]>([]);
 
   useEffect(() => {
     if (user?.email !== ALLOWED_EMAIL) {
@@ -58,6 +64,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
     setProducts(LocalDataService.getProducts());
     setOrders(LocalDataService.getOrders());
     setStoreSettings(LocalDataService.getStoreSettings());
+    setSessions(LocalDataService.getSessions());
+    setBannedIPs(LocalDataService.getBannedIPs());
   };
 
   const formatPrice = (p: number) => `${p.toLocaleString()} ${storeSettings.currency || 'ر.س'}`;
@@ -106,6 +114,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
     alert("تم حفظ إعدادات المتجر بنجاح");
   };
 
+  const handleBanIP = (e: React.FormEvent) => {
+    e.preventDefault();
+    if(banInput) {
+       const newList = LocalDataService.banIP(banInput);
+       setBannedIPs(newList);
+       setBanInput('');
+       alert(`تم حظر IP: ${banInput} بنجاح`);
+    }
+  };
+
+  const handleUnbanIP = (ip: string) => {
+    const newList = LocalDataService.unbanIP(ip);
+    setBannedIPs(newList);
+  };
+
   // --- Sub-Components ---
 
   const Sidebar = () => (
@@ -125,7 +148,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
          ].map(item => (
            <button
              key={item.id}
-             onClick={() => setCurrentView(item.id as AdminView)}
+             onClick={() => { setCurrentView(item.id as AdminView); loadData(); }}
              className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${currentView === item.id ? 'bg-emerald-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}
            >
              <div className="flex items-center gap-3">
@@ -197,47 +220,46 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
   };
 
   const CustomersView = () => {
-    // Derive unique customers from orders
-    const customersMap = new Map();
-    orders.forEach(order => {
-      const email = order.customerEmail || 'غير معروف';
-      if (!customersMap.has(email)) {
-        customersMap.set(email, {
-          name: order.customerName || 'عميل زائر',
-          email: email,
-          phone: order.customerPhone || '---',
-          totalSpent: 0,
-          ordersCount: 0,
-          lastOrder: order.date
-        });
-      }
-      const customer = customersMap.get(email);
-      customer.totalSpent += order.total;
-      customer.ordersCount += 1;
-      
-      // Simple date comparison - assuming YYYY-MM-DD or similar sortable format
-      if (order.date > customer.lastOrder) {
-        customer.lastOrder = order.date;
-      }
-    });
-    
-    const customers = Array.from(customersMap.values());
+    // 1. Calculate Active Users
+    const now = Date.now();
+    const activeThreshold = 60 * 1000; // 1 Minute
+    const onlineCount = sessions.filter(s => (now - s.lastSeen) < activeThreshold).length;
+
     const [searchTerm, setSearchTerm] = useState('');
 
-    const filteredCustomers = customers.filter(c => 
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      c.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.phone.includes(searchTerm)
+    const filteredSessions = sessions.filter(s => 
+       s.email?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+       s.ip.includes(searchTerm)
     );
 
     return (
       <div className="animate-fade-in space-y-6">
+        {/* Header Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+           <div className="bg-emerald-900/30 border border-emerald-500/30 p-6 rounded-3xl flex items-center justify-between">
+              <div>
+                 <p className="text-gray-400 text-sm font-bold">المتصلون الآن</p>
+                 <h3 className="text-3xl font-black text-white">{onlineCount}</h3>
+              </div>
+              <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center animate-pulse">
+                 <Activity className="text-white" />
+              </div>
+           </div>
+           <div className="bg-gray-800 border border-gray-700 p-6 rounded-3xl flex items-center justify-between">
+              <div>
+                 <p className="text-gray-400 text-sm font-bold">إجمالي الزوار المسجلين</p>
+                 <h3 className="text-3xl font-black text-white">{sessions.length}</h3>
+              </div>
+              <Users className="text-gray-600" size={32} />
+           </div>
+        </div>
+
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-black text-white">قاعدة بيانات العملاء ({customers.length})</h2>
+          <h2 className="text-2xl font-black text-white">سجل العملاء والزوار</h2>
           <div className="relative">
             <input 
               type="text" 
-              placeholder="بحث بالاسم أو الهاتف..." 
+              placeholder="بحث بالبريد أو IP..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="bg-gray-800 border border-gray-700 rounded-xl py-2 px-4 pr-10 text-white outline-none focus:border-emerald-500"
@@ -250,41 +272,45 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
           <table className="w-full text-right text-gray-300">
             <thead className="bg-black/20 text-xs uppercase font-black text-gray-500">
               <tr>
+                <th className="p-4">الحالة</th>
                 <th className="p-4">العميل</th>
-                <th className="p-4">بيانات الاتصال</th>
-                <th className="p-4">إجمالي المشتريات</th>
-                <th className="p-4">عدد الطلبات</th>
+                <th className="p-4">IP Address</th>
                 <th className="p-4">آخر ظهور</th>
+                <th className="p-4">إجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700 text-sm font-bold">
-              {filteredCustomers.map((customer, idx) => (
-                <tr key={idx} className="hover:bg-white/5">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-emerald-900 rounded-full flex items-center justify-center text-emerald-400 font-black">
-                        {customer.name.charAt(0)}
+              {filteredSessions.map((session, idx) => {
+                const isOnline = (now - session.lastSeen) < activeThreshold;
+                return (
+                  <tr key={idx} className="hover:bg-white/5">
+                    <td className="p-4">
+                       <div className="flex items-center gap-2">
+                          <span className={`w-3 h-3 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]' : 'bg-red-500'}`}></span>
+                          <span className="text-xs">{isOnline ? 'متصل' : 'غائب'}</span>
+                       </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-gray-300 font-black">
+                          {session.email ? session.email.charAt(0).toUpperCase() : '?'}
+                        </div>
+                        <div>
+                           <p className="text-white">{session.name || 'زائر'}</p>
+                           <p className="text-xs text-gray-500">{session.email}</p>
+                        </div>
                       </div>
-                      <span className="text-white">{customer.name}</span>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex flex-col">
-                      <span className="text-gray-300">{customer.email}</span>
-                      <span className="text-xs text-gray-500">{customer.phone}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-emerald-400">{formatPrice(customer.totalSpent)}</td>
-                  <td className="p-4">
-                    <span className="bg-blue-500/10 text-blue-400 px-2 py-1 rounded-lg text-xs">
-                      {customer.ordersCount} طلب
-                    </span>
-                  </td>
-                  <td className="p-4 text-gray-400">{customer.lastOrder}</td>
-                </tr>
-              ))}
-              {filteredCustomers.length === 0 && (
-                <tr><td colSpan={5} className="p-8 text-center text-gray-500">لا توجد نتائج مطابقة</td></tr>
+                    </td>
+                    <td className="p-4 font-mono text-amber-400">{session.ip}</td>
+                    <td className="p-4 text-gray-400">{new Date(session.lastSeen).toLocaleTimeString('ar-YE')}</td>
+                    <td className="p-4">
+                       <button onClick={() => { setBanInput(session.ip); setCurrentView('settings'); }} className="text-red-400 hover:text-red-300 text-xs border border-red-500/30 px-2 py-1 rounded">حظر IP</button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {filteredSessions.length === 0 && (
+                <tr><td colSpan={5} className="p-8 text-center text-gray-500">لا توجد بيانات حالياً</td></tr>
               )}
             </tbody>
           </table>
@@ -294,9 +320,37 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
   };
 
   const SettingsView = () => (
-    <div className="animate-fade-in max-w-3xl mx-auto">
-      <h2 className="text-2xl font-black text-white mb-8">إعدادات المتجر العامة</h2>
+    <div className="animate-fade-in max-w-3xl mx-auto space-y-8">
+      <h2 className="text-2xl font-black text-white mb-4">إعدادات المتجر العامة</h2>
       
+      {/* Ban Section */}
+      <div className="bg-red-900/10 border border-red-500/30 p-6 rounded-3xl">
+         <h3 className="text-lg font-black text-red-400 mb-4 flex items-center gap-2">
+            <ShieldAlert size={20} /> حظر المستخدمين (IP Ban)
+         </h3>
+         <form onSubmit={handleBanIP} className="flex gap-4 mb-6">
+            <input 
+               type="text" 
+               placeholder="أدخل عنوان IP (مثال: 192.168.1.1)" 
+               value={banInput}
+               onChange={e => setBanInput(e.target.value)}
+               className="flex-grow bg-gray-900 border border-gray-700 text-white rounded-xl px-4 outline-none focus:border-red-500"
+            />
+            <button type="submit" className="bg-red-600 text-white px-6 py-3 rounded-xl font-black hover:bg-red-500">حظر</button>
+         </form>
+         
+         <div className="space-y-2">
+            <h4 className="text-xs text-gray-400 mb-2">قائمة المحظورين حالياً:</h4>
+            {bannedIPs.length === 0 && <p className="text-gray-500 text-sm">لا يوجد محظورين.</p>}
+            {bannedIPs.map(ip => (
+               <div key={ip} className="flex justify-between items-center bg-gray-900 p-3 rounded-xl border border-gray-800">
+                  <span className="text-white font-mono">{ip}</span>
+                  <button onClick={() => handleUnbanIP(ip)} className="text-emerald-400 text-xs font-bold hover:underline">إلغاء الحظر</button>
+               </div>
+            ))}
+         </div>
+      </div>
+
       <form onSubmit={handleSaveSettings} className="space-y-6">
         {/* General Info */}
         <div className="bg-gray-800 p-6 rounded-3xl border border-gray-700">
@@ -416,6 +470,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
                    <option value="البطاريات">البطاريات</option>
                    <option value="الانفرترات">الانفرترات</option>
                    <option value="الاجهزة الكهربائيه">الاجهزة الكهربائيه</option>
+                   <option value="اجهزة الطباخه">اجهزة الطباخه</option>
+                   <option value="الباقات">الباقات</option>
                 </select>
              </div>
              <div>
@@ -576,8 +632,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
                         <span className="text-xs font-bold text-gray-500 group-hover:text-purple-400">عرض التفاصيل &larr;</span>
                      </div>
                      <h3 className="text-gray-400 font-bold text-sm">العملاء</h3>
-                     {/* Calculate unique customers */}
-                     <p className="text-3xl font-black text-white">{new Set(orders.map(o => o.customerEmail)).size}</p>
+                     <p className="text-3xl font-black text-white">{sessions.length}</p>
                   </div>
                   <div onClick={() => setCurrentView('orders')} className="bg-gray-800 p-6 rounded-3xl border border-gray-700 cursor-pointer hover:border-amber-500/50 transition-all">
                      <div className="p-3 bg-amber-500/10 rounded-xl text-amber-400 w-fit mb-4"><Clock size={24} /></div>

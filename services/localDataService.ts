@@ -1,10 +1,12 @@
 
-import { Product, Order } from '../types';
+import { Product, Order, UserSession } from '../types';
 import { INITIAL_PRODUCTS } from '../constants';
 
 const PRODUCTS_KEY = 'hyfan_products_db';
 const ORDERS_KEY = 'hyfan_orders_db';
 const SETTINGS_KEY = 'hyfan_store_settings';
+const SESSIONS_KEY = 'hyfan_active_sessions';
+const BANNED_IPS_KEY = 'hyfan_banned_ips';
 
 export const LocalDataService = {
   // --- Products ---
@@ -29,7 +31,6 @@ export const LocalDataService = {
     }
     
     localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
-    // Trigger event for App re-render if needed (basic implementation)
     window.dispatchEvent(new Event('products-updated'));
     return products;
   },
@@ -77,5 +78,65 @@ export const LocalDataService = {
   saveStoreSettings: (settings: any) => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     return settings;
+  },
+
+  // --- Session & Security Tracking ---
+  
+  // Call this from App.tsx periodically to verify "Online" status
+  updateSessionHeartbeat: (ip: string, email?: string, name?: string) => {
+    const stored = localStorage.getItem(SESSIONS_KEY);
+    let sessions: UserSession[] = stored ? JSON.parse(stored) : [];
+    
+    // Remove duplicates/old entries for this IP
+    sessions = sessions.filter(s => s.ip !== ip);
+    
+    // Add updated session
+    sessions.unshift({
+      ip,
+      email: email || 'زائر',
+      name: name || 'غير مسجل',
+      lastSeen: Date.now(),
+      device: navigator.userAgent
+    });
+
+    // Clean up very old sessions (> 24 hours) to save space
+    const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+    sessions = sessions.filter(s => s.lastSeen > oneDayAgo);
+
+    localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+    return sessions;
+  },
+
+  getSessions: (): UserSession[] => {
+    const stored = localStorage.getItem(SESSIONS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  },
+
+  // --- IP Banning ---
+  
+  getBannedIPs: (): string[] => {
+    const stored = localStorage.getItem(BANNED_IPS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  },
+
+  banIP: (ip: string) => {
+    const list = LocalDataService.getBannedIPs();
+    if (!list.includes(ip)) {
+      list.push(ip);
+      localStorage.setItem(BANNED_IPS_KEY, JSON.stringify(list));
+    }
+    return list;
+  },
+
+  unbanIP: (ip: string) => {
+    const list = LocalDataService.getBannedIPs();
+    const newList = list.filter(i => i !== ip);
+    localStorage.setItem(BANNED_IPS_KEY, JSON.stringify(newList));
+    return newList;
+  },
+
+  isBanned: (ip: string): boolean => {
+    const list = LocalDataService.getBannedIPs();
+    return list.includes(ip);
   }
 };

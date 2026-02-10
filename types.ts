@@ -54,6 +54,7 @@ export interface Order {
   customerPhone?: string; // Added for Buyer Info
   shippingInfo?: ShippingInfo; // Added for Buyer Info
   paymentMethod?: string;
+  ipAddress?: string; // Added for Security
 }
 
 export interface UserProfile {
@@ -64,4 +65,13 @@ export interface UserProfile {
   provider: 'google' | 'facebook' | 'discord' | 'email' | null;
   role?: 'admin' | 'customer';
   orders?: Order[];
+}
+
+export interface UserSession {
+  ip: string;
+  email?: string;
+  name?: string;
+  lastSeen: number; // Timestamp
+  device?: string;
+  location?: string;
 }

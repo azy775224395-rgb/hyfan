@@ -12,7 +12,7 @@ import MobileNav from './components/MobileNav';
 import SEO from './components/SEO';
 import LocalBusinessSchema from './components/LocalBusinessSchema';
 import { useCart } from './context/CartContext';
-import { Sun, Battery, Zap, Tv, Flame, Package, LayoutGrid } from 'lucide-react';
+import { Sun, Battery, Zap, Tv, Flame, Package, LayoutGrid, AlertTriangle } from 'lucide-react';
 
 // --- Step 1: Lazy Load Heavy Page/Section Components ---
 const ProductDetail = React.lazy(() => import('./components/ProductDetail'));
@@ -48,7 +48,59 @@ const getCategoryIcon = (category: string) => {
 const App: React.FC = () => {
   // Load products from LocalDataService instead of constant directly
   const [products, setProducts] = useState<Product[]>([]);
+  const [clientIP, setClientIP] = useState<string>('');
+  const [isBanned, setIsBanned] = useState(false);
   
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    const saved = localStorage.getItem('hyfan_user');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.id && typeof parsed.id === 'string' && parsed.id.includes('-')) {
+          return parsed;
+        }
+        localStorage.removeItem('hyfan_user');
+        return null;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  // --- Security & Tracking Logic ---
+  useEffect(() => {
+    // 1. Fetch Real IP
+    const fetchIP = async () => {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        setClientIP(data.ip);
+        
+        // 2. Check Ban Status
+        if (LocalDataService.isBanned(data.ip)) {
+          setIsBanned(true);
+        } else {
+          // 3. Start Session Heartbeat (Only if not banned)
+          // Initial Update
+          LocalDataService.updateSessionHeartbeat(data.ip, user?.email, user?.name);
+          
+          // Interval Update (Every 30 seconds)
+          const interval = setInterval(() => {
+             LocalDataService.updateSessionHeartbeat(data.ip, user?.email, user?.name);
+          }, 30000);
+          
+          return () => clearInterval(interval);
+        }
+      } catch (error) {
+        console.error("Failed to fetch IP", error);
+        // Fallback or retry logic could go here
+      }
+    };
+    
+    fetchIP();
+  }, [user]);
+
   useEffect(() => {
     const loadProducts = () => {
        setProducts(LocalDataService.getProducts());
@@ -71,23 +123,6 @@ const App: React.FC = () => {
 
   // Use Cart Context
   const { cart, addToCart, removeFromCart, updateQuantity, cartCount } = useCart();
-
-  const [user, setUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem('hyfan_user');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.id && typeof parsed.id === 'string' && parsed.id.includes('-')) {
-          return parsed;
-        }
-        localStorage.removeItem('hyfan_user');
-        return null;
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  });
 
   const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=حيفان+للطاقة+المتجددة+اليمن';
 
@@ -303,6 +338,20 @@ const App: React.FC = () => {
         );
     }
   };
+
+  // --- Banned View ---
+  if (isBanned) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4 text-center">
+        <AlertTriangle size={64} className="text-red-500 mb-6 animate-pulse" />
+        <h1 className="text-4xl font-black text-white mb-4">تم حظر الوصول</h1>
+        <p className="text-gray-400 font-bold mb-8 max-w-md">
+          عذراً، تم حظر عنوان IP الخاص بك ({clientIP}) من الوصول إلى هذا الموقع بسبب انتهاك شروط الاستخدام.
+        </p>
+        <p className="text-xs text-gray-600">ID: {btoa(clientIP || 'unknown')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f8fafc] overflow-x-hidden font-sans" dir="rtl">
