@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Product, ShippingInfo, UserProfile } from '../types';
 import { NotificationService } from '../services/notificationService';
+import { LocalDataService } from '../services/localDataService'; // Import Data Service
 
 interface CheckoutViewProps {
   product: Product;
@@ -27,6 +28,23 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [step]);
+
+  const saveOrderToAdmin = (method: string) => {
+    const newOrder = {
+      id: `HYF-${Date.now()}`,
+      date: new Date().toLocaleDateString('ar-YE'),
+      total: product.price,
+      status: 'pending' as const,
+      itemsCount: 1,
+      items: [{...product, quantity: 1}], // Add Item Details
+      customerName: shipping.fullName,
+      customerEmail: user?.email || 'guest@haifan.com',
+      customerPhone: shipping.phone,
+      shippingInfo: shipping,
+      paymentMethod: method
+    };
+    LocalDataService.addOrder(newOrder);
+  };
 
   const handleNextStep = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -63,6 +81,9 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) 
         })
       );
 
+      // Save Order to LocalDB for Admin View
+      saveOrderToAdmin("بطاقة بنكية");
+
       // محاكاة معالجة بنكية سريعة ثم النجاح
       setTimeout(() => setStep('success'), 3000);
       return;
@@ -85,6 +106,10 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) 
         }),
         proofImage
       );
+
+      // Save Order to LocalDB for Admin View
+      saveOrderToAdmin(method);
+
       setTimeout(() => setStep('success'), 2500);
     }
   };

@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useRef, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Product, UserProfile } from './types';
-import { INITIAL_PRODUCTS } from './constants';
+import { LocalDataService } from './services/localDataService'; // Import Service
 import Header from './components/Header';
 // Hero and GlassProductCard kept eager for LCP (Largest Contentful Paint) optimization
 import Hero from './components/Hero';
@@ -46,7 +46,20 @@ const getCategoryIcon = (category: string) => {
 };
 
 const App: React.FC = () => {
-  const [products] = useState<Product[]>(INITIAL_PRODUCTS);
+  // Load products from LocalDataService instead of constant directly
+  const [products, setProducts] = useState<Product[]>([]);
+  
+  useEffect(() => {
+    const loadProducts = () => {
+       setProducts(LocalDataService.getProducts());
+    };
+    loadProducts();
+
+    // Listen for updates from Admin Dashboard
+    window.addEventListener('products-updated', loadProducts);
+    return () => window.removeEventListener('products-updated', loadProducts);
+  }, []);
+
   const [currentHash, setCurrentHash] = useState(window.location.hash || '#/');
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -117,6 +130,13 @@ const App: React.FC = () => {
 
   const categories = useMemo(() => Array.from(new Set(products.map(p => p.category))), [products]);
   const [selectedCategory, setSelectedCategory] = useState(categories[0] || '');
+  
+  // Update selected category if it doesn't exist anymore (e.g. after editing products)
+  useEffect(() => {
+    if (categories.length > 0 && !categories.includes(selectedCategory)) {
+      setSelectedCategory(categories[0]);
+    }
+  }, [categories, selectedCategory]);
 
   const filteredProducts = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();

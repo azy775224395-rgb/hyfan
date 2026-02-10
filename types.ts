@@ -1,13 +1,15 @@
+
 export interface Product {
   id: string;
   name: string;
   price: number;
+  oldPrice?: number; // Added for Admin Edit
   description: string;
   image: string;
   category: string;
   specs?: string[];
   fullDescription?: string;
-  longDescription?: string; // New field for SEO-rich content
+  longDescription?: string;
   status?: 'الأكثر مبيعاً' | 'جديد' | 'متوفر' | 'خصم' | 'مقاوم للكسر';
 }
 
@@ -24,13 +26,13 @@ export interface Review {
   id: number;
   user_id?: string;
   product_id?: string;
-  name: string; // Display name from joined Profile
-  avatar_url?: string; // Avatar from joined Profile
+  name: string;
+  avatar_url?: string;
   rating: number;
   comment: string;
-  image_url?: string; // New field for review image
+  image_url?: string;
   created_at?: string;
-  date: string; // Computed for display
+  date: string;
 }
 
 export interface ShippingInfo {
@@ -44,10 +46,14 @@ export interface Order {
   id: string;
   date: string;
   total: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   itemsCount: number;
-  customerName?: string; // For Admin View
-  customerEmail?: string; // For Admin View
+  items?: CartItem[]; // Added to track specific items bought
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string; // Added for Buyer Info
+  shippingInfo?: ShippingInfo; // Added for Buyer Info
+  paymentMethod?: string;
 }
 
 export interface UserProfile {
@@ -56,6 +62,6 @@ export interface UserProfile {
   email: string;
   avatar: string;
   provider: 'google' | 'facebook' | 'discord' | 'email' | null;
-  role?: 'admin' | 'customer'; // Added Role
+  role?: 'admin' | 'customer';
   orders?: Order[];
 }
