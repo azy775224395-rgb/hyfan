@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect, useRef, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Product, UserProfile } from './types';
@@ -398,7 +397,7 @@ const App: React.FC = () => {
         <p className="text-gray-400 font-bold mb-8 max-w-md">
           عذراً، تم حظر عنوان IP الخاص بك ({clientIP}) من الوصول إلى هذا الموقع بسبب انتهاك شروط الاستخدام.
         </p>
-        <p className="text-xs text-gray-600">ID: {btoa(String(clientIP || 'unknown'))}</p>
+        <p className="text-xs text-gray-600">ID: {window.btoa(`${clientIP || 'unknown'}`)}</p>
       </div>
     );
   }

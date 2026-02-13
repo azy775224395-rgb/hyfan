@@ -49,8 +49,8 @@ const WeeklyOffers: React.FC<WeeklyOffersProps> = ({ products, onAddToCart, onVi
       seed++;
     }
 
-    // Return top 6
-    return shuffled.slice(0, 6);
+    // Return top 8 to ensure scrolling content
+    return shuffled.slice(0, 8);
   }, [products, currentWeekSeed]);
 
   // 3. Countdown Timer Logic (Until next Friday midnight)
@@ -86,35 +86,35 @@ const WeeklyOffers: React.FC<WeeklyOffersProps> = ({ products, onAddToCart, onVi
     return () => clearInterval(timer);
   }, []);
 
-  // 4. Auto Scroll Logic
+  // 4. Auto Scroll Logic (Every 2 seconds)
   useEffect(() => {
     if (isPaused || weeklyProducts.length === 0) return;
 
     const interval = setInterval(() => {
       if (scrollContainerRef.current) {
         const container = scrollContainerRef.current;
-        // Get width of the first card + gap (gap-4 = 16px)
-        const firstCard = container.firstElementChild;
-        const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : 280;
-        const gap = 16;
-        const scrollAmount = cardWidth + gap;
+        
+        // Calculate the width of one card plus gap
+        // We assume the first child exists if weeklyProducts > 0
+        const itemWidth = container.children[0]?.clientWidth || 280;
+        const gap = 16; // gap-4 is 1rem = 16px
+        const scrollAmount = itemWidth + gap;
 
         // Check if we reached the end
-        // scrollWidth = total scrollable width
-        // clientWidth = visible width
-        // scrollLeft = current scroll position
+        // scrollWidth: total width of content
+        // clientWidth: visible width
+        // scrollLeft: current position
         const maxScroll = container.scrollWidth - container.clientWidth;
         
-        // Tolerance of 10px
+        // If we are close to the end (within small tolerance), loop back to start smoothly
         if (container.scrollLeft >= maxScroll - 10) {
-          // Reset to start smoothly
           container.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
-          // Scroll next
-          container.scrollTo({ left: container.scrollLeft + scrollAmount, behavior: 'smooth' });
+          // Scroll forward
+          container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
       }
-    }, 3000); // Every 3 seconds
+    }, 2000); // 2000ms = 2 Seconds
 
     return () => clearInterval(interval);
   }, [isPaused, weeklyProducts]);
@@ -123,7 +123,15 @@ const WeeklyOffers: React.FC<WeeklyOffersProps> = ({ products, onAddToCart, onVi
 
   return (
     <section className="container mx-auto px-4 mt-8 mb-4">
-      <div className="bg-gradient-to-r from-emerald-900 to-emerald-950 rounded-[2rem] p-6 md:p-8 relative overflow-hidden shadow-xl border border-emerald-800">
+      <div 
+        className="bg-gradient-to-r from-emerald-900 to-emerald-950 rounded-[2rem] p-6 md:p-8 relative overflow-hidden shadow-xl border border-emerald-800"
+        // Pause handlers for container
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => setIsPaused(true)}
+        // Add a small delay on touch end before resuming to prevent instant jumping
+        onTouchEnd={() => setTimeout(() => setIsPaused(false), 3000)}
+      >
         
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4 relative z-10">
@@ -150,24 +158,21 @@ const WeeklyOffers: React.FC<WeeklyOffersProps> = ({ products, onAddToCart, onVi
         </div>
 
         {/* Horizontal Scroll Container */}
-        <div 
-          className="relative z-10"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-          onTouchStart={() => setIsPaused(true)}
-          onTouchEnd={() => setTimeout(() => setIsPaused(false), 2000)} // Resume after 2s of no touch
-        >
+        <div className="relative z-10">
           <div 
             ref={scrollContainerRef}
             className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 transition-all"
-            style={{ scrollBehavior: 'smooth' }}
+            style={{ 
+              scrollBehavior: 'smooth', 
+              WebkitOverflowScrolling: 'touch' // Ensures smooth momentum scrolling on iOS
+            }}
           >
             {weeklyProducts.map((product) => (
               <motion.div 
                 key={product.id}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onViewDetails(product)}
-                className="snap-center shrink-0 w-[240px] md:w-[280px] bg-white rounded-2xl overflow-hidden cursor-pointer group shadow-lg border border-white/10 hover:shadow-emerald-500/20 transition-all"
+                className="snap-center shrink-0 w-[240px] md:w-[280px] bg-white rounded-2xl overflow-hidden cursor-pointer group shadow-lg border border-white/10 hover:shadow-emerald-500/20 transition-all flex-none"
               >
                 {/* Image */}
                 <div className="relative h-40 bg-gray-50 p-4">
@@ -202,8 +207,8 @@ const WeeklyOffers: React.FC<WeeklyOffersProps> = ({ products, onAddToCart, onVi
             
             {/* View All Card */}
             <div className="snap-center shrink-0 w-[100px] flex items-center justify-center">
-               <button onClick={() => window.location.hash = '#/'} className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all">
-                  <ArrowRight />
+               <button onClick={() => window.location.hash = '#/'} className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all group">
+                  <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                </button>
             </div>
           </div>
