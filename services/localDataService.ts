@@ -2,7 +2,7 @@
 import { Product, Order, UserSession } from '../types';
 import { INITIAL_PRODUCTS } from '../constants';
 
-const PRODUCTS_KEY = 'hyfan_products_db';
+const PRODUCTS_KEY = 'hyfan_products_db_v3'; // Changed version to refresh data
 const ORDERS_KEY = 'hyfan_orders_db';
 const SETTINGS_KEY = 'hyfan_store_settings';
 const SESSIONS_KEY = 'hyfan_active_sessions';
