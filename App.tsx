@@ -6,6 +6,8 @@ import { LocalDataService } from './services/localDataService'; // Import Servic
 import Header from './components/Header';
 // Hero and GlassProductCard kept eager for LCP (Largest Contentful Paint) optimization
 import Hero from './components/Hero';
+import OffersBar from './components/OffersBar';
+import WeeklyOffers from './components/WeeklyOffers';
 import GlassProductCard from './components/GlassProductCard';
 import AnimatedBackground from './components/AnimatedBackground';
 import MobileNav from './components/MobileNav';
@@ -36,13 +38,14 @@ const LoadingSpinner = () => (
 
 // Helper to map category names to icons
 const getCategoryIcon = (category: string) => {
-  if (category.includes('الالواح') || category.includes('شمسية')) return <Sun size={14} />;
-  if (category.includes('البطاريات')) return <Battery size={14} />;
-  if (category.includes('الانفرترات')) return <Zap size={14} />;
-  if (category.includes('الاجهزة') || category.includes('كهربائية')) return <Tv size={14} />;
-  if (category.includes('الطباخه')) return <Flame size={14} />;
-  if (category.includes('الباقات')) return <Package size={14} />;
-  return <LayoutGrid size={14} />;
+  if (category === 'الكل') return <LayoutGrid size={18} />;
+  if (category.includes('الالواح') || category.includes('شمسية')) return <Sun size={18} />;
+  if (category.includes('البطاريات')) return <Battery size={18} />;
+  if (category.includes('الانفرترات')) return <Zap size={18} />;
+  if (category.includes('الاجهزة') || category.includes('كهربائية')) return <Tv size={18} />;
+  if (category.includes('الطباخه')) return <Flame size={18} />;
+  if (category.includes('الباقات')) return <Package size={18} />;
+  return <LayoutGrid size={18} />;
 };
 
 const App: React.FC = () => {
@@ -57,7 +60,7 @@ const App: React.FC = () => {
       try {
         const parsed = JSON.parse(saved);
         if (parsed && parsed.id && typeof parsed.id === 'string' && parsed.id.includes('-')) {
-          return parsed;
+          return parsed as UserProfile;
         }
         localStorage.removeItem('hyfan_user');
         return null;
@@ -74,30 +77,29 @@ const App: React.FC = () => {
     const fetchIP = async () => {
       try {
         const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        setClientIP(data.ip);
+        const data = (await response.json()) as { ip: string };
+        const ip = data.ip;
+        setClientIP(ip);
         
         // 2. Check Ban Status
-        if (LocalDataService.isBanned(data.ip)) {
+        if (LocalDataService.isBanned(ip)) {
           setIsBanned(true);
         } else {
           // 3. Start Session Heartbeat (Only if not banned)
           // Initial Update
-          LocalDataService.updateSessionHeartbeat(data.ip, user?.email, user?.name);
+          LocalDataService.updateSessionHeartbeat(ip, user?.email, user?.name);
           
           // Interval Update (Every 30 seconds)
           const interval = setInterval(() => {
-             LocalDataService.updateSessionHeartbeat(data.ip, user?.email, user?.name);
+             LocalDataService.updateSessionHeartbeat(ip, user?.email, user?.name);
           }, 30000);
           
           return () => clearInterval(interval);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to fetch IP", error);
-        // Fallback or retry logic could go here
       }
     };
-    
     fetchIP();
   }, [user]);
 
@@ -114,6 +116,7 @@ const App: React.FC = () => {
 
   const [currentHash, setCurrentHash] = useState(window.location.hash || '#/');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('الكل'); // State for selected category
   
   // State for Floating Contact Button
   const [isContactOpen, setIsContactOpen] = useState(false);
@@ -163,23 +166,40 @@ const App: React.FC = () => {
     return `${sarPrice} ر.س`;
   };
 
-  const categories = useMemo(() => Array.from(new Set(products.map(p => p.category))), [products]);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0] || '');
-  
-  // Update selected category if it doesn't exist anymore (e.g. after editing products)
-  useEffect(() => {
-    if (categories.length > 0 && !categories.includes(selectedCategory)) {
-      setSelectedCategory(categories[0]);
-    }
-  }, [categories, selectedCategory]);
+  // Extract unique categories in order + "All"
+  const categories = useMemo(() => {
+    // Predefined order for better UX
+    const preferredOrder = ['الالواح الشمسيه', 'البطاريات', 'الانفرترات', 'الاجهزة الكهربائيه', 'اجهزة الطباخه', 'الباقات'];
+    const availableCategories = Array.from(new Set(products.map(p => p.category)));
+    
+    const sortedCats = [
+      ...preferredOrder.filter(c => availableCategories.includes(c)),
+      ...availableCategories.filter(c => !preferredOrder.includes(c))
+    ];
+    
+    return ['الكل', ...sortedCats];
+  }, [products]);
 
+  // Filter products based on search or selected category
   const filteredProducts = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim();
-    return products.filter(p => {
-      const isSearchMatch = q === '' || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
-      const isCategoryMatch = selectedCategory ? p.category === selectedCategory : true;
-      return isSearchMatch && (q !== '' ? true : isCategoryMatch);
-    });
+    let result = products;
+
+    // 1. Filter by Search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      return products.filter(p => 
+        p.name.toLowerCase().includes(q) || 
+        p.description.toLowerCase().includes(q) || 
+        p.category.toLowerCase().includes(q)
+      );
+    }
+
+    // 2. Filter by Category (if no search)
+    if (selectedCategory !== 'الكل') {
+      result = result.filter(p => p.category === selectedCategory);
+    }
+
+    return result;
   }, [products, searchQuery, selectedCategory]);
 
   const renderCurrentPage = () => {
@@ -276,7 +296,6 @@ const App: React.FC = () => {
       case '#/':
       default:
         return (
-          // Reduced gap from gap-4 to gap-0 to remove whitespace between Hero and Products
           <div className="flex flex-col gap-0 pb-32">
             <SEO 
               title="الرئيسية" 
@@ -284,52 +303,83 @@ const App: React.FC = () => {
             />
             <Hero onOpenStory={() => navigateTo('#/story')} />
             
-            <section id="products-grid" className="container mx-auto px-4 scroll-mt-24 pt-6">
-              <div className="sticky top-14 md:top-24 z-30 bg-white/80 backdrop-blur-xl py-4 -mx-4 px-4 mb-6 border-b border-emerald-50 shadow-sm">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex-shrink-0">
-                    <h2 className="text-xl md:text-3xl font-black text-emerald-950">منتجاتنا المختارة</h2>
-                  </div>
-                  <nav className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                    {categories.map(cat => (
-                      <button 
-                        key={cat} 
-                        type="button"
-                        aria-label={`تصفح قسم ${cat}`}
-                        onClick={() => { setSelectedCategory(cat); setSearchQuery(''); }} 
-                        className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap active:scale-95 flex items-center gap-2 border ${
-                          selectedCategory === cat && searchQuery === '' 
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' 
-                            : 'bg-white text-gray-600 border-gray-200 shadow-sm hover:border-emerald-300'
-                        }`}
+            {/* Added Offers Bar here */}
+            <OffersBar />
+
+            {/* Added Weekly Offers Section (Only on Home) */}
+            <WeeklyOffers 
+               products={products}
+               onAddToCart={addToCart}
+               onViewDetails={(p) => navigateTo(`#/product/${p.id}`)}
+               formatPrice={formatPrice}
+            />
+            
+            {/* Category Filter Bar (Sticky) */}
+            {!searchQuery && (
+              <div className="sticky top-16 md:top-24 z-30 bg-[#f8fafc]/95 backdrop-blur-xl border-b border-gray-200/50 py-4 shadow-sm">
+                <div className="container mx-auto px-4 overflow-x-auto scrollbar-hide">
+                  <div className="flex gap-3 min-w-max pb-1">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`
+                          flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-black transition-all duration-300
+                          ${selectedCategory === cat 
+                            ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 scale-105' 
+                            : 'bg-white text-gray-500 border border-gray-200 hover:border-emerald-200 hover:text-emerald-600'}
+                        `}
                       >
                         {getCategoryIcon(cat)}
                         {cat}
                       </button>
                     ))}
-                  </nav>
+                  </div>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
-                <AnimatePresence>
-                  {filteredProducts.map(product => (
-                    <GlassProductCard 
-                      key={product.id} 
-                      product={product} 
-                      onAddToCart={addToCart} 
-                      onViewDetails={(p) => navigateTo(`#/product/${p.id}`)} 
-                      onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
-                      formatPrice={formatPrice}
-                    />
-                  ))}
-                </AnimatePresence>
-              </div>
+            )}
+            
+            <section id="products-grid" className="container mx-auto px-4 pt-8 min-h-[500px]">
+               {searchQuery && (
+                 <h2 className="text-xl font-black text-emerald-950 mb-6">نتائج البحث عن "{searchQuery}"</h2>
+               )}
+
+               {filteredProducts.length > 0 ? (
+                  <motion.div 
+                    layout
+                    className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 lg:gap-8"
+                  >
+                    <AnimatePresence mode="popLayout">
+                      {filteredProducts.map(product => (
+                        <GlassProductCard 
+                          key={product.id} 
+                          product={product} 
+                          onAddToCart={addToCart} 
+                          onViewDetails={(p) => navigateTo(`#/product/${p.id}`)} 
+                          onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)} 
+                          formatPrice={formatPrice}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </motion.div>
+               ) : (
+                  <div className="text-center py-20 bg-white rounded-[2rem] border border-gray-100 shadow-sm">
+                     <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">🔍</div>
+                     <p className="text-gray-400 font-bold text-lg">
+                       {searchQuery ? 'لا توجد نتائج مطابقة لبحثك' : 'لا توجد منتجات في هذا القسم حالياً'}
+                     </p>
+                     {!searchQuery && (
+                       <button onClick={() => setSelectedCategory('الكل')} className="mt-4 text-emerald-600 font-bold hover:underline">عرض كل المنتجات</button>
+                     )}
+                  </div>
+               )}
             </section>
 
-            <Suspense fallback={<div className="h-64 bg-gray-50/50 rounded-3xl" />}>
-              <ReviewSection user={user} onShowAll={() => navigateTo('#/reviews')} />
-            </Suspense>
+            <div className="mt-16">
+              <Suspense fallback={<div className="h-64 bg-gray-50/50 rounded-3xl" />}>
+                <ReviewSection user={user} onShowAll={() => navigateTo('#/reviews')} />
+              </Suspense>
+            </div>
 
             <Suspense fallback={null}>
               <FaqSection />
@@ -348,7 +398,7 @@ const App: React.FC = () => {
         <p className="text-gray-400 font-bold mb-8 max-w-md">
           عذراً، تم حظر عنوان IP الخاص بك ({clientIP}) من الوصول إلى هذا الموقع بسبب انتهاك شروط الاستخدام.
         </p>
-        <p className="text-xs text-gray-600">ID: {btoa(clientIP || 'unknown')}</p>
+        <p className="text-xs text-gray-600">ID: {btoa(String(clientIP || 'unknown'))}</p>
       </div>
     );
   }
@@ -377,7 +427,7 @@ const App: React.FC = () => {
       </main>
 
       {!currentHash.includes('cart') && !currentHash.includes('checkout') && !currentHash.includes('calculator') && !currentHash.includes('admin') && (
-        <footer className="bg-emerald-950 text-white py-16 text-center relative z-10 pb-24 md:pb-16">
+        <footer className="bg-emerald-950 text-white py-16 text-center relative z-10 pb-24 md:pb-16 mt-auto">
           <div className="container mx-auto px-4">
             <img src="https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg" alt="حيفان للطاقة" className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl border-2 border-emerald-500/30 grayscale hover:grayscale-0 transition-all" loading="lazy" />
             <h3 className="text-xl font-black mb-2">حيفان للطاقة المتجددة</h3>
