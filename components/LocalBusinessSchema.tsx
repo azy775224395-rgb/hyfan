@@ -47,8 +47,8 @@ const LocalBusinessSchema: React.FC = () => {
       { "@type": "Country", "name": "Yemen" }
     ],
     "sameAs": [
-      "https://www.facebook.com/hayfan.energy",
-      "https://www.instagram.com/hayfan.energy"
+      "https://www.facebook.com/profile.php?id=61577192150477",
+      "https://www.instagram.com/moose.3433085?igsh=MnZ0bGN2NWJ2OHBx"
     ],
     "potentialAction": {
       "@type": "SearchAction",
