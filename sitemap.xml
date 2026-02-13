@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -24,4 +25,32 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  
+  <!-- Products: Solar Panels -->
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/p1</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/p2</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/p3</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/p4</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+
+  <!-- Products: Batteries -->
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/b1</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/b2</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+
+  <!-- Products: Inverters -->
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/i1</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <!-- Products: Appliances -->
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/w1</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/w2</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/f1</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/ac1</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/ac2</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <!-- Products: Cooking -->
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/s1</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/s2</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/s3</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <!-- Products: Bundles -->
+  <url><loc>https://hyfn-czzv.onrender.com/#/product/bundle1</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
 </urlset>

@@ -11,6 +11,7 @@ const LocalBusinessSchema: React.FC = () => {
     "url": "https://hyfn-czzv.onrender.com/",
     "telephone": "+967784400333",
     "priceRange": "$$",
+    "description": "شركة رائدة في مجال الطاقة الشمسية في اليمن، توفر ألواح طاقة شمسية، بطاريات جل، انفرترات، وأجهزة منزلية موفرة للطاقة مع شحن لجميع المحافظات.",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "شارع تعز",
@@ -37,10 +38,23 @@ const LocalBusinessSchema: React.FC = () => {
       "opens": "08:00",
       "closes": "21:00"
     },
+    "areaServed": [
+      { "@type": "City", "name": "Sana'a" },
+      { "@type": "City", "name": "Aden" },
+      { "@type": "City", "name": "Taiz" },
+      { "@type": "City", "name": "Ibb" },
+      { "@type": "City", "name": "Hodeidah" },
+      { "@type": "Country", "name": "Yemen" }
+    ],
     "sameAs": [
       "https://www.facebook.com/hayfan.energy",
       "https://www.instagram.com/hayfan.energy"
-    ]
+    ],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://hyfn-czzv.onrender.com/#/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
   };
 
   return (
