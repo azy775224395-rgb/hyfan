@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Phone, Facebook, Instagram, Share2, X } from 'lucide-react';
+import { MessageCircle, Phone, Facebook, Instagram, Headset, X } from 'lucide-react';
 
 interface FloatingContactProps {
   isOpen: boolean;
@@ -78,7 +78,7 @@ const FloatingContact: React.FC<FloatingContactProps> = ({ isOpen, onToggle }) =
           isOpen ? 'bg-gray-800 rotate-90' : 'bg-emerald-600 hover:bg-emerald-500 animate-pulse-slow'
         }`}
       >
-        {isOpen ? <X size={28} /> : <Share2 size={28} />}
+        {isOpen ? <X size={28} /> : <Headset size={28} />}
       </motion.button>
     </div>
   );
