@@ -14,14 +14,14 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
   const [isOpen, setIsOpen] = useState(false);
   const [liveProducts, setLiveProducts] = useState<Product[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'مرحباً بك في حيفان للطاقة! ☀️\nأنا المهندس حيفان، كيف أقدر أخدمك في منظومتك الشمسية اليوم؟' }
+    { role: 'model', text: 'مرحباً بك في أبو إيفان للطاقة المتجددة! ☀️\nأنا المهندس أبو إيفان، كيف أقدر أخدمك في منظومتك الشمسية اليوم؟' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
-  const LOGO_URL = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
+  const LOGO_URL = "https://res.cloudinary.com/dxzqizvzw/image/upload/v1779209369/IMG_%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A5%D9%A1%D9%A9_%D9%A1%D9%A9%D9%A2%D9%A5%D9%A4%D9%A2_kji9am.png";
 
   useEffect(() => {
     const fetchCloudData = async () => {
@@ -132,10 +132,10 @@ const AiAssistant: React.FC<AiAssistantProps> = ({ products: fallbackProducts, i
         <div className="pointer-events-auto absolute bottom-20 left-0 w-[320px] sm:w-[450px] bg-white rounded-[2.5rem] shadow-4xl border border-emerald-50 flex flex-col h-[500px] md:h-[600px] overflow-hidden animate-chat-pop origin-bottom-left">
           <div className="bg-emerald-950 p-5 text-white flex items-center gap-4 border-b border-emerald-900">
             <div className="w-12 h-12 bg-white rounded-2xl overflow-hidden shadow-xl shrink-0">
-              <img src={LOGO_URL} alt="حيفان" className="w-full h-full object-cover" />
+              <img src={LOGO_URL} alt="أبو إيفان" className="w-full h-full object-cover" />
             </div>
             <div className="text-right flex-grow">
-              <h3 className="font-black text-base">مساعد حيفان الذكي</h3>
+              <h3 className="font-black text-base">مساعد أبو إيفان الذكي</h3>
               <div className="flex items-center gap-1.5">
                 <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-emerald-400 animate-ping' : 'bg-emerald-500'}`}></span>
                 <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest opacity-80">

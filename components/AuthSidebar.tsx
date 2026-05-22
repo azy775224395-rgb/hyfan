@@ -115,7 +115,7 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
     const userId = await generateDeterministicUUID(cleanEmail);
     const userData: UserProfile = {
       id: userId,
-      name: "مستخدم حيفان",
+      name: "مستخدم أبو إيفان",
       email: cleanEmail, // Ensure this matches Admin Check exactly
       avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
       provider: 'email',
@@ -134,7 +134,7 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
         <div className="bg-emerald-950 p-10 md:p-14 text-white text-center relative">
           <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
           <h2 className="text-3xl md:text-5xl font-black mb-4">
-            {user ? `أهلاً بك، ${user.name.split(' ')[0]}` : 'بوابة حيفان الذكية'}
+            {user ? `أهلاً بك، ${user.name.split(' ')[0]}` : 'بوابة أبو إيفان الذكية'}
           </h2>
           <p className="text-emerald-400 font-bold opacity-80">نحن هنا لنضيء حياتك بأفضل حلول الطاقة</p>
         </div>

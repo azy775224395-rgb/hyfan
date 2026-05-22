@@ -73,7 +73,7 @@ const AllReviewsModal: React.FC<AllReviewsModalProps> = ({ onClose }) => {
 
       <div className="mt-20 bg-emerald-950 p-12 md:p-20 rounded-[4rem] text-center text-white relative overflow-hidden shadow-3xl">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-        <h3 className="text-3xl md:text-5xl font-black mb-6 relative z-10">كن جزءاً من عائلة حيفان</h3>
+        <h3 className="text-3xl md:text-5xl font-black mb-6 relative z-10">كن جزءاً من عائلة أبو إيفان</h3>
         <p className="text-emerald-400 font-bold text-lg md:text-xl mb-12 opacity-80 relative z-10">انضم لأكثر من 40,000 عميل سعيد في جميع أنحاء اليمن</p>
         <button onClick={onClose} className="bg-white text-emerald-950 px-16 py-6 rounded-2xl font-black text-2xl shadow-2xl hover:bg-emerald-50 transition-all active:scale-95 relative z-10">تصفح المنتجات الآن</button>
       </div>

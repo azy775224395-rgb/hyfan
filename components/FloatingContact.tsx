@@ -46,11 +46,17 @@ const FloatingContact: React.FC<FloatingContactProps> = ({ isOpen, onToggle }) =
         {isOpen && (
           <div className="flex flex-col gap-3 items-end mb-2 pointer-events-auto">
             {CONTACT_LINKS.map((link, idx) => (
-              <motion.a
+              <motion.button
                 key={link.id}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={() => {
+                  const a = document.createElement('a');
+                  a.href = link.href;
+                  a.target = '_blank';
+                  a.rel = 'noopener noreferrer';
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                }}
                 initial={{ opacity: 0, x: 20, scale: 0.5 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 20, scale: 0.5 }}
@@ -65,7 +71,7 @@ const FloatingContact: React.FC<FloatingContactProps> = ({ isOpen, onToggle }) =
                 >
                   {link.icon}
                 </div>
-              </motion.a>
+              </motion.button>
             ))}
           </div>
         )}

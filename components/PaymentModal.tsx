@@ -25,7 +25,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
   const handleMethodSelect = (method: any) => {
     if (method.id === 'whatsapp') {
       const message = `أريد شراء "${product.name}" بسعر ${product.price} ر.س.`;
-      window.open(`https://wa.me/967784400333?text=${encodeURIComponent(message)}`, '_blank');
+      const url = `https://wa.me/967784400333?text=${encodeURIComponent(message)}`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       return;
     }
     setSelectedMethod(method);
@@ -131,7 +138,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
               <div className="space-y-4">
                 <div>
                   <p className="text-[10px] opacity-50 uppercase font-bold">الاسم</p>
-                  <p className="text-lg font-black">حيفان للطاقة المتجددة</p>
+                  <p className="text-lg font-black">أبو إيفان للطاقة المتجددة</p>
                 </div>
                 <div>
                   <p className="text-[10px] opacity-50 uppercase font-bold">رقم الحساب</p>
@@ -167,7 +174,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
       </div>
       <div>
         <h3 className="text-3xl font-black text-emerald-950 mb-3">تم الدفع بنجاح!</h3>
-        <p className="text-emerald-800/50 font-bold max-w-xs mx-auto leading-relaxed">شكراً لثقتك بـ حيفان للطاقة. تم استلام طلبك وهو الآن قيد التجهيز للشحن.</p>
+        <p className="text-emerald-800/50 font-bold max-w-xs mx-auto leading-relaxed">شكراً لثقتك بـ أبو إيفان للطاقة المتجددة. تم استلام طلبك وهو الآن قيد التجهيز للشحن.</p>
       </div>
       <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100">
         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">رقم التتبع للطلب</p>
@@ -230,7 +237,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
                <span className="text-[8px] md:text-[10px] font-black border border-white/30 px-2 py-0.5 rounded">PCI COMPLIANT</span>
                <span className="text-[8px] md:text-[10px] font-black border border-white/30 px-2 py-0.5 rounded">256-BIT AES</span>
             </div>
-            <p className="text-[10px] opacity-40 font-bold tracking-widest uppercase">نظام الدفع المشفر - حيفان للطاقة 2026</p>
+            <p className="text-[10px] opacity-40 font-bold tracking-widest uppercase">نظام الدفع المشفر - أبو إيفان للطاقة المتجددة 2026</p>
           </div>
         )}
       </div>

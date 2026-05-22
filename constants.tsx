@@ -196,7 +196,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 1450,
     description: 'تقدم أداءً ممتازاً لتنظيف الملابس بكفاءة عالية، مع تصميم حديث يوفر مساحة داخلية واسعة.',
     image: 'https://i.postimg.cc/L63YjJSs/IMG-20260125-WA0048.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 9 كيلوغرام لتغسيل الملابس الكبيرة',
       'برامج غسيل متنوعة لجميع أنواع الأقمشة',
@@ -215,7 +215,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 1750,
     description: 'مصممة لغسل كميات كبيرة من الملابس في دورة واحدة، مثالية للعائلات الكبيرة.',
     image: 'https://i.postimg.cc/QxYsLDkd/IMG-20260125-WA0049.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 12 كيلو مناسبة للغسيل الكبير',
       'برامج متعددة للأقمشة المختلفة',
@@ -234,7 +234,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 1250,
     description: 'مناسبة للمساحات الصغيرة والعائلات الصغيرة، مع تصميم مدمج وسعة كافية لغسل الملابس اليومية.',
     image: 'https://i.postimg.cc/jdw35rYK/IMG-20260125-WA0050.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 6.5 كيلو مناسبة للمساحات الصغيرة',
       'برامج غسيل متنوعة للأقمشة المختلفة',
@@ -253,7 +253,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 1350,
     description: 'توفر حلاً متوازناً للعائلات المتوسطة الحجم، مع سعة مناسبة تسمح بغسل الملابس اليومية.',
     image: 'https://i.postimg.cc/m2zpDGWB/IMG-20260125-WA0052.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 8 كيلو للأسر المتوسطة',
       'برامج غسيل متعددة للأقمشة المختلفة',
@@ -272,7 +272,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 1950,
     description: 'مثالية للأسر الكبيرة أو الاستخدام التجاري الخفيف، مع سعة كبيرة.',
     image: 'https://i.postimg.cc/8knnNz97/IMG-20260125-WA0051.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 15 كيلو للأسر الكبيرة أو الاستخدام التجاري',
       'برامج متعددة للأقمشة المختلفة',
@@ -291,7 +291,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 3800,
     description: 'توفر سعة كبيرة لتخزين المشروبات والمواد الغذائية في المحلات التجارية أو المطابخ الكبيرة.',
     image: 'https://i.postimg.cc/FH2Y43gb/IMG-20260125-WA0093.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 800 لتر',
       'أبواب سحاب لتسهيل الوصول للمنتجات',
@@ -310,7 +310,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 1800,
     description: 'يجمع بين المرونة العالية والأداء المستقر، مع إمكانية العمل على نظامي التجميد والتبريد.',
     image: 'https://i.postimg.cc/P5BCjYzW/IMG-20260125-WA0087.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 316 لتر',
       'نظام تشغيل مزدوج (تجميد / تبريد)',
@@ -329,7 +329,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 1600,
     description: 'لتخزين المجمدات المنزلية والتجارية الصغيرة، مع كفاءة استهلاك الكهرباء ونظام تبريد متوازن.',
     image: 'https://i.postimg.cc/GmB4VqYh/IMG_20260125_WA0053.jpg', // تم استخدام رابط متاح كبديل
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 256 لتر',
       'تصميم رأسي أو أفقي',
@@ -348,7 +348,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 2800,
     description: 'لعرض وتخزين المنتجات بكفاءة مع أبواب زجاجية شفافة وتقنية إنفرتر موفرة للطاقة.',
     image: 'https://i.postimg.cc/rwvDkxCR/IMG_20260125_WA0073.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 458 لتر',
       'أبواب زجاجية شفافة',
@@ -367,7 +367,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 3000,
     description: 'ثلاجة VOLX 562 لتر بسعة كبيرة ونظام تبريد إنفرتر لتخزين مواد غذائية بكفاءة عالية.',
     image: 'https://i.postimg.cc/Z51WSpFB/IMG_20260125_WA0071.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 562 لتر',
       'نظام تبريد إنفرتر',
@@ -386,7 +386,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 2300,
     description: 'مع نظام إنفرتر اقتصادي لتوفير الطاقة، تصميم مقوس عصري، وأرفف وأدراج عملية.',
     image: 'https://i.postimg.cc/x1WX2MyC/IMG_20260125_WA0066.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 389 لتر',
       'نظام تبريد إنفرتر',
@@ -405,7 +405,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 650,
     description: 'مكنسة VOLX 25 لتر متعددة الاستخدامات للتنظيف المنزلي والتجاري الخفيف.',
     image: 'https://i.postimg.cc/fR3VpBXb/IMG_20260125_WA0055.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'الاجهزة المنزلية',
     specs: [
       'سعة 25 لتر',
       'قوة شفط عالية',
@@ -424,7 +424,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 1400,
     description: 'تبريد فعال للمساحات المتوسطة مع كمبروسر قوي وفلتر قابل للتنظيف.',
     image: 'https://i.postimg.cc/nhsXg07z/IMG_20260125_WA0054.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'المكيفات',
     specs: [
       'قدرة تبريد 12000 وحدة حرارية',
       'كمبروسر قوي',
@@ -443,7 +443,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 1800,
     description: 'يقدم تبريداً فعالاً وهادئاً للمساحات الصغيرة والمتوسطة مثل غرف المعيشة والمكاتب.',
     image: 'https://i.postimg.cc/GmB4VqYh/IMG_20260125_WA0053.jpg',
-    category: 'الاجهزة الكهربائيه',
+    category: 'المكيفات',
     specs: [
       'قدرة تبريد 12000 وحدة حرارية (BTU)',
       'تصميم سبليت مزدوج لتوزيع الهواء بفعالية',

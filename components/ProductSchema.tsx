@@ -19,7 +19,7 @@ const ProductSchema: React.FC<ProductSchemaProps> = ({
   image,
   price,
   currency,
-  brand = "Haifan Energy",
+  brand = "Abu Evan Energy",
   sku,
   ratingValue,
   reviewCount

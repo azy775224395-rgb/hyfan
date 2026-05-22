@@ -54,7 +54,7 @@ const SolarCalculator: React.FC = () => {
       .filter(Boolean)
       .join('، ');
 
-    const message = `السلام عليكم حيفان للطاقة، أريد طلب عرض سعر رسمي بناءً على حسابات الموقع:
+    const message = `السلام عليكم أبو إيفان للطاقة المتجددة، أريد طلب عرض سعر رسمي بناءً على حسابات الموقع:
 
 *الأجهزة المختارة:* ${selectedNames}
 *ساعات التشغيل المتوقعة:* ${hours} ساعات يومياً
@@ -77,12 +77,12 @@ const SolarCalculator: React.FC = () => {
   };
 
   return (
-    <section className="py-12 md:py-24 bg-gray-900 rounded-[2rem] md:rounded-[4rem] my-8 md:my-16 text-white overflow-hidden relative border border-white/5">
+    <section className="py-8 md:py-24 bg-gray-900 rounded-[1.5rem] md:rounded-[4rem] my-8 md:my-16 text-white overflow-hidden relative border border-white/5">
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
         <svg width="100%" height="100%"><pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" strokeWidth="1"/></pattern><rect width="100%" height="100%" fill="url(#grid)" /></svg>
       </div>
 
-      <div className="container mx-auto px-6 md:px-12 relative z-10 w-full">
+      <div className="container mx-auto px-4 md:px-12 relative z-10 w-full">
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 md:mb-16 gap-6">
           <div className="text-right">
             <h2 className="text-2xl md:text-5xl font-black mb-3">حاسبة الطاقة الذكية</h2>

@@ -9,8 +9,8 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({ title, description, image, type = 'website' }) => {
-  const siteName = "حيفان للطاقة المتجددة";
-  const defaultImage = "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg";
+  const siteName = "أبو إيفان للطاقة المتجددة";
+  const defaultImage = "https://res.cloudinary.com/dxzqizvzw/image/upload/v1779209369/IMG_%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A5%D9%A1%D9%A9_%D9%A1%D9%A9%D9%A2%D9%A5%D9%A4%D9%A2_kji9am.png";
   const currentUrl = window.location.href;
 
   useEffect(() => {

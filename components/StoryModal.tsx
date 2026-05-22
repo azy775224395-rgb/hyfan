@@ -19,7 +19,7 @@ const StoryModal: React.FC<StoryModalProps> = ({ onClose }) => {
         <div className="flex items-center gap-4">
           <div className="text-right hidden sm:block">
             <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest">قصة ريادة</p>
-            <p className="font-black text-emerald-950">حيفان للطاقة</p>
+            <p className="font-black text-emerald-950">أبو إيفان للطاقة المتجددة</p>
           </div>
           <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-xl">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -35,7 +35,7 @@ const StoryModal: React.FC<StoryModalProps> = ({ onClose }) => {
           </h1>
           <div className="space-y-8 text-gray-600 leading-relaxed text-xl md:text-2xl">
             <p className="font-bold">
-              بدأت رحلة حيفان للطاقة المتجددة في السوق اليمني، حاملين مهمة واحدة: إنهاء معاناة الظلام عبر حلول طاقة نظيفة واقتصادية بمواصفات عالمية.
+              بدأت رحلة أبو إيفان للطاقة المتجددة في السوق اليمني، حاملين مهمة واحدة: إنهاء معاناة الظلام عبر حلول طاقة نظيفة واقتصادية بمواصفات عالمية.
             </p>
             <p className="font-medium opacity-80">
               اليوم، وبفضل ثقة أكثر من 40,000 عميل، أصبحنا الاسم الأول في توريد ألواح جينكو وبطاريات توبو في جميع المحافظات، من المهرة إلى صعدة.
@@ -67,7 +67,7 @@ const StoryModal: React.FC<StoryModalProps> = ({ onClose }) => {
                 <div className="text-7xl font-black text-emerald-600">22</div>
                 <div>
                   <p className="text-2xl font-black text-emerald-950">محافظة ومديرية</p>
-                  <p className="text-gray-400 font-bold">تغطيها شبكة شحن حيفان</p>
+                  <p className="text-gray-400 font-bold">تغطيها شبكة شحن أبو إيفان</p>
                 </div>
               </div>
            </div>

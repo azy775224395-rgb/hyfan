@@ -37,7 +37,7 @@ const FaqSection: React.FC = () => {
   };
 
   return (
-    <section className="container mx-auto px-4 mb-24">
+    <section className="container mx-auto px-4 mb-12 md:mb-24">
       {/* Inject Structured Data */}
       <script
         type="application/ld+json"
@@ -45,7 +45,7 @@ const FaqSection: React.FC = () => {
       />
 
       {/* Expanded to full width (max-w-7xl) for horizontal rectangle look */}
-      <div className="w-full bg-white/60 backdrop-blur-xl rounded-[2rem] p-6 md:p-12 border border-emerald-50 shadow-lg relative overflow-hidden">
+      <div className="w-full bg-white/60 backdrop-blur-xl rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-12 border border-emerald-50 shadow-lg relative overflow-hidden">
         <div className="absolute top-0 left-0 w-32 h-32 bg-emerald-100 blur-[60px] pointer-events-none opacity-40" />
 
         <div className="max-w-7xl mx-auto relative z-10">

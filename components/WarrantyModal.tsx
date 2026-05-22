@@ -35,7 +35,7 @@ const WarrantyModal: React.FC<WarrantyModalProps> = ({ onClose }) => {
           <div className="w-20 h-20 bg-amber-500 text-white rounded-3xl flex items-center justify-center text-4xl mb-8 shadow-lg group-hover:rotate-12 transition-transform">🚚</div>
           <h3 className="text-2xl font-black text-emerald-950 mb-6 underline decoration-amber-200 decoration-4">ضمان الشحن والتوصيل</h3>
           <p className="text-gray-500 font-bold text-lg leading-relaxed">
-            هل تخشى الكسر؟ لا تقلق. حيفان للطاقة تتحمل المسؤولية الكاملة عن المنتج حتى يصل لباب منزلك. في حال وصول أي لوح مكسور أو جهاز متضرر، نقوم بشحن بديل فوراً على حسابنا الخاص دون أي أسئلة.
+            هل تخشى الكسر؟ لا تقلق. أبو إيفان للطاقة المتجددة تتحمل المسؤولية الكاملة عن المنتج حتى يصل لباب منزلك. في حال وصول أي لوح مكسور أو جهاز متضرر، نقوم بشحن بديل فوراً على حسابنا الخاص دون أي أسئلة.
           </p>
         </section>
 
@@ -51,7 +51,20 @@ const WarrantyModal: React.FC<WarrantyModalProps> = ({ onClose }) => {
       <div className="mt-20 p-10 md:p-16 bg-emerald-50 rounded-[3.5rem] text-center border-4 border-dashed border-emerald-200">
         <h3 className="text-2xl font-black text-emerald-900 mb-4">هل لديك استفسار عن الضمان؟</h3>
         <p className="text-emerald-700/60 font-bold mb-8">فريق خدمة العملاء متاح 24/7 عبر الواتساب للإجابة عن كل أسئلتكم.</p>
-        <a href="https://wa.me/967784400333" className="inline-block bg-emerald-600 text-white px-12 py-5 rounded-2xl font-black shadow-xl hover:bg-emerald-700 transition-all active:scale-95">تحدث مع المبيعات الآن</a>
+        <button 
+          onClick={() => {
+            const link = document.createElement('a');
+            link.href = "https://wa.me/967784400333";
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }} 
+          className="inline-block bg-emerald-600 text-white px-12 py-5 rounded-2xl font-black shadow-xl hover:bg-emerald-700 transition-all active:scale-95"
+        >
+          تحدث مع المبيعات الآن
+        </button>
       </div>
     </div>
   );

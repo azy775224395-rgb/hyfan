@@ -5,9 +5,9 @@ const LocalBusinessSchema: React.FC = () => {
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "name": "حيفان للطاقة المتجددة",
-    "image": "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg",
-    "logo": "https://i.postimg.cc/50g6cG2T/IMG-20260201-232332.jpg",
+    "name": "أبو إيفان للطاقة المتجددة",
+    "image": "https://res.cloudinary.com/dxzqizvzw/image/upload/v1779209369/IMG_%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A5%D9%A1%D9%A9_%D9%A1%D9%A9%D9%A2%D9%A5%D9%A4%D9%A2_kji9am.png",
+    "logo": "https://res.cloudinary.com/dxzqizvzw/image/upload/v1779209369/IMG_%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A5%D9%A1%D9%A9_%D9%A1%D9%A9%D9%A2%D9%A5%D9%A4%D9%A2_kji9am.png",
     "url": "https://hyfn-czzv.onrender.com/",
     "telephone": "+967784400333",
     "priceRange": "$$",
