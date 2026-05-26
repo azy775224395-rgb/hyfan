@@ -78,7 +78,7 @@ const AllCategoriesView: React.FC<AllCategoriesViewProps> = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      <SEO title="أقسام المتجر" description="تصفح جميع أقسام متجر حيفان للطاقة المتجددة من الألواح والبطاريات إلى الأجهزة المنزلية." />
+      <SEO title="أقسام منتجات طاقة شمسية في اليمن | أبو إيفان للطاقة" description="تصفح جميع أقسام متجر أبو إيفان للطاقة المتجددة من أفضل ألواح شمسية في اليمن، وبطاريات تخزين للطاقة الشمسية، وإنفرترات وحلول طاقة شمسية للمنازل." />
       
       {/* Header */}
       <div className="bg-white sticky top-0 z-30 shadow-sm border-b border-gray-100">
@@ -95,6 +95,11 @@ const AllCategoriesView: React.FC<AllCategoriesViewProps> = ({ onBack }) => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        <div className="mb-8 text-center max-w-3xl mx-auto">
+          <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+            مرحباً بك في الأقسام الرئيسية لمتجر <strong>أبو إيفان للطاقة المتجددة</strong>. نوفر لك أفضل <strong>حلول طاقة شمسية في اليمن</strong> مصممة خصيصاً لتلبي احتياجاتك. اختر من مجموعتنا الواسعة التي تشمل <strong>ألواح شمسية في اليمن</strong> عالية الكفاءة، و <strong>بطاريات تخزين للطاقة الشمسية</strong> طويلة العمر، بالإضافة إلى <strong>إنفرترات</strong> متطورة وأجهزة منزلية موفرة للطاقة لضمان حصولك على أفضل <strong>طاقة شمسية للمنازل</strong> والمشاريع.
+          </p>
+        </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {categoriesGrid.map((cat, idx) => (
             <motion.a

@@ -13,7 +13,10 @@ interface LatestProductsBarProps {
 
 const LatestProductsBar: React.FC<LatestProductsBarProps> = ({ products, onViewDetails, formatPrice, onAddToCart }) => {
   // Take top latest 12 products
-  const latestProducts = [...products].reverse().slice(0, 12);
+  const specificIds = ['p-jinko-tiger-neo-615-635', 'p-sako-li-sun-15-36', 'p-haier-split-24', 'p-submersible-pump-2hp'];
+  const specificProducts = products.filter(p => specificIds.includes(p.id));
+  const otherProducts = products.filter(p => !specificIds.includes(p.id)).reverse();
+  const latestProducts = [...specificProducts, ...otherProducts].slice(0, 12);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);

@@ -17,7 +17,28 @@ export const LocalDataService = {
       localStorage.setItem(PRODUCTS_KEY, JSON.stringify(INITIAL_PRODUCTS));
       return INITIAL_PRODUCTS;
     }
-    return JSON.parse(stored);
+    
+    const parsed = JSON.parse(stored) as Product[];
+    let needsUpdate = false;
+    
+    // Merge any new products added to INITIAL_PRODUCTS by developer recently
+    INITIAL_PRODUCTS.forEach(initialProduct => {
+      const existingProduct = parsed.find(p => p.id === initialProduct.id);
+      if (!existingProduct) {
+        parsed.unshift(initialProduct); // Add new ones to the top
+        needsUpdate = true;
+      } else if (existingProduct.image !== initialProduct.image) {
+        // Sync updated image from constants to localStorage
+        existingProduct.image = initialProduct.image;
+        needsUpdate = true;
+      }
+    });
+
+    if (needsUpdate) {
+      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(parsed));
+    }
+
+    return parsed;
   },
 
   saveProduct: (product: Product) => {
@@ -67,7 +88,7 @@ export const LocalDataService = {
   getStoreSettings: () => {
     const stored = localStorage.getItem(SETTINGS_KEY);
     return stored ? JSON.parse(stored) : {
-      storeName: 'حيفان للطاقة المتجددة',
+      storeName: 'أبو إيفان للطاقة المتجددة',
       supportPhone: '967784400333',
       currency: 'SAR',
       maintenanceMode: false,

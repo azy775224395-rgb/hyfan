@@ -17,7 +17,10 @@ const BestSellersBar: React.FC<BestSellersBarProps> = ({ products, onViewDetails
   
   useEffect(() => {
     // Only randomize once on mount
-    setBestProducts([...products].sort(() => 0.5 - Math.random()).slice(0, 12));
+    const specificIds = ['p-jinko-tiger-neo-615-635', 'p-sako-li-sun-15-36', 'p-haier-split-24', 'p-submersible-pump-2hp'];
+    const specificProducts = products.filter(p => specificIds.includes(p.id));
+    const randomProducts = products.filter(p => !specificIds.includes(p.id)).sort(() => 0.5 - Math.random());
+    setBestProducts([...specificProducts, ...randomProducts].slice(0, 12));
   }, [products]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);

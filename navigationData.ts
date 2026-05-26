@@ -38,6 +38,10 @@ export const MAIN_MENU: MenuItem[] = [
   {
     title: 'الباقات',
     url: '#/category/bundles',
+  },
+  {
+    title: 'المدونة ودليل المشتري',
+    url: '#/blog',
   }
 ];
 

@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
       <div className="container mx-auto px-2 py-2 md:px-4 md:py-5 flex items-center justify-between gap-2 md:gap-4">
         {/* Mobile Menu Toggle */}
         <button 
-          className="md:hidden text-gray-700 p-1"
+          className="md:hidden text-gray-700 w-11 h-11 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -109,9 +109,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
             onClick={onOpenAuth}
             className="flex flex-col items-center text-gray-600 hover:text-primary transition-colors"
           >
-            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full hover:bg-gray-50">
+            <div className="w-11 h-11 md:w-12 md:h-12 flex items-center justify-center rounded-full hover:bg-gray-50">
               {user ? (
-                <img src={user.avatar} className="w-7 h-7 rounded-full object-cover border border-gray-200" alt="Profile" />
+                <img src={user.avatar} className="w-8 h-8 rounded-full object-cover border border-gray-200" alt="Profile" />
               ) : (
                 <User size={24} />
               )}
@@ -122,10 +122,10 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
             onClick={onOpenCart}
             className="relative flex flex-col items-center text-gray-600 hover:text-primary transition-colors"
           >
-            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full hover:bg-gray-50">
+            <div className="w-11 h-11 md:w-12 md:h-12 flex items-center justify-center rounded-full hover:bg-gray-50">
               <ShoppingCart size={22} className="md:w-6 md:h-6" />
               {cartCount > 0 && (
-                <span className="absolute top-0 left-0 bg-accent text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-sm">
+                <span className="absolute top-0 right-0 md:top-1 md:right-1 bg-accent text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-sm">
                   {cartCount}
                 </span>
               )}

@@ -14,29 +14,37 @@ const LocalBusinessSchema: React.FC = () => {
     "description": "شركة رائدة في مجال الطاقة الشمسية في اليمن، توفر ألواح طاقة شمسية، بطاريات جل، انفرترات، وأجهزة منزلية موفرة للطاقة مع شحن لجميع المحافظات.",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "شارع تعز",
-      "addressLocality": "صنعاء",
-      "addressRegion": "أمانة العاصمة",
+      "streetAddress": "خط الهناجر امام فكة المرور",
+      "addressLocality": "عدن",
+      "addressRegion": "محافظة عدن",
       "postalCode": "00967",
       "addressCountry": "YE"
     },
     "geo": {
       "@type": "GeoCoordinates",
-      "latitude": 15.3694,
-      "longitude": 44.1910
+      "latitude": 12.8000,
+      "longitude": 45.0333
     },
     "openingHoursSpecification": {
       "@type": "OpeningHoursSpecification",
       "dayOfWeek": [
+        "Saturday",
+        "Sunday",
         "Monday",
         "Tuesday",
         "Wednesday",
-        "Thursday",
-        "Saturday",
-        "Sunday"
+        "Thursday"
       ],
       "opens": "08:00",
       "closes": "21:00"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+967784400333",
+      "contactType": "customer service",
+      "contactOption": "TollFree",
+      "areaServed": "YE",
+      "availableLanguage": "Arabic"
     },
     "areaServed": [
       { "@type": "City", "name": "Sana'a" },
@@ -52,7 +60,7 @@ const LocalBusinessSchema: React.FC = () => {
     ],
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://hyfn-czzv.onrender.com/#/?q={search_term_string}",
+      "target": "https://hyfn-czzv.onrender.com/#/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };

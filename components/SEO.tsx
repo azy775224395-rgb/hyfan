@@ -5,7 +5,7 @@ interface SEOProps {
   title: string;
   description: string;
   image?: string;
-  type?: 'website' | 'product';
+  type?: 'website' | 'product' | 'article';
 }
 
 const SEO: React.FC<SEOProps> = ({ title, description, image, type = 'website' }) => {

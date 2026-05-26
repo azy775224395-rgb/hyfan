@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Product, Review, UserProfile } from "../types";
 import SEO from "./SEO";
 import ProductSchema from "./ProductSchema";
+import BreadcrumbSchema from "./BreadcrumbSchema";
 import { ReviewService } from "../services/reviewService";
 import { NotificationService } from "../services/notificationService";
 import RelatedProductsBar from "./RelatedProductsBar";
@@ -131,13 +132,28 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
   };
 
+  const baseUrl = window.location.origin + window.location.pathname;
+
+  // mapping product category to generic slug
+  const catSlug = product.category === 'الالواح الشمسيه' ? 'solar-panels'
+                : product.category === 'البطاريات' ? 'batteries'
+                : product.category === 'الانفرترات' ? 'off-grid-inverters'
+                : 'latest';
+
   return (
     <article className="min-h-screen bg-[#f8fafc] animate-slide-up flex flex-col pb-24 md:pb-0">
       <SEO
         title={product.name}
-        description={product.fullDescription || product.description}
+        description={(product.fullDescription || product.description).substring(0, 155) + '...'}
         image={product.image}
         type="product"
+      />
+      <BreadcrumbSchema 
+        items={[
+          { name: "الرئيسية", item: `${baseUrl}#/` },
+          { name: product.category, item: `${baseUrl}#/category/${catSlug}` },
+          { name: product.name, item: `${baseUrl}#/product/${product.id}` }
+        ]} 
       />
 
       {isCheckoutModalOpen && (
@@ -279,7 +295,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-50" />
             <img
               src={product.image}
-              alt={product.name}
+              alt={`صورة ${product.name} - متجر أبو إيفان للطاقة المتجددة لـ حلول الطاقة الشمسية`}
               className="relative z-10 max-w-full max-h-full object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105"
               loading="eager"
               fetchPriority="high"
@@ -588,7 +604,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <button
               type="button"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm text-lg font-black text-gray-700 hover:text-emerald-600 active:scale-95 transition-all"
+              className="w-11 h-11 flex items-center justify-center bg-white rounded-md shadow-sm text-lg font-black text-gray-700 hover:text-emerald-600 active:scale-95 transition-all"
             >
               -
             </button>
@@ -598,23 +614,23 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <button
               type="button"
               onClick={() => setQuantity(quantity + 1)}
-              className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm text-lg font-black text-gray-700 hover:text-emerald-600 active:scale-95 transition-all"
+              className="w-11 h-11 flex items-center justify-center bg-white rounded-md shadow-sm text-lg font-black text-gray-700 hover:text-emerald-600 active:scale-95 transition-all"
             >
               +
             </button>
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 h-14">
           <button
             type="button"
             onClick={() => onAddToCart(product, quantity)}
-            className="w-14 h-14 bg-emerald-50 text-emerald-700 rounded-2xl flex items-center justify-center border border-emerald-200 active:scale-90 transition-transform flex-shrink-0"
+            className="flex-1 bg-emerald-50 text-emerald-700 rounded-2xl flex items-center justify-center gap-2 border border-emerald-200 active:scale-90 transition-transform font-black text-sm md:text-base"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -624,13 +640,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               <path d="M3 6h18" />
               <path d="M16 10a4 4 0 0 1-8 0" />
             </svg>
+            أضف للسلة
           </button>
           <button
             type="button"
             onClick={() => setIsCheckoutModalOpen(true)} // order now directly
-            className="flex-grow bg-emerald-950 text-white rounded-2xl font-black text-base shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform"
+            className="flex-1 bg-emerald-950 text-white rounded-2xl font-black text-sm md:text-base shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform"
           >
-            شراء فوري بـ {formatPrice(product.price * quantity)}
+            شراء فوري
           </button>
         </div>
       </div>

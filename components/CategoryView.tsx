@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Product } from '../types';
 import GlassProductCard from './GlassProductCard';
 import SEO from './SEO';
+import BreadcrumbSchema from './BreadcrumbSchema';
 import { ArrowLeft } from 'lucide-react';
 
 interface CategoryViewProps {
@@ -26,9 +27,21 @@ const CategoryView: React.FC<CategoryViewProps> = ({
   formatPrice,
   onBack
 }) => {
+  const baseUrl = window.location.origin + window.location.pathname;
+  const slug = categoryName === 'الالواح الشمسيه' ? 'solar-panels'
+             : categoryName === 'البطاريات' ? 'batteries'
+             : categoryName === 'الانفرترات' ? 'off-grid-inverters'
+             : 'latest';
+             
   return (
     <div className="pt-24 pb-32 min-h-screen bg-[#f8fafc]">
       <SEO title={`قسم ${categoryName}`} description={categoryDescription || `منتجات قسم ${categoryName}`} />
+      <BreadcrumbSchema 
+        items={[
+          { name: "الرئيسية", item: `${baseUrl}#/` },
+          { name: categoryName, item: `${baseUrl}#/category/${slug}` }
+        ]} 
+      />
       
       <div className="container mx-auto px-4">
         {/* Header Options */}

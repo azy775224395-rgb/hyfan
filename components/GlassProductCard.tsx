@@ -86,22 +86,22 @@ const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCar
             )}
           </div>
           
-          <div className="grid grid-cols-1 gap-1.5 md:gap-2">
-            <motion.button 
-              whileTap={{ scale: 0.98 }}
-              onClick={(e) => { e.stopPropagation(); onOrderNow(product); }}
-              className="w-full bg-primary text-white py-2 md:py-2.5 rounded-lg md:rounded-xl font-bold text-[10px] md:text-sm flex items-center justify-center gap-1.5 shadow-sm hover:bg-secondary transition-all"
-            >
-              <Zap size={12} className="fill-white md:w-[14px] md:h-[14px]" />
-              اشتري الآن
-            </motion.button>
+          <div className="grid grid-cols-2 gap-1.5 md:gap-2">
             <motion.button 
               whileTap={{ scale: 0.98 }}
               onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-              className="md:hidden w-full bg-gray-50 text-gray-700 py-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1.5 border border-gray-100"
+              className="w-full bg-gray-50 text-gray-700 py-2 md:py-2.5 rounded-lg md:rounded-xl font-bold text-[10px] md:text-[13px] flex items-center justify-center gap-1.5 border border-gray-200 hover:bg-gray-100 transition-all shadow-sm"
             >
-              <ShoppingCart size={12} />
-              أضف للسلة
+              <ShoppingCart size={12} className="md:w-[14px] md:h-[14px]" />
+              للسلة
+            </motion.button>
+            <motion.button 
+              whileTap={{ scale: 0.98 }}
+              onClick={(e) => { e.stopPropagation(); onOrderNow(product); }}
+              className="w-full bg-primary text-white py-2 md:py-2.5 rounded-lg md:rounded-xl font-bold text-[10px] md:text-[13px] flex items-center justify-center gap-1.5 shadow-sm hover:bg-secondary transition-all"
+            >
+              <Zap size={12} className="fill-white md:w-[14px] md:h-[14px]" />
+              شراء
             </motion.button>
           </div>
         </div>

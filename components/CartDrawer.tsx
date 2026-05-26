@@ -211,7 +211,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                   <div className="flex items-center border border-gray-100 rounded-xl bg-gray-50 p-1">
                     <button
                       onClick={() => onUpdateQty(item.id, -1)}
-                      className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary transition-colors"
+                      className="w-11 h-11 flex items-center justify-center text-gray-500 hover:text-primary transition-colors"
                     >
                       <Minus size={14} />
                     </button>
@@ -220,7 +220,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                     </span>
                     <button
                       onClick={() => onUpdateQty(item.id, 1)}
-                      className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary transition-colors"
+                      className="w-11 h-11 flex items-center justify-center text-gray-500 hover:text-primary transition-colors"
                     >
                       <Plus size={14} />
                     </button>

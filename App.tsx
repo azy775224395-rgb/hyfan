@@ -14,6 +14,7 @@ import AnimatedBackground from "./components/AnimatedBackground";
 import MobileNav from "./components/MobileNav";
 import SEO from "./components/SEO";
 import CategoryView from "./components/CategoryView";
+import ServicesSection from "./components/ServicesSection";
 import LocalBusinessSchema from "./components/LocalBusinessSchema";
 import { useCart } from "./context/CartContext";
 import {
@@ -25,6 +26,7 @@ import {
   Package,
   LayoutGrid,
   AlertTriangle,
+  Droplets,
 } from "lucide-react";
 
 // --- Step 1: Lazy Load Heavy Page/Section Components ---
@@ -54,6 +56,8 @@ const RefundPolicyView = React.lazy(
   () => import("./components/RefundPolicyView"),
 );
 const SearchView = React.lazy(() => import("./components/SearchView"));
+const BlogView = React.lazy(() => import("./components/BlogView"));
+const ArticleView = React.lazy(() => import("./components/ArticleView"));
 
 const LoadingSpinner = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50 backdrop-blur-sm">
@@ -72,6 +76,7 @@ const getCategoryIcon = (category: string) => {
     return <Tv size={18} />;
   if (category.includes("الطباخه")) return <Flame size={18} />;
   if (category.includes("الباقات")) return <Package size={18} />;
+  if (category.includes("الغطاسات")) return <Droplets size={18} />;
   return <LayoutGrid size={18} />;
 };
 
@@ -348,9 +353,17 @@ const App: React.FC = () => {
         catProducts = products.filter((p) => p.category === catName);
       }
 
+      const getCategoryDescription = (name: string) => {
+        if (name === "الالواح الشمسيه") return "اكتشف أفضل ألواح شمسية في اليمن بأسعار مميزة. خيارات متنوعة تشمل ألواح شمسية عالية الكفاءة وتقنيات متطورة لضمان أقصى طاقة شمسية للمنازل والمشاريع من أبو إيفان للطاقة المتجددة.";
+        if (name === "البطاريات") return "تسوق أفضل بطاريات تخزين للطاقة الشمسية في اليمن. بطاريات جل وليثيوم تدوم طويلاً لضمان عدم انقطاع الكهرباء وتوفير أفضل حلول طاقة شمسية للمنازل.";
+        if (name === "الانفرترات") return "إنفرترات طاقة شمسية عالية الكفاءة بمواصفات عالمية، مثالية لتحويل الطاقة وأحد أهم حلول طاقة شمسية في اليمن.";
+        return `تسوق أفضل منتجات ${name} في اليمن من أبو إيفان للطاقة المتجددة ضمن حلولنا الموفرة للطاقة.`;
+      };
+
       return (
         <CategoryView
           categoryName={catName}
+          categoryDescription={getCategoryDescription(catName)}
           products={catProducts}
           onAddToCart={addToCart}
           onViewDetails={(p) => navigateTo(`#/product/${p.id}`)}
@@ -372,6 +385,23 @@ const App: React.FC = () => {
             onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)}
             formatPrice={formatPrice}
           />
+        </Suspense>
+      );
+    }
+
+    if (hash.startsWith("#/blog/")) {
+      const id = hash.replace("#/blog/", "");
+      return (
+        <Suspense fallback={<LoadingSpinner />}>
+          <ArticleView id={id} onBack={() => navigateTo("#/blog")} />
+        </Suspense>
+      );
+    }
+
+    if (hash === "#/blog") {
+      return (
+        <Suspense fallback={<LoadingSpinner />}>
+          <BlogView onNavigate={navigateTo} />
         </Suspense>
       );
     }
@@ -477,8 +507,8 @@ const App: React.FC = () => {
         return (
           <div className="flex flex-col gap-0 pb-16 md:pb-32">
             <SEO
-              title="الرئيسية"
-              description="متجر أبو إيفان للطاقة المتجددة - رائدون في حلول الألواح الشمسية والبطاريات والأجهزة المنزلية الموفرة للطاقة في اليمن."
+              title="الرئيسية | أبو إيفان للطاقة المتجددة - حلول طاقة شمسية في اليمن"
+              description="موقع أبو إيفان للطاقة المتجددة يقدم أفضل حلول طاقة شمسية في اليمن. تسوق ألواح شمسية، بطاريات، إنفرترات، وأنظمة طاقة شمسية للمنازل بأفضل الأسعار وتقنيات حديثة."
             />
             <VideoPromo />
 
@@ -503,6 +533,8 @@ const App: React.FC = () => {
             {/* Category Filter Bar removed based on user request */}
 
             <Hero onOpenStory={() => navigateTo("#/story")} />
+
+            <ServicesSection />
 
             <div className="mt-8 md:mt-16">
               <Suspense
