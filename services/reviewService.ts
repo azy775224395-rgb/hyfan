@@ -3,51 +3,123 @@ import { supabase } from '../lib/supabaseClient';
 import { Review } from '../types';
 
 export class ReviewService {
-  static async fetchReviews(): Promise<Review[]> {
-    try {
-      if (!supabase) return [];
-      const { data } = await supabase
-        .from('reviews')
-        .select(`*, profiles (full_name, avatar_url)`)
-        .order('created_at', { ascending: false });
+  private static mapToReview(row: any): Review {
+    return {
+      id: row.id,
+      product_id: row.product_id,
+      name: row.user_name,
+      rating: row.rating,
+      comment: row.comment,
+      images: row.images_urls || [],
+      created_at: new Date(row.created_at).getTime(),
+      date: new Date(row.created_at).toISOString().split('T')[0],
+      isApproved: row.status === 'approved',
+      isVerifiedPurchase: true,
+    };
+  }
 
-      if (data) {
-        return data.map((item: any) => ({
-          id: item.id,
-          name: item.profiles?.full_name || 'عميل حيفان',
-          avatar_url: item.profiles?.avatar_url,
-          rating: item.rating,
-          comment: item.comment,
-          image_url: item.image_url,
-          date: new Date(item.created_at).toISOString().split('T')[0]
-        }));
-      }
+  static async fetchReviews(): Promise<Review[]> {
+    if (!supabase) return [];
+    try {
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .select('*')
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return (data || []).map(this.mapToReview);
+    } catch (e) {
+      console.error("Error fetching reviews:", e);
       return [];
-    } catch { return []; }
+    }
+  }
+  
+  static async fetchAllAdminReviews(): Promise<Review[]> {
+    if (!supabase) return [];
+    try {
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return (data || []).map(this.mapToReview);
+    } catch (e) {
+      console.error("Error fetching admin reviews:", e);
+      return [];
+    }
   }
 
   static async fetchProductReviews(productId: string): Promise<Review[]> {
+    if (!supabase) return [];
     try {
-      if (!supabase) return [];
-      const { data } = await supabase
-        .from('reviews')
-        .select(`*, profiles (full_name, avatar_url)`)
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .select('*')
         .eq('product_id', productId)
+        .eq('status', 'approved')
         .order('created_at', { ascending: false });
-
-      if (data) {
-        return data.map((item: any) => ({
-          id: item.id,
-          name: item.profiles?.full_name || 'عميل حيفان',
-          avatar_url: item.profiles?.avatar_url,
-          rating: item.rating,
-          comment: item.comment,
-          image_url: item.image_url,
-          date: new Date(item.created_at).toISOString().split('T')[0]
-        }));
-      }
+      
+      if (error) throw error;
+      return (data || []).map(this.mapToReview);
+    } catch (e) {
+      console.error("Error fetching product reviews:", e);
       return [];
-    } catch { return []; }
+    }
+  }
+  
+  static async approveReview(id: string, isApproved: boolean): Promise<void> {
+    if (!supabase) return;
+    try {
+      await supabase
+        .from('product_reviews')
+        .update({ status: isApproved ? 'approved' : 'pending' })
+        .eq('id', id);
+    } catch (e) {
+      console.error("Error updating review status:", e);
+    }
+  }
+
+  static async deleteReview(id: string): Promise<void> {
+    if (!supabase) return;
+    try {
+      await supabase
+        .from('product_reviews')
+        .delete()
+        .eq('id', id);
+    } catch (e) {
+      console.error("Error deleting review:", e);
+    }
+  }
+
+  private static async uploadBase64ToCloudinary(base64: string): Promise<string | null> {
+    const cloudName = (import.meta as any).env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = (import.meta as any).env.VITE_CLOUDINARY_UPLOAD_PRESET;
+    
+    if (!cloudName || !uploadPreset) {
+       console.warn("Cloudinary configuration missing. Image will not be uploaded.");
+       return null;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', base64);
+      formData.append('upload_preset', uploadPreset);
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.secure_url) {
+        return data.secure_url;
+      }
+    } catch (e) {
+      console.error("Error uploading to Cloudinary:", e);
+    }
+    return null;
   }
 
   static async submitReview(
@@ -56,99 +128,53 @@ export class ReviewService {
     rating: number, 
     comment: string, 
     userProfile?: { name: string, avatar?: string }, 
-    imageFile?: File
+    imagesBase64: string[] = [] // images as base64
   ): Promise<Review | null> {
-    try {
-      if (!supabase) throw new Error("Cloud disconnected");
-
-      // 1. Upload Image (Independent step)
-      let imageUrl = null;
-      if (imageFile) {
-        try {
-          const fileExt = imageFile.name.split('.').pop();
-          const fileName = `review_${Date.now()}.${fileExt}`;
-          const { error } = await supabase.storage.from('reviews-images').upload(fileName, imageFile);
-          if (!error) {
-            const { data } = supabase.storage.from('reviews-images').getPublicUrl(fileName);
-            imageUrl = data.publicUrl;
-          }
-        } catch (e) { console.warn("Image upload skipped"); }
-      }
-
-      // 2. Try to Sync Profile
-      // We wrap this in a try-catch and proceed even if it fails,
-      // because sometimes the user ID exists but we lack permissions to UPDATE it.
-      if (userProfile) {
-        try {
-          await supabase.from('profiles').upsert({
-            id: userId,
-            full_name: userProfile.name,
-            avatar_url: userProfile.avatar,
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'id' });
-        } catch (e) {
-          console.warn("Profile sync warning (ignoring):", e);
-        }
-      }
-
-      // 3. Insert Review
-      // Attempt 1: Standard Insert
-      const { data, error } = await supabase
-        .from('reviews')
-        .insert([{
-          user_id: userId,
-          product_id: productId,
-          rating: rating,
-          comment: comment,
-          image_url: imageUrl
-        }])
-        .select(`*, profiles (full_name, avatar_url)`)
-        .single();
-
-      if (error) {
-        // If Foreign Key fails, it means the ID is truly missing from profiles.
-        // We will try to create a 'stub' profile one last time or fail gracefully.
-        console.error("Review Insert Failed:", error);
-        
-        // Last Resort: Insert without user_id if table allows (Guest Review)
-        // OR alert user to re-login.
-        if (error.message.includes("foreign key")) {
-           // Try to insert the profile forcefully as a new record
-           const { error: finalProfileError } = await supabase.from('profiles').insert({
-              id: userId,
-              full_name: userProfile?.name || 'Guest',
-              email: 'guest@temp.com', // Dummy email to satisfy constraints
-              role: 'customer'
-           });
-           
-           if (!finalProfileError) {
-             // Retry review insert
-             const retry = await supabase.from('reviews').insert([{
-                user_id: userId, product_id: productId, rating, comment, image_url: imageUrl
-             }]).select().single();
-             if (retry.data) return { ...retry.data, name: userProfile?.name, date: new Date().toISOString() };
-           }
-           
-           alert("عذراً، نظام التقييم يتطلب تحديث حسابك. يرجى تسجيل الخروج والدخول مرة أخرى.");
-           return null;
-        }
-        
-        throw error;
-      }
-
-      return {
-        id: data.id,
-        name: data.profiles?.full_name || userProfile?.name || 'عميل',
-        avatar_url: data.profiles?.avatar_url,
-        rating: data.rating,
-        comment: data.comment,
-        image_url: data.image_url,
-        date: new Date(data.created_at).toISOString().split('T')[0]
-      };
-
-    } catch (error) {
-      console.error("Critical Review Error:", error);
-      return null;
+    
+    // Upload images to Cloudinary in parallel
+    const uploadedImagesUrls: string[] = [];
+    if (imagesBase64.length > 0) {
+      const uploadPromises = imagesBase64.map(base64 => this.uploadBase64ToCloudinary(base64));
+      const results = await Promise.all(uploadPromises);
+      results.forEach(url => {
+        if (url) uploadedImagesUrls.push(url);
+      });
     }
+
+    const reviewId = crypto.randomUUID();
+    
+    const dbRecord = {
+      id: reviewId,
+      product_id: productId,
+      user_name: userProfile?.name || 'عميل حيفان',
+      rating,
+      comment,
+      images_urls: uploadedImagesUrls,
+      status: 'pending'
+    };
+    
+    if (supabase) {
+      try {
+        const { error } = await supabase.from('product_reviews').insert([dbRecord]);
+        if (error) console.error("Error inserting review into Supabase:", error);
+      } catch (e) {
+         console.error("Error inserting review into Supabase:", e);
+      }
+    }
+    
+    return Promise.resolve({
+      id: reviewId,
+      user_id: userId,
+      product_id: productId,
+      name: dbRecord.user_name,
+      avatar_url: userProfile?.avatar || '',
+      rating,
+      comment,
+      images: uploadedImagesUrls,
+      created_at: Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      isApproved: false,
+      isVerifiedPurchase: true
+    });
   }
 }

@@ -23,16 +23,18 @@ export interface ChatMessage {
 }
 
 export interface Review {
-  id: number;
+  id: string;
   user_id?: string;
   product_id?: string;
   name: string;
   avatar_url?: string;
   rating: number;
   comment: string;
-  image_url?: string;
-  created_at?: string;
+  images?: string[];
+  created_at: number;
   date: string;
+  isApproved: boolean;
+  isVerifiedPurchase: boolean;
 }
 
 export interface ShippingInfo {

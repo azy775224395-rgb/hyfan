@@ -1,12 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
-import { UserProfile, Order, Product, UserSession } from '../types';
+import { UserProfile, Order, Product, UserSession, Review } from '../types';
 import { LocalDataService } from '../services/localDataService';
+import { ReviewService } from '../services/reviewService';
 import { 
   LayoutDashboard, ShoppingBag, Users, Package, Settings, LogOut, Search, 
   ChevronDown, CheckCircle, XCircle, Clock, Truck, Plus, ArrowLeft,
   DollarSign, Edit, Trash, Save, Globe, Phone, CreditCard, ToggleLeft, ToggleRight,
-  ShieldAlert, Activity
+  ShieldAlert, Activity, Star
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -15,7 +16,7 @@ interface AdminDashboardProps {
 }
 
 // --- Views Enum ---
-type AdminView = 'dashboard' | 'revenue' | 'products' | 'orders' | 'settings' | 'product-editor' | 'customers';
+type AdminView = 'dashboard' | 'revenue' | 'products' | 'orders' | 'settings' | 'product-editor' | 'customers' | 'reviews';
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => {
   // --- Security ---
@@ -31,6 +32,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
   const [products, setProducts] = useState<Product[]>([]);
   const [sessions, setSessions] = useState<UserSession[]>([]);
   const [storeSettings, setStoreSettings] = useState<any>({});
+  const [allReviews, setAllReviews] = useState<Review[]>([]);
   
   // Product Editor State
   const [editingProduct, setEditingProduct] = useState<Partial<Product>>({});
@@ -60,12 +62,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
     }
   };
 
-  const loadData = () => {
+  const loadData = async () => {
     setProducts(LocalDataService.getProducts());
     setOrders(LocalDataService.getOrders());
     setStoreSettings(LocalDataService.getStoreSettings());
     setSessions(LocalDataService.getSessions());
     setBannedIPs(LocalDataService.getBannedIPs());
+    const reviews = await ReviewService.fetchAllAdminReviews();
+    setAllReviews(reviews);
   };
 
   const formatPrice = (p: number) => `${p.toLocaleString()} ${storeSettings.currency || 'ر.س'}`;
@@ -144,6 +148,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
            { id: 'orders', label: 'الطلبات', icon: ShoppingBag, badge: orders.filter(o => o.status === 'pending').length },
            { id: 'customers', label: 'العملاء', icon: Users },
            { id: 'products', label: 'المنتجات', icon: Package },
+           { id: 'reviews', label: 'التقييمات', icon: Star, badge: allReviews.filter(r => !r.isApproved).length },
            { id: 'settings', label: 'الإعدادات', icon: Settings },
          ].map(item => (
            <button
@@ -665,6 +670,58 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
          {currentView === 'settings' && <SettingsView />}
          
          {currentView === 'product-editor' && <ProductEditor />}
+
+         {currentView === 'reviews' && (
+            <div className="animate-fade-in space-y-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-black text-white">إدارة التقييمات ({allReviews.length})</h2>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                {allReviews.map((review) => (
+                  <div key={review.id} className="bg-gray-800 p-6 rounded-3xl border border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div className="flex-1 text-right">
+                      <div className="flex items-center gap-2 mb-2 justify-end">
+                        <h4 className="text-white font-bold">{review.name}</h4>
+                        <div className="flex gap-0.5 mt-1" dir="ltr">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={14} className={i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-600'} />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-gray-400 text-sm mb-3">"{review.comment}"</p>
+                      {review.images && review.images.length > 0 && (
+                        <div className="flex gap-2 justify-end mb-3">
+                          {review.images.map((img, i) => (
+                            <img key={i} src={img} alt="review" className="w-12 h-12 rounded object-cover border border-gray-600" />
+                          ))}
+                        </div>
+                      )}
+                      <div className="text-xs text-gray-500 font-bold">
+                         {review.date} | المنتج: {products.find(p => p.id === review.product_id)?.name || review.product_id}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {!review.isApproved ? (
+                        <button onClick={async () => { await ReviewService.approveReview(review.id, true); loadData(); }} className="flex items-center gap-1 px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-xl hover:bg-emerald-500/30 text-sm font-bold">
+                          <CheckCircle size={16} /> قبول
+                        </button>
+                      ) : (
+                        <button onClick={async () => { await ReviewService.approveReview(review.id, false); loadData(); }} className="flex items-center gap-1 px-4 py-2 bg-amber-500/20 text-amber-400 rounded-xl hover:bg-amber-500/30 text-sm font-bold">
+                          <XCircle size={16} /> إخفاء
+                        </button>
+                      )}
+                      <button onClick={async () => { if(confirm('متأكد من حذف التقييم؟')) { await ReviewService.deleteReview(review.id); loadData(); } }} className="p-2 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30">
+                        <Trash size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {allReviews.length === 0 && (
+                  <div className="text-center py-10 text-gray-400">لا توجد تقييمات حالياً</div>
+                )}
+              </div>
+            </div>
+         )}
 
          {currentView === 'products' && (
             <div className="animate-fade-in space-y-6">

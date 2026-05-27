@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Review } from '../types';
 import { ReviewService } from '../services/reviewService';
+import { CheckCircle, X, ZoomIn } from 'lucide-react';
 
 interface AllReviewsModalProps {
   onClose: () => void;
@@ -11,6 +12,7 @@ interface AllReviewsModalProps {
 const AllReviewsModal: React.FC<AllReviewsModalProps> = ({ onClose }) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -24,6 +26,15 @@ const AllReviewsModal: React.FC<AllReviewsModalProps> = ({ onClose }) => {
 
   return (
     <div className="container mx-auto px-4 py-12 animate-fade-in">
+      {zoomedImage && (
+        <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setZoomedImage(null)}>
+          <button className="absolute top-4 right-4 text-white hover:text-emerald-400 bg-white/10 p-2 rounded-full transition-colors">
+            <X size={24} />
+          </button>
+          <img src={zoomedImage} alt="Zoomed" className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6">
         <div>
           <h2 className="text-4xl md:text-6xl font-black text-emerald-950 mb-4">تجارب حقيقية</h2>
@@ -44,24 +55,45 @@ const AllReviewsModal: React.FC<AllReviewsModalProps> = ({ onClose }) => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {reviews.map((review) => (
-            <div key={review.id} className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-emerald-50 shadow-sm hover:shadow-xl transition-all flex flex-col group">
+            <div key={review.id} className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-emerald-50 shadow-sm hover:shadow-xl transition-all flex flex-col group h-full">
                <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 bg-emerald-950 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg group-hover:rotate-6 transition-transform">
-                    {review.name.charAt(0)}
+                    {review.avatar_url ? <img src={review.avatar_url} className="w-full h-full object-cover rounded-2xl" /> : review.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="font-black text-emerald-900 text-lg">{review.name}</h4>
+                    <h4 className="font-black text-emerald-900 text-lg flex items-center gap-2 flex-wrap">
+                      {review.name}
+                      {review.isVerifiedPurchase && (
+                        <span className="flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full whitespace-nowrap">
+                          <CheckCircle size={12} /> مشتري مؤكد
+                        </span>
+                      )}
+                    </h4>
                     <span className="text-xs text-gray-400 font-bold">{review.date}</span>
                   </div>
                 </div>
-                <div className="flex gap-0.5">
+                <div className="flex gap-0.5 mt-2">
                   {[...Array(5)].map((_, i) => (
                     <svg key={i} className={`w-4 h-4 ${i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200'}`} viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                   ))}
                 </div>
               </div>
-              <p className="text-emerald-950/70 text-base md:text-lg leading-relaxed font-bold italic">"{review.comment}"</p>
+              <p className="text-emerald-950/70 text-base md:text-lg leading-relaxed font-bold italic flex-1">"{review.comment}"</p>
+              
+              {review.images && review.images.length > 0 && (
+                <div className="flex gap-2 mt-4">
+                  {review.images.map((img, idx) => (
+                    <div key={idx} className="relative h-16 w-16 rounded-xl overflow-hidden border border-gray-100 cursor-pointer group/img" onClick={() => setZoomedImage(img)}>
+                      <img src={img} alt="review image" className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-300" />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
+                        <ZoomIn size={16} className="text-white" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="mt-8 pt-6 border-t border-emerald-50 flex items-center gap-2 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
                  تقييم موثق عبر الموقع

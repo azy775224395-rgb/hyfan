@@ -1,5 +1,5 @@
 
-import { Product, Order, UserSession } from '../types';
+import { Product, Order, UserSession, Review } from '../types';
 import { INITIAL_PRODUCTS } from '../constants';
 
 const PRODUCTS_KEY = 'hyfan_products_db_v3';
@@ -7,6 +7,7 @@ const ORDERS_KEY = 'hyfan_orders_db';
 const SETTINGS_KEY = 'hyfan_store_settings';
 const SESSIONS_KEY = 'hyfan_active_sessions';
 const BANNED_IPS_KEY = 'hyfan_banned_ips';
+const REVIEWS_KEY = 'hyfan_reviews_db';
 
 export const LocalDataService = {
   // --- Products ---
@@ -159,5 +160,35 @@ export const LocalDataService = {
   isBanned: (ip: string): boolean => {
     const list = LocalDataService.getBannedIPs();
     return list.includes(ip);
+  },
+
+  // --- Reviews ---
+  getReviews: (): Review[] => {
+    const stored = localStorage.getItem(REVIEWS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  },
+
+  addReview: (review: Review) => {
+    const reviews = LocalDataService.getReviews();
+    reviews.unshift(review);
+    localStorage.setItem(REVIEWS_KEY, JSON.stringify(reviews));
+    window.dispatchEvent(new Event('reviews-updated'));
+    return reviews;
+  },
+
+  updateReviewStatus: (id: string, isApproved: boolean) => {
+    const reviews = LocalDataService.getReviews();
+    const updatedReviews = reviews.map(r => r.id === id ? { ...r, isApproved } : r);
+    localStorage.setItem(REVIEWS_KEY, JSON.stringify(updatedReviews));
+    window.dispatchEvent(new Event('reviews-updated'));
+    return updatedReviews;
+  },
+
+  deleteReview: (id: string) => {
+    const reviews = LocalDataService.getReviews();
+    const updatedReviews = reviews.filter(r => r.id !== id);
+    localStorage.setItem(REVIEWS_KEY, JSON.stringify(updatedReviews));
+    window.dispatchEvent(new Event('reviews-updated'));
+    return updatedReviews;
   }
 };
