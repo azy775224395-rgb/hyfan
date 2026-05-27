@@ -150,7 +150,7 @@ export class ReviewService {
       rating,
       comment,
       images_urls: uploadedImagesUrls,
-      status: 'pending'
+      status: 'approved'
     };
     
     if (supabase) {
@@ -173,7 +173,7 @@ export class ReviewService {
       images: uploadedImagesUrls,
       created_at: Date.now(),
       date: new Date().toISOString().split('T')[0],
-      isApproved: false,
+      isApproved: true,
       isVerifiedPurchase: true
     });
   }

@@ -100,7 +100,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
     );
 
     if (newReview) {
-      alert("تم إرسال تقييمك للمراجعة. سيظهر بعد موافقة الإدارة.");
       setSubmitted(true);
       setComment('');
       setRating(0);
@@ -266,9 +265,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
                     <div className="h-full flex flex-col justify-center items-center gap-3 animate-fade-in text-center py-4">
                       <div className="flex items-center gap-2 text-emerald-300">
                         <CheckCircle size={28} />
-                        <h3 className="text-lg font-black text-white">تم استلام تقييمك بنجاح!</h3>
+                        <h3 className="text-lg font-black text-white">تم إضافة التقييم بنجاح!</h3>
                       </div>
-                      <p className="text-emerald-100/70 text-sm font-bold">سيظهر للعامة بعد موافقة الإدارة.</p>
                       <button onClick={() => setSubmitted(false)} className="text-white/50 hover:text-white text-xs underline font-bold mt-2">تقييم آخر</button>
                     </div>
                   )}
