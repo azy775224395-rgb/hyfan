@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Review, UserProfile } from '../types';
 import { NotificationService } from '../services/notificationService';
 import { ReviewService } from '../services/reviewService';
@@ -13,7 +14,9 @@ interface ReviewSectionProps {
 type SortOption = 'newest' | 'highest' | 'with_images';
 
 const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productId }) => {
+  const navigate = useNavigate();
   const [reviews, setReviews] = useState<Review[]>([]);
+
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   
   const [rating, setRating] = useState(0);
@@ -79,7 +82,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
     
     if (!user) {
       alert("يرجى تسجيل الدخول أولاً لإضافة تقييم");
-      window.location.hash = '/auth';
+      navigate('/auth');
       return;
     }
 
@@ -304,13 +307,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
                   <div key={i} className="bg-white/40 h-40 rounded-2xl animate-pulse" />
                 ))
               ) : sortedReviews.length > 0 ? (
-                sortedReviews.slice(0, 6).map((review) => (
+                sortedReviews.slice(0, 6).map((review) => {
+                  const avatarUrl = review.avatar_url || (user?.name && review.name === user.name ? user.avatar : undefined);
+                  return (
                   <div key={review.id} className="bg-white p-5 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col h-full">
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center overflow-hidden border border-emerald-200 shrink-0">
-                          {review.avatar_url ? (
-                            <img src={review.avatar_url} alt={review.name} className="w-full h-full object-cover" />
+                          {avatarUrl ? (
+                            <img src={avatarUrl} alt={review.name} className="w-full h-full object-cover" />
                           ) : (
                             <span className="text-emerald-700 font-black text-sm">{review.name.charAt(0)}</span>
                           )}
@@ -350,7 +355,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
                       </div>
                     )}
                   </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
                   <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-3">

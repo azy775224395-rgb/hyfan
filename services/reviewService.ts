@@ -22,10 +22,16 @@ const saveLocalReview = (review: Review) => {
 
 export class ReviewService {
   private static mapToReview(row: any): Review {
+    const rawName = row.user_name || '';
+    const parts = rawName.split('|||');
+    const name = parts[0];
+    const avatar_url = parts.length > 1 ? parts[1] : undefined;
+
     return {
       id: row.id,
       product_id: row.product_id,
-      name: row.user_name,
+      name: name,
+      avatar_url: avatar_url,
       rating: row.rating,
       comment: row.comment,
       images: row.images_urls || [],
@@ -210,10 +216,13 @@ export class ReviewService {
 
     const reviewId = crypto.randomUUID();
     
+    const baseName = userProfile?.name || 'عميل حيفان';
+    const nameWithAvatar = userProfile?.avatar ? `${baseName}|||${userProfile.avatar}` : baseName;
+
     const dbRecord = {
       id: reviewId,
       product_id: productId,
-      user_name: userProfile?.name || 'عميل حيفان',
+      user_name: nameWithAvatar,
       rating,
       comment,
       images_urls: uploadedImagesUrls,

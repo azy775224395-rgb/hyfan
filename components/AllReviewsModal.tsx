@@ -54,12 +54,15 @@ const AllReviewsModal: React.FC<AllReviewsModalProps> = ({ onClose }) => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {reviews.map((review) => (
+          {reviews.map((review) => {
+            const hyfanUser = JSON.parse(localStorage.getItem("hyfan_user") || "null");
+            const avatarUrl = review.avatar_url || (hyfanUser?.name && review.name === hyfanUser.name ? hyfanUser.avatar : undefined);
+            return (
             <div key={review.id} className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-emerald-50 shadow-sm hover:shadow-xl transition-all flex flex-col group h-full">
                <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 bg-emerald-950 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg group-hover:rotate-6 transition-transform">
-                    {review.avatar_url ? <img src={review.avatar_url} className="w-full h-full object-cover rounded-2xl" /> : review.name.charAt(0)}
+                    {avatarUrl ? <img src={avatarUrl} className="w-full h-full object-cover rounded-2xl" /> : review.name.charAt(0)}
                   </div>
                   <div>
                     <h4 className="font-black text-emerald-900 text-lg flex items-center gap-2 flex-wrap">
@@ -99,7 +102,8 @@ const AllReviewsModal: React.FC<AllReviewsModalProps> = ({ onClose }) => {
                  تقييم موثق عبر الموقع
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

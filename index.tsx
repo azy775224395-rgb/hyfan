@@ -1,7 +1,8 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
-import { HashRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import { CartProvider } from './context/CartContext';
 import './index.css';
@@ -35,11 +36,13 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <HashRouter>
-        <CartProvider>
-          <App />
-        </CartProvider>
-      </HashRouter>
+      <BrowserRouter>
+        <HelmetProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </HelmetProvider>
+      </BrowserRouter>
     </ErrorBoundary>
   </React.StrictMode>
 );

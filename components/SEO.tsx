@@ -1,66 +1,50 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
   title: string;
   description: string;
   image?: string;
   type?: 'website' | 'product' | 'article';
+  jsonLd?: any;
 }
 
-const SEO: React.FC<SEOProps> = ({ title, description, image, type = 'website' }) => {
-  const siteName = "أبو إيفان للطاقة المتجددة";
-  const defaultImage = "https://res.cloudinary.com/dxzqizvzw/image/upload/v1779209369/IMG_%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A5%D9%A1%D9%A9_%D9%A1%D9%A9%D9%A2%D9%A5%D9%A4%D9%A2_kji9am.png";
+const SEO: React.FC<SEOProps> = ({ title, description, image, type = 'website', jsonLd }) => {
+  const siteName = "متجر حيفان للطاقة المتجددة";
+  const defaultImage = "https://res.cloudinary.com/dxzqizvzw/image/upload/v1779763149/%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A5%D9%A2%D9%A6_%D9%A0%D9%A5%D9%A3%D9%A8%D9%A3%D9%A8_rmvnti.png";
   const currentUrl = window.location.href;
+  const fullTitle = `${title} | ${siteName}`;
+  const finalImage = image || defaultImage;
 
-  useEffect(() => {
-    // Update Title
-    document.title = `${title} | ${siteName}`;
+  return (
+    <Helmet>
+      <title>{fullTitle}</title>
+      <meta name="description" content={description} />
+      
+      {/* Open Graph */}
+      <meta property="og:title" content={fullTitle} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={finalImage} />
+      <meta property="og:url" content={currentUrl} />
+      <meta property="og:type" content={type} />
+      <meta property="og:site_name" content={siteName} />
 
-    // Update Meta Tags
-    const setMeta = (name: string, content: string) => {
-      let element = document.querySelector(`meta[name="${name}"]`);
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute('name', name);
-        document.head.appendChild(element);
-      }
-      element.setAttribute('content', content);
-    };
+      {/* Twitter */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={fullTitle} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={finalImage} />
 
-    const setOgMeta = (property: string, content: string) => {
-      let element = document.querySelector(`meta[property="${property}"]`);
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute('property', property);
-        document.head.appendChild(element);
-      }
-      element.setAttribute('content', content);
-    };
+      <link rel="canonical" href={currentUrl} />
 
-    // Standard SEO
-    setMeta('description', description);
-    
-    // Open Graph (Social Media)
-    setOgMeta('og:title', title);
-    setOgMeta('og:description', description);
-    setOgMeta('og:image', image || defaultImage);
-    setOgMeta('og:url', currentUrl);
-    setOgMeta('og:type', type);
-    setOgMeta('og:site_name', siteName);
-
-    // Canonical Tag
-    let link = document.querySelector("link[rel='canonical']") as HTMLLinkElement;
-    if (!link) {
-      link = document.createElement('link');
-      link.setAttribute('rel', 'canonical');
-      document.head.appendChild(link);
-    }
-    link.setAttribute('href', currentUrl);
-
-  }, [title, description, image, type, currentUrl]);
-
-  return null;
+      {jsonLd && (
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </script>
+      )}
+    </Helmet>
+  );
 };
 
 export default SEO;

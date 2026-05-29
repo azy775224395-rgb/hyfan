@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Eye, Zap, CheckCircle2 } from 'lucide-react';
 import { Product } from '../types';
@@ -13,15 +14,18 @@ interface GlassProductCardProps {
   formatPrice: (p: number) => string;
 }
 
+// Convert motion.a to motion(Link)
+const MotionLink = motion(Link);
+
 const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCart, onViewDetails, onOrderNow, formatPrice }) => {
   return (
-    <motion.div 
+    <MotionLink 
+      to={`/product/${product.id}`}
       initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-10px" }}
       transition={{ duration: 0.25 }}
-      onClick={() => onViewDetails(product)}
-      className="group relative bg-white border border-gray-100 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col overflow-hidden"
+      className="group relative bg-white border border-gray-100 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col overflow-hidden block"
     >
       {/* Dynamic Status Badge */}
       <div className="absolute top-2 right-2 md:top-3 md:right-3 z-20 flex flex-col gap-1 items-end">
@@ -51,7 +55,7 @@ const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCar
            <motion.button 
              whileHover={{ scale: 1.1 }}
              whileTap={{ scale: 0.9 }}
-             onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product); }}
              className="w-12 h-12 bg-white text-primary rounded-full shadow-lg flex items-center justify-center hover:bg-primary hover:text-white transition-all"
            >
              <ShoppingCart size={20} />
@@ -59,7 +63,7 @@ const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCar
            <motion.button 
              whileHover={{ scale: 1.1 }}
              whileTap={{ scale: 0.9 }}
-             onClick={(e) => { e.stopPropagation(); onViewDetails(product); }}
+             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onViewDetails(product); }}
              className="w-12 h-12 bg-white text-primary rounded-full shadow-lg flex items-center justify-center hover:bg-primary hover:text-white transition-all"
            >
              <Eye size={20} />
@@ -89,7 +93,7 @@ const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCar
           <div className="grid grid-cols-2 gap-1.5 md:gap-2">
             <motion.button 
               whileTap={{ scale: 0.98 }}
-              onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product); }}
               className="w-full bg-gray-50 text-gray-700 py-2 md:py-2.5 rounded-lg md:rounded-xl font-bold text-[10px] md:text-[13px] flex items-center justify-center gap-1.5 border border-gray-200 hover:bg-gray-100 transition-all shadow-sm"
             >
               <ShoppingCart size={12} className="md:w-[14px] md:h-[14px]" />
@@ -97,7 +101,7 @@ const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCar
             </motion.button>
             <motion.button 
               whileTap={{ scale: 0.98 }}
-              onClick={(e) => { e.stopPropagation(); onOrderNow(product); }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onOrderNow(product); }}
               className="w-full bg-primary text-white py-2 md:py-2.5 rounded-lg md:rounded-xl font-bold text-[10px] md:text-[13px] flex items-center justify-center gap-1.5 shadow-sm hover:bg-secondary transition-all"
             >
               <Zap size={12} className="fill-white md:w-[14px] md:h-[14px]" />
@@ -106,7 +110,7 @@ const GlassProductCard: React.FC<GlassProductCardProps> = ({ product, onAddToCar
           </div>
         </div>
       </div>
-    </motion.div>
+    </MotionLink>
   );
 };
 

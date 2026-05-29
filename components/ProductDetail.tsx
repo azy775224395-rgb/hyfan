@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Product, Review, UserProfile } from "../types";
 import SEO from "./SEO";
 import ProductSchema from "./ProductSchema";
@@ -26,6 +27,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   onOrderNow,
   formatPrice,
 }) => {
+  const navigate = useNavigate();
   // State for Real Reviews
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
@@ -80,7 +82,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           "يجب عليك تسجيل الدخول أولاً لإضافة تقييم. هل تود الذهاب لصفحة الدخول؟",
         )
       ) {
-        window.location.hash = "/auth";
+        navigate("/auth");
       }
       return;
     }
@@ -140,6 +142,23 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 : product.category === 'الانفرترات' ? 'off-grid-inverters'
                 : 'latest';
 
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.image,
+    "description": product.fullDescription || product.description,
+    "sku": product.id,
+    "offers": {
+      "@type": "Offer",
+      "url": `${baseUrl}/product/${product.id}`,
+      "priceCurrency": "SAR",
+      "price": product.price,
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+  };
+
   return (
     <article className="min-h-screen bg-[#f8fafc] animate-slide-up flex flex-col pb-24 md:pb-0">
       <SEO
@@ -147,6 +166,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         description={(product.fullDescription || product.description).substring(0, 155) + '...'}
         image={product.image}
         type="product"
+        jsonLd={jsonLd}
       />
       <BreadcrumbSchema 
         items={[
@@ -591,7 +611,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           (p) => p.category === product.category && p.id !== product.id,
         )}
         onViewDetails={(p) => {
-          window.location.hash = `/product/${p.id}`;
+          navigate(`/product/${p.id}`);
         }}
         formatPrice={formatPrice}
       />

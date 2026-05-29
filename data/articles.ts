@@ -371,7 +371,7 @@ export const articles: Article[] = [
           فريقنا الهندسي جاهز لتحليل أحمالك واقتراح البطارية الأنسب والأوفر لك، وضمان البرمجة المثالية لإنفرترك!
         </p>
         <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <a href="#/category/batteries" class="bg-white text-emerald-700 font-bold py-3 px-8 rounded-xl hover:bg-gray-100 transition shadow-lg w-full sm:w-auto">استكشف قسم البطاريات</a>
+          <a href="/category/batteries" class="bg-white text-emerald-700 font-bold py-3 px-8 rounded-xl hover:bg-gray-100 transition shadow-lg w-full sm:w-auto">استكشف قسم البطاريات</a>
           <a href="https://wa.me/967784400333" class="bg-emerald-800 text-white font-bold py-3 px-8 rounded-xl hover:bg-emerald-900 transition shadow-lg border border-emerald-500 w-full sm:w-auto">استشارة هندسية مجانية</a>
         </div>
       </div>
