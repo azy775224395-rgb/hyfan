@@ -79,7 +79,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ onShowAll, user, productI
     
     if (!user) {
       alert("يرجى تسجيل الدخول أولاً لإضافة تقييم");
-      window.location.hash = '#/auth';
+      window.location.hash = '/auth';
       return;
     }
 

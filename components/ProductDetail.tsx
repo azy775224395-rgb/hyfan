@@ -80,7 +80,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           "يجب عليك تسجيل الدخول أولاً لإضافة تقييم. هل تود الذهاب لصفحة الدخول؟",
         )
       ) {
-        window.location.hash = "#/auth";
+        window.location.hash = "/auth";
       }
       return;
     }
@@ -591,7 +591,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           (p) => p.category === product.category && p.id !== product.id,
         )}
         onViewDetails={(p) => {
-          window.location.hash = `#/product/${p.id}`;
+          window.location.hash = `/product/${p.id}`;
         }}
         formatPrice={formatPrice}
       />

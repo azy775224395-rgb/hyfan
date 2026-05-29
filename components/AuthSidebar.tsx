@@ -150,7 +150,7 @@ const AuthSidebar: React.FC<AuthSidebarProps> = ({ onClose, user, onUserUpdate }
                  </div>
               </div>
               <button 
-                  onClick={() => { localStorage.removeItem('hyfan_user'); window.location.hash = '#/'; window.location.reload(); }}
+                  onClick={() => { localStorage.removeItem('hyfan_user'); window.location.hash = '/'; window.location.reload(); }}
                   className="w-full p-6 text-red-500 font-black hover:bg-red-50 rounded-2xl transition-all border-2 border-transparent hover:border-red-100"
               >
                   تسجيل الخروج
