@@ -2,6 +2,24 @@
 import { supabase } from '../lib/supabaseClient';
 import { Review } from '../types';
 
+const LOCAL_STORAGE_KEY = 'hyfan_local_reviews';
+
+const getLocalReviews = (): Review[] => {
+  try {
+     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+     if (saved) return JSON.parse(saved);
+  } catch (e) {}
+  return [];
+};
+
+const saveLocalReview = (review: Review) => {
+   try {
+     const saved = getLocalReviews();
+     saved.unshift(review);
+     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(saved));
+   } catch (e) {}
+};
+
 export class ReviewService {
   private static mapToReview(row: any): Review {
     return {
@@ -19,78 +37,127 @@ export class ReviewService {
   }
 
   static async fetchReviews(): Promise<Review[]> {
-    if (!supabase) return [];
-    try {
-      const { data, error } = await supabase
-        .from('product_reviews')
-        .select('*')
-        .eq('status', 'approved')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return (data || []).map(this.mapToReview);
-    } catch (e) {
-      console.error("Error fetching reviews:", e);
-      return [];
+    let reviews: Review[] = [];
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('product_reviews')
+          .select('*')
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false });
+        
+        if (!error && data) {
+           reviews = data.map(r => this.mapToReview(r));
+        }
+      } catch (e) {
+        console.error("Error fetching reviews:", e);
+      }
     }
+    
+    // Add local reviews
+    const local = getLocalReviews();
+    const existingIds = new Set(reviews.map(r => r.id));
+    for (const r of local) {
+       if (!existingIds.has(r.id)) reviews.push(r);
+    }
+    
+    return reviews.sort((a,b) => b.created_at - a.created_at);
   }
   
   static async fetchAllAdminReviews(): Promise<Review[]> {
-    if (!supabase) return [];
-    try {
-      const { data, error } = await supabase
-        .from('product_reviews')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return (data || []).map(this.mapToReview);
-    } catch (e) {
-      console.error("Error fetching admin reviews:", e);
-      return [];
+    let reviews: Review[] = [];
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('product_reviews')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (!error && data) {
+           reviews = data.map(r => this.mapToReview(r));
+        }
+      } catch (e) {
+        console.error("Error fetching admin reviews:", e);
+      }
     }
+    
+    // Add local reviews
+    const local = getLocalReviews();
+    const existingIds = new Set(reviews.map(r => r.id));
+    for (const r of local) {
+       if (!existingIds.has(r.id)) reviews.push(r);
+    }
+    
+    return reviews.sort((a,b) => b.created_at - a.created_at);
   }
 
   static async fetchProductReviews(productId: string): Promise<Review[]> {
-    if (!supabase) return [];
-    try {
-      const { data, error } = await supabase
-        .from('product_reviews')
-        .select('*')
-        .eq('product_id', productId)
-        .eq('status', 'approved')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return (data || []).map(this.mapToReview);
-    } catch (e) {
-      console.error("Error fetching product reviews:", e);
-      return [];
+    let reviews: Review[] = [];
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('product_reviews')
+          .select('*')
+          .eq('product_id', productId)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false });
+        
+        if (!error && data) {
+           reviews = data.map(r => this.mapToReview(r));
+        }
+      } catch (e) {
+        console.error("Error fetching product reviews:", e);
+      }
     }
+    
+    // Add local reviews
+    const local = getLocalReviews().filter(r => r.product_id === productId);
+    const existingIds = new Set(reviews.map(r => r.id));
+    for (const r of local) {
+       if (!existingIds.has(r.id)) reviews.push(r);
+    }
+    
+    return reviews.sort((a,b) => b.created_at - a.created_at);
   }
   
   static async approveReview(id: string, isApproved: boolean): Promise<void> {
-    if (!supabase) return;
-    try {
-      await supabase
-        .from('product_reviews')
-        .update({ status: isApproved ? 'approved' : 'pending' })
-        .eq('id', id);
-    } catch (e) {
-      console.error("Error updating review status:", e);
+    if (supabase) {
+      try {
+        await supabase
+          .from('product_reviews')
+          .update({ status: isApproved ? 'approved' : 'pending' })
+          .eq('id', id);
+      } catch (e) {
+        console.error("Error updating review status:", e);
+      }
     }
+    
+    // Update local config
+    try {
+       const saved = getLocalReviews();
+       const updated = saved.map(r => r.id === id ? { ...r, isApproved } : r);
+       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    } catch (e) {}
   }
 
   static async deleteReview(id: string): Promise<void> {
-    if (!supabase) return;
-    try {
-      await supabase
-        .from('product_reviews')
-        .delete()
-        .eq('id', id);
-    } catch (e) {
-      console.error("Error deleting review:", e);
+    if (supabase) {
+      try {
+        await supabase
+          .from('product_reviews')
+          .delete()
+          .eq('id', id);
+      } catch (e) {
+        console.error("Error deleting review:", e);
+      }
     }
+    
+    // Delete local review
+    try {
+       const saved = getLocalReviews();
+       const filtered = saved.filter(r => r.id !== id);
+       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filtered));
+    } catch (e) {}
   }
 
   private static async uploadBase64ToCloudinary(base64: string): Promise<string | null> {
@@ -150,19 +217,25 @@ export class ReviewService {
       rating,
       comment,
       images_urls: uploadedImagesUrls,
-      status: 'approved'
+      status: 'approved',
+      created_at: new Date().toISOString()
     };
     
+    let supabaseSuccess = false;
     if (supabase) {
       try {
         const { error } = await supabase.from('product_reviews').insert([dbRecord]);
-        if (error) console.error("Error inserting review into Supabase:", error);
+        if (error) {
+           console.error("Error inserting review into Supabase:", error);
+        } else {
+           supabaseSuccess = true;
+        }
       } catch (e) {
          console.error("Error inserting review into Supabase:", e);
       }
     }
     
-    return Promise.resolve({
+    const newReview = {
       id: reviewId,
       user_id: userId,
       product_id: productId,
@@ -175,6 +248,14 @@ export class ReviewService {
       date: new Date().toISOString().split('T')[0],
       isApproved: true,
       isVerifiedPurchase: true
-    });
+    };
+    
+    // If supabase isn't enabled or fails, fallback to local storage
+    if (!supabaseSuccess) {
+       saveLocalReview(newReview);
+    }
+    
+    return Promise.resolve(newReview);
   }
 }
+
