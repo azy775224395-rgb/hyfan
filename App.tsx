@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Routes, Route, useNavigate, useLocation, useParams } from "react-router-dom";
 import { Product, UserProfile } from "./types";
 import { LocalDataService } from "./services/localDataService"; // Import Service
 import Header from "./components/Header";
@@ -155,53 +156,61 @@ const App: React.FC = () => {
     return () => window.removeEventListener("products-updated", loadProducts);
   }, []);
 
-  const [currentHash, setCurrentHash] = useState(window.location.hash || "#/");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentPath = location.pathname;
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("الكل"); // State for selected category
+  const [selectedCategory, setSelectedCategory] = useState("الكل");
 
-  // State for Floating Contact Button
   const [isContactOpen, setIsContactOpen] = useState(false);
-
   const homeScrollPos = useRef(0);
   const isBackAction = useRef(false);
 
-  // Use Cart Context
-  const { cart, addToCart, removeFromCart, updateQuantity, cartCount } =
-    useCart();
-
+  const { cart, addToCart, removeFromCart, updateQuantity, cartCount } = useCart();
   const MAP_URL = "https://maps.app.goo.gl/C3aYNCfbdpDyBTGc8";
 
   useEffect(() => {
-    const onHashChange = () => {
-      const newHash = window.location.hash || "#/";
-      if (currentHash === "#/") homeScrollPos.current = window.scrollY;
-      setCurrentHash(newHash);
-      if (newHash === "#/") {
-        requestAnimationFrame(() => {
-          window.scrollTo({
-            top: homeScrollPos.current,
-            behavior: isBackAction.current ? "instant" : "smooth",
-          });
-          isBackAction.current = false;
+    if (currentPath === "/") {
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: homeScrollPos.current,
+          behavior: isBackAction.current ? "instant" : "smooth",
         });
-      } else {
-        window.scrollTo({ top: 0, behavior: "instant" });
-      }
-    };
-    window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
-  }, [currentHash]);
+        isBackAction.current = false;
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+  }, [currentPath]);
 
-  const navigateTo = (hash: string, resetScroll = false) => {
-    if (hash === "#/") isBackAction.current = true;
-    if (resetScroll && hash === "#/") homeScrollPos.current = 0;
-    window.location.hash = hash;
+  const navigateTo = (path: string, resetScroll = false) => {
+    let cleanPath = path;
+    if (path.startsWith("#")) {
+      cleanPath = path.substring(1);
+    }
+    if (cleanPath === "") {
+      cleanPath = "/";
+    }
+
+    if (currentPath === "/") {
+      homeScrollPos.current = window.scrollY;
+    }
+
+    if (cleanPath === "/") {
+      isBackAction.current = true;
+    }
+    
+    if (resetScroll && cleanPath === "/") {
+      homeScrollPos.current = 0;
+    }
+    navigate(cleanPath);
   };
 
   const handleUserUpdate = (newUser: UserProfile) => {
     setUser(newUser);
     localStorage.setItem("hyfan_user", JSON.stringify(newUser));
-    navigateTo("#/");
+    navigateTo("/");
   };
 
   const formatPrice = (sarPrice: number) => {
@@ -234,12 +243,10 @@ const App: React.FC = () => {
 
   // Sync category with Hash
   useEffect(() => {
-    if (currentHash === "#/") {
+    if (currentPath === "/") {
       setSelectedCategory("الكل");
-    } else if (currentHash.startsWith("#/category/")) {
-      // Simple mapping or finding
-      const catSlug = currentHash.replace("#/category/", "");
-      // Mapping slugs to real categories
+    } else if (currentPath.startsWith("/category/")) {
+      const catSlug = currentPath.replace("/category/", "");
       const slugMap: Record<string, string> = {
         "solar-panels": "الالواح الشمسيه",
         batteries: "البطاريات",
@@ -255,7 +262,6 @@ const App: React.FC = () => {
         "air-conditioners": "المكيفات",
         cookers: "اجهزة الطباخه",
         bundles: "الباقات",
-        // Keep old fallbacks just in case
         inverters: "الانفرترات",
         "on-grid-inverters": "الانفرترات",
         "pumping-inverters": "الانفرترات",
@@ -275,7 +281,7 @@ const App: React.FC = () => {
         setSelectedCategory(mappedCat);
       }
     }
-  }, [currentHash]);
+  }, [currentPath]);
 
   // Filter products based on selected category (Search is on a dedicated page)
   const filteredProducts = useMemo(() => {
@@ -289,10 +295,10 @@ const App: React.FC = () => {
   }, [products, selectedCategory]);
 
   const renderCurrentPage = () => {
-    const hash = currentHash;
+    const path = currentPath;
 
-    if (hash.startsWith("#/product/")) {
-      const id = hash.replace("#/product/", "");
+    if (path.startsWith("/product/")) {
+      const id = path.replace("/product/", "");
       const product = products.find((p) => p.id === id);
       if (product)
         return (
@@ -301,32 +307,32 @@ const App: React.FC = () => {
               product={product}
               allProducts={products}
               user={user}
-              onClose={() => navigateTo("#/")}
+              onClose={() => navigateTo("/")}
               onAddToCart={addToCart}
-              onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)}
+              onOrderNow={(p) => navigateTo(`/checkout/${p.id}`)}
               formatPrice={formatPrice}
             />
           </Suspense>
         );
     }
 
-    if (hash.startsWith("#/checkout/")) {
-      const id = hash.replace("#/checkout/", "");
+    if (path.startsWith("/checkout/")) {
+      const id = path.replace("/checkout/", "");
       const product = products.find((p) => p.id === id);
       if (product)
         return (
           <Suspense fallback={<LoadingSpinner />}>
             <CheckoutView
               product={product}
-              onCancel={() => navigateTo("#/")}
+              onCancel={() => navigateTo("/")}
               user={user}
             />
           </Suspense>
         );
     }
 
-    if (hash.startsWith("#/category/")) {
-      const catSlug = hash.replace("#/category/", "");
+    if (path.startsWith("/category/")) {
+      const catSlug = path.replace("/category/", "");
       const slugMap: Record<string, string> = {
         "solar-panels": "الالواح الشمسيه",
         batteries: "البطاريات",
@@ -366,39 +372,39 @@ const App: React.FC = () => {
           categoryDescription={getCategoryDescription(catName)}
           products={catProducts}
           onAddToCart={addToCart}
-          onViewDetails={(p) => navigateTo(`#/product/${p.id}`)}
-          onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)}
+          onViewDetails={(p) => navigateTo(`/product/${p.id}`)}
+          onOrderNow={(p) => navigateTo(`/checkout/${p.id}`)}
           formatPrice={formatPrice}
-          onBack={() => navigateTo("#/")}
+          onBack={() => navigateTo("/")}
         />
       );
     }
 
-    if (hash === "#/search") {
+    if (path === "/search") {
       return (
         <Suspense fallback={<LoadingSpinner />}>
           <SearchView
             products={products}
             searchQuery={searchQuery}
             onAddToCart={addToCart}
-            onViewDetails={(p) => navigateTo(`#/product/${p.id}`)}
-            onOrderNow={(p) => navigateTo(`#/checkout/${p.id}`)}
+            onViewDetails={(p) => navigateTo(`/product/${p.id}`)}
+            onOrderNow={(p) => navigateTo(`/checkout/${p.id}`)}
             formatPrice={formatPrice}
           />
         </Suspense>
       );
     }
 
-    if (hash.startsWith("#/blog/")) {
-      const id = hash.replace("#/blog/", "");
+    if (path.startsWith("/blog/")) {
+      const id = path.replace("/blog/", "");
       return (
         <Suspense fallback={<LoadingSpinner />}>
-          <ArticleView id={id} onBack={() => navigateTo("#/blog")} />
+          <ArticleView id={id} onBack={() => navigateTo("/blog")} />
         </Suspense>
       );
     }
 
-    if (hash === "#/blog") {
+    if (path === "/blog") {
       return (
         <Suspense fallback={<LoadingSpinner />}>
           <BlogView onNavigate={navigateTo} />
@@ -406,19 +412,19 @@ const App: React.FC = () => {
       );
     }
 
-    switch (hash) {
-      case "#/admin":
+    switch (path) {
+      case "/admin":
         return (
           <Suspense fallback={<LoadingSpinner />}>
             <AdminDashboard user={user} onNavigate={navigateTo} />
           </Suspense>
         );
-      case "#/cart":
+      case "/cart":
         return (
           <Suspense fallback={<LoadingSpinner />}>
             <CartDrawer
               isOpen={true}
-              onClose={() => navigateTo("#/")}
+              onClose={() => navigateTo("/")}
               items={cart}
               onRemove={removeFromCart}
               onUpdateQty={updateQuantity}
@@ -427,18 +433,18 @@ const App: React.FC = () => {
             />
           </Suspense>
         );
-      case "#/auth":
+      case "/auth":
         return (
           <Suspense fallback={<LoadingSpinner />}>
             <AuthSidebar
               isOpen={true}
-              onClose={() => navigateTo("#/")}
+              onClose={() => navigateTo("/")}
               user={user}
               onUserUpdate={handleUserUpdate}
             />
           </Suspense>
         );
-      case "#/calculator":
+      case "/calculator":
         return (
           <div className="pt-8 pb-32 container mx-auto px-4">
             <div className="flex items-center justify-between mb-6">
@@ -446,7 +452,7 @@ const App: React.FC = () => {
                 حاسبة الطاقة
               </h2>
               <button
-                onClick={() => navigateTo("#/")}
+                onClick={() => navigateTo("/")}
                 className="text-emerald-600 font-bold text-sm"
               >
                 عودة للرئيسية
@@ -461,46 +467,46 @@ const App: React.FC = () => {
             </Suspense>
           </div>
         );
-      case "#/story":
+      case "/story":
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <StoryModal onClose={() => navigateTo("#/")} />
+            <StoryModal onClose={() => navigateTo("/")} />
           </Suspense>
         );
-      case "#/categories":
+      case "/categories":
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <AllCategoriesView onBack={() => navigateTo("#/")} />
+            <AllCategoriesView onBack={() => navigateTo("/")} />
           </Suspense>
         );
-      case "#/warranty":
+      case "/warranty":
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <WarrantyModal onClose={() => navigateTo("#/")} />
+            <WarrantyModal onClose={() => navigateTo("/")} />
           </Suspense>
         );
-      case "#/reviews":
+      case "/reviews":
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <AllReviewsModal onClose={() => navigateTo("#/")} />
+            <AllReviewsModal onClose={() => navigateTo("/")} />
           </Suspense>
         );
-      case "#/feedback":
+      case "/feedback":
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <FeedbackView onClose={() => navigateTo("#/")} />
+            <FeedbackView onClose={() => navigateTo("/")} />
           </Suspense>
         );
-      case "#/privacy":
+      case "/privacy":
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <PrivacyView onClose={() => navigateTo("#/")} />
+            <PrivacyView onClose={() => navigateTo("/")} />
           </Suspense>
         );
-      case "#/refund-policy":
+      case "/refund-policy":
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <RefundPolicyView onClose={() => navigateTo("#/")} />
+            <RefundPolicyView onClose={() => navigateTo("/")} />
           </Suspense>
         );
       default:
@@ -518,21 +524,21 @@ const App: React.FC = () => {
             {/* Added Latest Products Bar */}
             <LatestProductsBar
               products={products}
-              onViewDetails={(p) => navigateTo(`#/product/${p.id}`)}
+              onViewDetails={(p) => navigateTo(`/product/${p.id}`)}
               formatPrice={formatPrice}
               onAddToCart={(p) => addToCart(p, 1)}
             />
 
             <BestSellersBar
               products={products}
-              onViewDetails={(p) => navigateTo(`#/product/${p.id}`)}
+              onViewDetails={(p) => navigateTo(`/product/${p.id}`)}
               formatPrice={formatPrice}
               onAddToCart={(p) => addToCart(p, 1)}
             />
 
             {/* Category Filter Bar removed based on user request */}
 
-            <Hero onOpenStory={() => navigateTo("#/story")} />
+            <Hero onOpenStory={() => navigateTo("/story")} />
 
             <ServicesSection />
 
@@ -542,7 +548,7 @@ const App: React.FC = () => {
               >
                 <ReviewSection
                   user={user}
-                  onShowAll={() => navigateTo("#/reviews")}
+                  onShowAll={() => navigateTo("/reviews")}
                 />
               </Suspense>
             </div>
@@ -577,23 +583,23 @@ const App: React.FC = () => {
       <LocalBusinessSchema />
 
       {/* Hide Header on Admin Dashboard */}
-      {currentHash !== "#/admin" && (
+      {currentPath !== "/admin" && (
         <Header
           cartCount={cartCount}
-          onOpenCart={() => navigateTo("#/cart")}
-          onOpenAuth={() => navigateTo("#/auth")}
+          onOpenCart={() => navigateTo("/cart")}
+          onOpenAuth={() => navigateTo("/auth")}
           searchQuery={searchQuery}
           onSearchSubmit={(q) => {
             setSearchQuery(q);
-            navigateTo("#/search");
+            navigateTo("/search");
           }}
           onClearSearch={() => {
             setSearchQuery("");
-            if (currentHash === "#/search") {
-              navigateTo("#/");
+            if (currentPath === "/search") {
+              navigateTo("/");
             }
           }}
-          onLogoClick={() => navigateTo("#/", true)}
+          onLogoClick={() => navigateTo("/", true)}
           user={user}
         />
       )}
@@ -602,10 +608,10 @@ const App: React.FC = () => {
         {renderCurrentPage()}
       </main>
 
-      {!currentHash.includes("cart") &&
-        !currentHash.includes("checkout") &&
-        !currentHash.includes("calculator") &&
-        !currentHash.includes("admin") && (
+      {!currentPath.includes("cart") &&
+        !currentPath.includes("checkout") &&
+        !currentPath.includes("calculator") &&
+        !currentPath.includes("admin") && (
           <footer className="bg-white border-t border-gray-100 text-slate-800 py-8 md:py-16 text-right relative z-10 pb-20 md:pb-16 mt-auto">
             <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
               <div className="col-span-1 md:col-span-1">
@@ -645,14 +651,14 @@ const App: React.FC = () => {
                 <nav className="flex flex-col gap-4">
                   <button
                     type="button"
-                    onClick={() => navigateTo("#/story")}
+                    onClick={() => navigateTo("/story")}
                     className="text-sm font-bold text-gray-600 hover:text-primary transition-colors text-right"
                   >
                     من نحن
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigateTo("#/warranty")}
+                    onClick={() => navigateTo("/warranty")}
                     className="text-sm font-bold text-gray-600 hover:text-primary transition-colors text-right"
                   >
                     سياسة الضمان
@@ -682,21 +688,21 @@ const App: React.FC = () => {
                 <nav className="flex flex-col gap-4">
                   <button
                     type="button"
-                    onClick={() => navigateTo("#/feedback")}
+                    onClick={() => navigateTo("/feedback")}
                     className="text-sm font-bold text-gray-600 hover:text-primary transition-colors text-right"
                   >
                     الشكاوى و الاقتراحات
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigateTo("#/privacy")}
+                    onClick={() => navigateTo("/privacy")}
                     className="text-sm font-bold text-gray-600 hover:text-primary transition-colors text-right"
                   >
                     سياسه الاستخدام و الخصوصيه
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigateTo("#/refund-policy")}
+                    onClick={() => navigateTo("/refund-policy")}
                     className="text-sm font-bold text-gray-600 hover:text-primary transition-colors text-right"
                   >
                     سياسة الاستبدال أو الاسترجاع
@@ -737,9 +743,9 @@ const App: React.FC = () => {
           </footer>
         )}
 
-      {currentHash !== "#/admin" && (
+      {currentPath !== "/admin" && (
         <MobileNav
-          activeTab={currentHash}
+          activeTab={currentPath}
           cartCount={cartCount}
           onNavigate={navigateTo}
         />

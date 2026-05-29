@@ -94,8 +94,8 @@ export class ReviewService {
   }
 
   private static async uploadBase64ToCloudinary(base64: string): Promise<string | null> {
-    const cloudName = (import.meta as any).env.VITE_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = (import.meta as any).env.VITE_CLOUDINARY_UPLOAD_PRESET;
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
     
     if (!cloudName || !uploadPreset) {
        console.warn("Cloudinary configuration missing. Image will not be uploaded.");
