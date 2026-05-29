@@ -62,7 +62,7 @@ const BestSellersBar: React.FC<BestSellersBarProps> = ({ products, onViewDetails
            <Flame size={16} className="text-red-500 fill-red-500/20" />
            الاكثر مبيعاً
          </h2>
-         <a href="#/category/latest" className="text-[10px] md:text-xs font-bold text-gray-400 hover:text-red-500 transition-colors">
+         <a href="/category/latest" className="text-[10px] md:text-xs font-bold text-gray-400 hover:text-red-500 transition-colors">
             عرض الكل
          </a>
        </div>

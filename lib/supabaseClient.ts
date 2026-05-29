@@ -1,8 +1,8 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-let url = import.meta.env.VITE_SUPABASE_URL || '';
-let key = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+let url = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+let key = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
 // Handle accidental swap
 if (!url.startsWith('http') && key.startsWith('http')) {

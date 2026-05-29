@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import OptimizedImage from './ui/OptimizedImage';
 import SEO from './SEO';
 
@@ -8,62 +9,62 @@ const categoriesGrid = [
   {
     name: 'الالواح الشمسيه',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779286799/Gemini_Generated_Image_cheyszcheyszchey_smkwp4.png',
-    url: '#/category/solar-panels'
+    url: '/category/solar-panels'
   },
   {
     name: 'البطاريات',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779286800/Gemini_Generated_Image_rqnnitrqnnitrqnn_alp0zw.png',
-    url: '#/category/batteries'
+    url: '/category/batteries'
   },
   {
     name: 'الانفرترات',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779286796/Gemini_Generated_Image_gyiz8kgyiz8kgyiz_b9dfzx.png',
-    url: '#/category/off-grid-inverters'
+    url: '/category/off-grid-inverters'
   },
   {
     name: 'الاجهزة المنزلية',
     image: 'https://i.postimg.cc/L63YjJSs/IMG-20260125-WA0048.jpg',
-    url: '#/category/home-appliances'
+    url: '/category/home-appliances'
   },
   {
     name: 'المكيفات',
     image: 'https://i.postimg.cc/nhsXg07z/IMG_20260125_WA0054.jpg',
-    url: '#/category/air-conditioners'
+    url: '/category/air-conditioners'
   },
   {
     name: 'اجهزة الطباخه',
     image: 'https://i.postimg.cc/13L8Qwcg/IMG-20260125-WA0070.jpg',
-    url: '#/category/cookers'
+    url: '/category/cookers'
   },
   {
     name: 'منظومات جاهزه للمنازل',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779286800/Gemini_Generated_Image_ayzoi1ayzoi1ayzo_gxhlex.png',
-    url: '#/category/home-systems'
+    url: '/category/home-systems'
   },
   {
     name: 'الغطاسات',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779286799/Gemini_Generated_Image_tqzkmatqzkmatqzk_aq73iw.png',
-    url: '#/category/submersible-stations'
+    url: '/category/submersible-stations'
   },
   {
     name: 'قواعد الالواح الشمسيه',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779286793/81bcf5a9-5f9c-4621-bafe-86af17908392_yao4cu.jpg',
-    url: '#/category/panel-mounts'
+    url: '/category/panel-mounts'
   },
   {
     name: 'قواطع وحمايات',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779286794/a2967090-36fc-4846-9284-39d54166cc7f_qa9ipt.jpg',
-    url: '#/category/breakers-protections'
+    url: '/category/breakers-protections'
   },
   {
     name: 'كيابل الالواح الشمسيه',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779286793/e81e271c-820e-4b07-84cf-e8bbba9066f3_x7jyou.jpg',
-    url: '#/category/solar-cables'
+    url: '/category/solar-cables'
   },
   {
     name: 'كشافات الطاقة الشمسية',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779286792/af9a6974-8a25-442c-bb9f-a7d71ce12fe3_ojklsg.jpg',
-    url: '#/category/solar-lights'
+    url: '/category/solar-lights'
   }
 ];
 
@@ -101,15 +102,17 @@ const AllCategoriesView: React.FC<AllCategoriesViewProps> = ({ onBack }) => {
           </p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-          {categoriesGrid.map((cat, idx) => (
-            <motion.a
-              key={idx}
-              href={cat.url}
+          {categoriesGrid.map((cat, idx) => {
+            const MotionLink = motion.create(Link);
+            return (
+              <MotionLink
+                key={idx}
+                to={cat.url}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group flex flex-col"
+              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group flex flex-col block"
             >
               <div className="relative aspect-[4/3] bg-gray-50 w-full overflow-hidden">
                 <OptimizedImage 
@@ -126,8 +129,9 @@ const AllCategoriesView: React.FC<AllCategoriesViewProps> = ({ onBack }) => {
                   {cat.name}
                 </h3>
               </div>
-            </motion.a>
-          ))}
+            </MotionLink>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { MAIN_MENU } from '../navigationData';
 
 interface HeaderProps {
@@ -49,8 +50,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
             <span>📍 اليمن - عدن - الشيخ عثمان</span>
           </div>
           <div className="flex gap-4">
-            <a href="#/blog" className="hover:text-amber-400 transition-colors">المدونة</a>
-            <a href="#/tracking" className="hover:text-amber-400 transition-colors">تتبع الطلب</a>
+            <Link to="/blog" className="hover:text-amber-400 transition-colors">المدونة</Link>
+            <Link to="/tracking" className="hover:text-amber-400 transition-colors">تتبع الطلب</Link>
           </div>
         </div>
       </div>
@@ -145,13 +146,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
                 onMouseEnter={() => item.subItems && setActiveSubMenu(item.title)}
                 onMouseLeave={() => setActiveSubMenu(null)}
               >
-                <a 
-                  href={item.url} 
+                <Link 
+                  to={item.url} 
                   className="text-sm font-bold text-gray-700 hover:text-primary flex items-center gap-1 transition-colors group-hover:text-primary"
                 >
                   {item.title}
                   {item.subItems && <ChevronDown size={14} className="group-hover:rotate-180 transition-transform" />}
-                </a>
+                </Link>
 
                 {/* Dropdown Mega Menu Style */}
                 {item.subItems && (
@@ -164,13 +165,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
                         className="absolute top-full right-0 mt-0 w-64 bg-white shadow-xl rounded-b-xl border-t-2 border-primary overflow-hidden py-2"
                       >
                         {item.subItems.map((sub, sIdx) => (
-                          <a 
+                          <Link 
                             key={sIdx}
-                            href={sub.url}
+                            to={sub.url}
                             className="block px-6 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-primary border-b border-gray-50 last:border-0 transition-colors"
                           >
                             {sub.title}
-                          </a>
+                          </Link>
                         ))}
                       </motion.div>
                     )}
@@ -233,7 +234,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
                   {MAIN_MENU.map((item, idx) => (
                     <li key={idx} className="border-b border-gray-50 pb-4 last:border-0">
                       <div className="flex justify-between items-center mb-2">
-                         <a href={item.url} onClick={() => setIsMobileMenuOpen(false)} className="font-bold text-gray-800">{item.title}</a>
+                         <Link to={item.url} onClick={() => setIsMobileMenuOpen(false)} className="font-bold text-gray-800">{item.title}</Link>
                         {item.subItems && (
                           <button onClick={() => setActiveSubMenu(activeSubMenu === item.title ? null : item.title)}>
                             <ChevronDown size={20} className={`transform transition-transform ${activeSubMenu === item.title ? 'rotate-180' : ''}`} />
@@ -243,14 +244,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenAuth, sear
                       {item.subItems && activeSubMenu === item.title && (
                         <div className="bg-gray-50 rounded-lg p-2 mt-2 space-y-2">
                           {item.subItems.map((sub, sIdx) => (
-                            <a 
+                            <Link 
                               key={sIdx} 
-                              href={sub.url} 
+                              to={sub.url} 
                               onClick={() => setIsMobileMenuOpen(false)}
                               className="block py-2 px-3 text-sm font-bold text-gray-600 hover:text-primary"
                             >
                               {sub.title}
-                            </a>
+                            </Link>
                           ))}
                         </div>
                       )}

@@ -56,7 +56,7 @@ const LatestProductsBar: React.FC<LatestProductsBarProps> = ({ products, onViewD
            <Zap size={16} className="text-primary fill-primary/20" />
            أحدث المنتجات
          </h2>
-         <a href="#/category/latest" className="text-[10px] md:text-xs font-bold text-gray-400 hover:text-primary transition-colors">
+         <a href="/category/latest" className="text-[10px] md:text-xs font-bold text-gray-400 hover:text-primary transition-colors">
             عرض الكل
          </a>
        </div>

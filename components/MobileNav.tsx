@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Home, LayoutGrid, ShoppingCart, User, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -12,16 +11,16 @@ interface MobileNavProps {
 const MobileNav: React.FC<MobileNavProps> = ({ activeTab, cartCount, onNavigate }) => {
 
   const navItems = [
-    { id: 'home', icon: Home, label: 'الرئيسية', hash: '#/' },
-    { id: 'categories', icon: LayoutGrid, label: 'الاقسام', action: () => onNavigate('#/categories') },
-    { id: 'cart', icon: ShoppingCart, label: 'السلة', isFloating: true, action: () => onNavigate('#/cart'), badge: cartCount },
+    { id: 'home', icon: Home, label: 'الرئيسية', hash: '/' },
+    { id: 'categories', icon: LayoutGrid, label: 'الاقسام', action: () => onNavigate('/categories') },
+    { id: 'cart', icon: ShoppingCart, label: 'السلة', isFloating: true, action: () => onNavigate('/cart'), badge: cartCount },
     { id: 'search', icon: Search, label: 'البحث', action: () => {
       // Small trick to scroll to top where search usually is
       window.scrollTo({ top: 0, behavior: 'smooth' });
       const searchInput = document.querySelector('input[type="text"]');
       if (searchInput) (searchInput as HTMLElement).focus();
     } },
-    { id: 'account', icon: User, label: 'حسابي', hash: '#/auth' },
+    { id: 'account', icon: User, label: 'حسابي', hash: '/auth' },
   ];
 
   return (
@@ -30,11 +29,11 @@ const MobileNav: React.FC<MobileNavProps> = ({ activeTab, cartCount, onNavigate 
         {/* Left area: items 0 and 1 */}
         <div className="flex justify-between w-[38%]">
           {navItems.slice(0, 2).map((item) => {
-            const isActive = item.hash === activeTab || (activeTab === '#/' && item.id === 'home');
+            const isActive = item.hash === activeTab || (activeTab === '/' && item.id === 'home');
             return (
               <button
                 key={item.id}
-                onClick={() => item.action ? item.action() : onNavigate(item.hash || '#/')}
+                onClick={() => item.action ? item.action() : onNavigate(item.hash || '/')}
                 className={`flex flex-col items-center justify-center w-14 gap-1 transition-colors duration-300 ${
                   isActive ? 'text-primary' : 'text-gray-400'
                 }`}
@@ -75,11 +74,11 @@ const MobileNav: React.FC<MobileNavProps> = ({ activeTab, cartCount, onNavigate 
         {/* Right area: items 3 and 4 */}
         <div className="flex justify-between w-[38%]">
           {navItems.slice(3, 5).map((item) => {
-            const isActive = item.hash === activeTab || (activeTab === '#/' && item.id === 'home');
+            const isActive = item.hash === activeTab || (activeTab === '/' && item.id === 'home');
             return (
               <button
                 key={item.id}
-                onClick={() => item.action ? item.action() : onNavigate(item.hash || '#/')}
+                onClick={() => item.action ? item.action() : onNavigate(item.hash || '/')}
                 className={`flex flex-col items-center justify-center w-14 gap-1 transition-colors duration-300 ${
                   isActive ? 'text-primary' : 'text-gray-400'
                 }`}

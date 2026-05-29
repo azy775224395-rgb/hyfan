@@ -26,6 +26,72 @@
     <priority>0.6</priority>
   </url>
   
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/solar-panels</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/batteries</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/off-grid-inverters</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/home-appliances</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/air-conditioners</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/cookers</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/home-systems</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/submersible-stations</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/panel-mounts</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/breakers-protections</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/solar-cables</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/category/solar-lights</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyfn-czzv.onrender.com/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Products: Solar Panels -->
   <url><loc>https://hyfn-czzv.onrender.com/product/p1</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://hyfn-czzv.onrender.com/product/p2</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
