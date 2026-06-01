@@ -27,7 +27,7 @@ const CategoryView: React.FC<CategoryViewProps> = ({
   formatPrice,
   onBack
 }) => {
-  const baseUrl = window.location.origin + window.location.pathname;
+  const baseUrl = window.location.origin;
   const slug = categoryName === 'الالواح الشمسيه' ? 'solar-panels'
              : categoryName === 'البطاريات' ? 'batteries'
              : categoryName === 'الانفرترات' ? 'off-grid-inverters'
@@ -38,8 +38,8 @@ const CategoryView: React.FC<CategoryViewProps> = ({
       <SEO title={`قسم ${categoryName}`} description={categoryDescription || `منتجات قسم ${categoryName}`} />
       <BreadcrumbSchema 
         items={[
-          { name: "الرئيسية", item: `${baseUrl}#/` },
-          { name: categoryName, item: `${baseUrl}#/category/${slug}` }
+          { name: "الرئيسية", item: `${baseUrl}/` },
+          { name: categoryName, item: `${baseUrl}/category/${slug}` }
         ]} 
       />
       

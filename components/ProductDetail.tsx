@@ -134,7 +134,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
   };
 
-  const baseUrl = window.location.origin + window.location.pathname;
+  const baseUrl = window.location.origin;
 
   // mapping product category to generic slug
   const catSlug = product.category === 'الالواح الشمسيه' ? 'solar-panels'
@@ -170,9 +170,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       />
       <BreadcrumbSchema 
         items={[
-          { name: "الرئيسية", item: `${baseUrl}#/` },
-          { name: product.category, item: `${baseUrl}#/category/${catSlug}` },
-          { name: product.name, item: `${baseUrl}#/product/${product.id}` }
+          { name: "الرئيسية", item: `${baseUrl}/` },
+          { name: product.category, item: `${baseUrl}/category/${catSlug}` },
+          { name: product.name, item: `${baseUrl}/product/${product.id}` }
         ]} 
       />
 

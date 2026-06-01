@@ -25,7 +25,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({ id, onBack }) => {
     );
   }
 
-  const baseUrl = window.location.origin + window.location.pathname;
+  const baseUrl = window.location.origin;
 
   return (
     <article className="min-h-screen bg-white pb-24">
@@ -38,9 +38,9 @@ const ArticleView: React.FC<ArticleViewProps> = ({ id, onBack }) => {
       <FAQSchema content={article.content} />
       <BreadcrumbSchema 
         items={[
-          { name: "الرئيسية", item: `${baseUrl}#/` },
-          { name: "المدونة", item: `${baseUrl}#/blog` },
-          { name: article.title, item: `${baseUrl}#/blog/${article.id}` }
+          { name: "الرئيسية", item: `${baseUrl}/` },
+          { name: "المدونة", item: `${baseUrl}/blog` },
+          { name: article.title, item: `${baseUrl}/blog/${article.id}` }
         ]} 
       />
 

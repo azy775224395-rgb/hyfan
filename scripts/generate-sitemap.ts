@@ -46,11 +46,27 @@ async function generateSitemap() {
     });
 
     // Add category pages
+    const slugMapToEnglish: Record<string, string> = {
+      "الالواح الشمسيه": "solar-panels",
+      "البطاريات": "batteries",
+      "الانفرترات": "off-grid-inverters",
+      "منظومات جاهزه للمنازل": "home-systems",
+      "الغطاسات": "submersible-stations",
+      "قواعد الالواح الشمسيه": "panel-mounts",
+      "قواطع وحمايات": "breakers-protections",
+      "كيابل الالواح الشمسيه": "solar-cables",
+      "كشافات الطاقة الشمسية": "solar-lights",
+      "محطات للمصانع و المولات": "factory-stations",
+      "الاجهزة المنزلية": "home-appliances",
+      "المكيفات": "air-conditioners",
+      "اجهزة الطباخه": "cookers",
+      "الباقات": "bundles",
+    };
+
     categories.forEach((cat) => {
-      // Basic encoding for URL
-      const encodedCat = encodeURIComponent(cat);
+      const catSlug = slugMapToEnglish[cat] || encodeURIComponent(cat);
       xml += `  <url>
-    <loc>${BASE_URL}/category/${encodedCat}</loc>
+    <loc>${BASE_URL}/category/${catSlug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

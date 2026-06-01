@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Product } from '../types';
 import OptimizedImage from './ui/OptimizedImage';
 import { Flame } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface BestSellersBarProps {
   products: Product[];
@@ -10,6 +11,8 @@ interface BestSellersBarProps {
   formatPrice: (p: number) => string;
   onAddToCart?: (p: Product) => void;
 }
+
+const MotionLink = motion(Link);
 
 const BestSellersBar: React.FC<BestSellersBarProps> = ({ products, onViewDetails, formatPrice, onAddToCart }) => {
   // Use a stable randomized slice for best sellers
@@ -68,18 +71,19 @@ const BestSellersBar: React.FC<BestSellersBarProps> = ({ products, onViewDetails
        </div>
 
        {/* Horizontal Scroll Container without margins */}
-       <div 
+        <div 
          ref={scrollContainerRef}
          onTouchStart={handleInteraction}
          onMouseEnter={handleInteraction}
          className="flex gap-2 w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2 pb-1"
        >
          {bestProducts.map((product) => (
-           <motion.div
+           <MotionLink
              key={product.id}
+             to={`/product/${product.id}`}
              whileTap={{ scale: 0.96 }}
-             className="min-w-[110px] max-w-[110px] md:min-w-[130px] md:max-w-[130px] bg-white rounded-xl border border-gray-100 overflow-hidden snap-start flex-shrink-0 cursor-pointer hover:shadow-lg hover:shadow-red-500/5 hover:border-red-500/20 transition-all group"
-             onClick={() => onViewDetails(product)}
+             className="min-w-[110px] max-w-[110px] md:min-w-[130px] md:max-w-[130px] bg-white rounded-xl border border-gray-100 overflow-hidden snap-start flex-shrink-0 cursor-pointer hover:shadow-lg hover:shadow-red-500/5 hover:border-red-500/20 transition-all group block"
+             onClick={(e) => { e.preventDefault(); onViewDetails(product); }}
            >
              <div className="w-full h-24 md:h-28 relative bg-gray-50/50 overflow-hidden p-2">
                <OptimizedImage
@@ -101,7 +105,7 @@ const BestSellersBar: React.FC<BestSellersBarProps> = ({ products, onViewDetails
                  </span>
                   {onAddToCart && (
                     <button 
-                      onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product); }}
                       className="bg-red-500 text-white w-6 h-6 rounded-md flex items-center justify-center hover:bg-red-600 transition-colors shadow-sm"
                     >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -109,7 +113,7 @@ const BestSellersBar: React.FC<BestSellersBarProps> = ({ products, onViewDetails
                   )}
                </div>
              </div>
-           </motion.div>
+           </MotionLink>
          ))}
        </div>
     </div>
