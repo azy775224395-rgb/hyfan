@@ -5,14 +5,14 @@ export const INITIAL_PRODUCTS: Product[] = [
   // --- قسم الالواح الشمسيه ---
   {
     id: 'p-jinko-tiger-neo-615-635',
-    name: 'لوح طاقة شمسية جينكو سولار تايجر نيو (N-Type) بقدرة 615-635 واط',
+    name: 'لوح طاقة شمسية جينكو تايجر نيو 635 واط - متجر ابو ايفان (Abu Ivan)',
     price: 980,
-    description: 'لوح جينكو سولار تايجر نيو تقنية توب كون أحادية البلورة عالية الكفاءة مع زجاج مضاد للانعكاس وإطار متين',
+    description: 'لوح جينكو سولار تايجر نيو N-Type من متجر ابو ايفان للطاقة حصريا في اليمن بأفضل سعر',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779763149/%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A5%D9%A2%D9%A6_%D9%A0%D9%A5%D9%A3%D9%A8%D9%A3%D9%A8_rmvnti.png',
     category: 'الالواح الشمسيه',
     status: 'جديد',
     specs: ['قدرة 615-635 واط', 'كفاءة 22.72%', 'تقنية N-Type TOPCon', 'تكنولوجيا SMBB'],
-    fullDescription: 'يعتبر لوح جينكو سولار من سلسلة تايجر نيو بقدرة تصل إلى 635 واط من أقوى وأحدث الحلول في عالم الطاقة المتجددة. يعتمد اللوح على تقنية خلايا (N-Type TOPCon) المتطورة، مميز بالعمل في ظروف الإضاءة المنخفضة.',
+    fullDescription: 'يعتبر لوح جينكو سولار من سلسلة تايجر نيو (Jinko Solar Tiger Neo) بقدرة تصل إلى 635 واط المتوفر لدى متجر ابو ايفان للطاقة المتجددة (Abu Ivan Energy) من أقوى وأحدث الحلول في عالم الطاقة المتجددة في اليمن. يعتمد اللوح على تقنية خلايا (N-Type TOPCon) المتطورة.',
     longDescription: `
       <h3 class="text-xl font-black text-emerald-800 mb-2">كفاءة استثنائية وأداء متطور</h3>
       <p class="mb-4">
@@ -38,14 +38,14 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 'p1',
-    name: 'لوح Jinko Solar 580W N-Type',
+    name: 'لوح طاقة شمسية Jinko Solar 580W N-Type - ابو ايفان',
     price: 950,
-    description: 'لوح شمسي عالي الكفاءة بأحدث التكنولوجيا لاستخدامات طاقة شمسية للمنازل والمشاريع في اليمن.',
+    description: 'لوح شمسي عالي الكفاءة جينكو 580 وات طراز N-Type من متجر ابو ايفان للطاقة (Abu Ivan)',
     image: 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=1000&auto=format&fit=crop',
     category: 'الالواح الشمسيه',
     status: 'الأكثر مبيعاً',
     specs: ['كفاءة 22.5%', 'تقنية N-Type', 'ضمان 25 سنة', 'لوح شمسي عالي الكفاءة'],
-    fullDescription: 'لوح جينكو 580 وات الخيار الأول والأفضل ضمن حلول طاقة شمسية في اليمن، ممتاز للمنظومات المنزلية الاحترافية والمشاريع الكبيرة، مقدم من متجر أبو إيفان للطاقة المتجددة.',
+    fullDescription: 'لوح جينكو 580 وات الخيار الأول والأفضل ضمن حلول طاقة شمسية في اليمن، ممتاز للمنظومات المنزلية الاحترافية والمشاريع الكبيرة، مقدم من متجر أبو إيفان للطاقة المتجددة (Abu Ivan). متوفر بأفضل الأسعار حصريا.',
     longDescription: `
       <h3 class="text-xl font-black text-emerald-800 mb-2">لماذا هذا اللوح هو الأفضل لأجواء اليمن؟</h3>
       <p class="mb-4">
@@ -66,14 +66,14 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 'p2',
-    name: 'لوح Longi Hi-MO 6 Explorer 575W',
+    name: 'لوح طاقة شمسية Longi Hi-MO 6 Explorer 575W - ابو ايفان',
     price: 920,
-    description: 'تكنولوجيا HPBC الثورية بدون خطوط معدنية أمامية، لجمالية فائقة وأداء لا يضاهى.',
+    description: 'لوح لونجي 575 واط تكنولوجيا HPBC من متجر ابو ايفان (Abu Ivan) بأفضل سعر في اليمن.',
     image: 'https://images.unsplash.com/photo-1545209463-125c92337a77?q=80&w=1000&auto=format&fit=crop',
     category: 'الالواح الشمسيه',
     status: 'جديد',
     specs: ['تكنولوجيا HPBC', 'كفاءة 22.3%', 'تصميم بدون Busbars', 'أداء ممتاز في الظل الجزئي'],
-    fullDescription: 'لوح لونجي Hi-MO 6 بتقنية HPBC الفريدة، يتميز بخلوه من الخطوط المعدنية الأمامية لامتصاص ضوء أكبر ومظهر جمالي فاخر.',
+    fullDescription: 'لوح لونجي Hi-MO 6 بقدرة 575 وات بتقنية HPBC الفريدة متوفر لدى متجر ابو ايفان (Abu Ivan). يتميز بخلوه من الخطوط المعدنية الأمامية لامتصاص ضوء أكبر ومظهر جمالي فاخر للمنازل في اليمن.',
     longDescription: `
       <h3 class="text-xl font-black text-emerald-800 mb-2">تكنولوجيا HPBC: ثورة في عالم الطاقة</h3>
       <p class="mb-4">
@@ -93,13 +93,13 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 'p3',
-    name: 'لوح JA Solar DeepBlue 4.0 Pro 625W',
+    name: 'لوح طاقة شمسية JA Solar DeepBlue 4.0 Pro 625W - متجر ابو ايفان',
     price: 1050,
-    description: 'الوحش العملاق بقدرة 625 وات، مصمم للمشاريع الكبيرة لتقليل تكلفة الهياكل والتركيب.',
+    description: 'لوح طاقة شمسية جي ايه سولار 625 وات للمشاريع والمنازل من متجر ابو ايفان (Abu Ivan).',
     image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=1000&auto=format&fit=crop',
     category: 'الالواح الشمسيه',
     specs: ['قدرة جبارة 625 وات', 'خلايا N-Type Bycium+', 'تقليل تكلفة BOS', 'معامل حراري -0.30%'],
-    fullDescription: 'لوح JA Solar العملاق بقوة 625 وات، الحل الأمثل لتقليل عدد الألواح وتوفير مساحة السطح وتكاليف القواعد الحديدية.',
+    fullDescription: 'لوح JA Solar العملاق بقوة 625 وات حصريا من متجر أبو إيفان للطاقة المتجددة (Abu Ivan). الحل الأمثل لتقليل عدد الألواح وتوفير مساحة السطح وتكاليف القواعد الحديدية في اليمن.',
     longDescription: `
       <h3 class="text-xl font-black text-emerald-800 mb-2">وفر في تكاليف التركيب (BOS Cost)</h3>
       <p class="mb-4">
@@ -120,14 +120,14 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 'p4',
-    name: 'لوح Trina Vertex S+ 505W (Double Glass)',
+    name: 'لوح طاقة شمسية Trina Vertex S+ 505W Double Glass - ابو ايفان',
     price: 850,
-    description: 'زجاج مزدوج (Double Glass) لمتانة قصوى، مقاوم للرطوبة والأملاح، ومثالي للمناطق الساحلية.',
+    description: 'لوح ترينا دبل جلاس 505 واط لمتانة قصوى، متوفر في متجر ابو ايفان (Abu Ivan).',
     image: 'https://images.unsplash.com/photo-1559302504-64aae6ca6b6f?q=80&w=1000&auto=format&fit=crop',
     category: 'الالواح الشمسيه',
     status: 'مقاوم للكسر',
     specs: ['زجاج مزدوج (وجه وظهر)', 'ثنائي الوجه (Bifacial)', 'ضمان طاقة 30 سنة', 'مقاوم للحريق Class A'],
-    fullDescription: 'لوح ترينا Vertex S+ بتصميم الزجاج المزدوج (Double Glass)، يوفر حماية قصوى ضد العوامل الجوية القاسية والرطوبة العالية في المدن الساحلية.',
+    fullDescription: 'لوح ترينا Vertex S+ بتصميم الزجاج المزدوج (Double Glass) من متجر ابو ايفان (Abu Ivan)، يوفر حماية قصوى ضد العوامل الجوية القاسية والرطوبة العالية وهو الخيار الأنسب لمناخ اليمن.',
     longDescription: `
       <h3 class="text-xl font-black text-emerald-800 mb-2">درع زجاجي مزدوج (Double Glass)</h3>
       <p class="mb-4">
@@ -149,14 +149,14 @@ export const INITIAL_PRODUCTS: Product[] = [
   // --- قسم البطاريات ---
   {
     id: 'p-sako-li-sun-15-36',
-    name: 'بطارية ليثيوم ساكو لي-صن (Sako Li-Sun) بقدرة 15.36 كيلوواط/ساعة',
+    name: 'بطارية طاقة شمسية ليثيوم ساكو لي-صن 15.36 كيلوواط - ابو ايفان',
     price: 7850,
-    description: 'بطارية نظام 51.2 فولت وسعة 300 أمبير/ساعة خلايا LiFePO4 مع نظام إدارة ذكي (BMS) وشاشة عرض LCD',
+    description: 'بطارية ليثيوم طاقة شمسية ساكو 300 أمبير 51.2 فولت متوفرة في متجر ابو ايفان (Abu Ivan)',
     image: 'https://res.cloudinary.com/dxzqizvzw/image/upload/v1779763766/%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A5%D9%A2%D9%A6_%D9%A0%D9%A5%D9%A4%D9%A9%D9%A0%D9%A1_ojd0fm.png',
     category: 'البطاريات',
     status: 'جديد',
     specs: ['سعة 300 أمبير/ساعة', 'طاقة 15.36 كيلوواط/ساعة', 'تقنية LiFePO4', 'جهد 51.2 فولت'],
-    fullDescription: 'تُعد بطارية الليثيوم ساكو لي-صن (Sako Li-Sun) الحل الأكثر تطوراً وموثوقية لتخزين الطاقة في الأنظمة الشمسية المنزلية والتجارية. تعمل البطارية بنظام 51.2 فولت (المتوافق مع إنفرترات 48 فولت) وبسعة ضخمة تصل إلى 300 أمبير/ساعة، مما يوفر طاقة إجمالية تبلغ 15.36 كيلوواط/ساعة.',
+    fullDescription: 'تُعد بطارية الليثيوم ساكو لي-صن (Sako Li-Sun) المقدمة من متجر ابو ايفان (Abu Ivan Energy) الحل الأكثر تطوراً وموثوقية لتخزين الطاقة في الأنظمة الشمسية المنزلية والتجارية في اليمن. تعمل البطارية بنظام 51.2 فولت.',
     longDescription: `
       <h3 class="text-xl font-black text-emerald-800 mb-2">تخزين طاقة هائل وأمان مطلق</h3>
       <p class="mb-4">
@@ -179,9 +179,9 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 'b1',
-    name: 'بطارية TUBO 150 أمبير – 61 كيلو',
+    name: 'بطارية طاقة شمسية جل TUBO 150 أمبير – متجر ابو ايفان',
     price: 1400,
-    description: 'بطارية TUBO 150 أمبير – 61 كيلو قوية وموثوقة للاستخدام في الأنظمة الكهربائية المنزلية والتجارية الصغيرة.',
+    description: 'بطارية توبو 150 امبير جل اصلي وزن 61 كيلو الأقوى في اليمن من متجر ابو ايفان للطاقة (Abu Ivan)',
     image: 'https://i.postimg.cc/T3ZK6gqb/IMG-20260125-WA0083.jpg',
     category: 'البطاريات',
     specs: [
@@ -194,7 +194,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       'تركيب وتشغيل سهل',
       'ضمان سنة استبدال'
     ],
-    fullDescription: 'بطارية TUBO 150 أمبير – 61 كيلو قوية وموثوقة للاستخدام في الأنظمة الكهربائية المنزلية والتجارية الصغيرة، مع ضمان سنة استبدال وفق معيار C10.',
+    fullDescription: 'بطارية جل طاقة شمسية TUBO 150 أمبير – 61 كيلو قوية وموثوقة حصريا في متجر ابو ايفان (Abu Ivan)، مع ضمان سنة استبدال وفق معيار C10 لكل المحافظات اليمنية.',
     longDescription: `
       <h3 class="text-xl font-black text-emerald-800 mb-2">الحل النهائي لمشكلة انقطاع الكهرباء</h3>
       <p class="mb-4">
@@ -211,9 +211,9 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 'b2',
-    name: 'بطارية TUBO 200 أمبير – 68.5 كيلو',
+    name: 'بطارية طاقة شمسية جل TUBO 200 أمبير – ابو ايفان',
     price: 1800,
-    description: 'بطارية TUBO 200 أمبير – 68.5 كيلو لتلبية احتياجات الطاقة الأكبر، مع قدرة تشغيل عالية وتحمل تفريغ متكرر.',
+    description: 'بطارية توبو 200 امبير جل حقيقي لتخزين طاقة يلبي احتياجك من ابو ايفان (Abu Ivan)',
     image: 'https://i.postimg.cc/4xrYgVbV/IMG-20260125-WA0082.jpg',
     category: 'البطاريات',
     specs: [
@@ -226,7 +226,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       'تركيب وتشغيل سهل',
       'جودة تصنيع عالية'
     ],
-    fullDescription: 'بطارية TUBO 200 أمبير – 68.5 كيلو لتلبية احتياجات الطاقة الأكبر، مع قدرة تشغيل عالية وتحمل تفريغ متكرر.',
+    fullDescription: 'بطارية طاقة شمسية TUBO جل 200 أمبير – وزن حقيقي 68.5 كيلو لتلبية احتياجات الطاقة الأكبر في المنازل، مقدمة من متجر ابو ايفان (Abu Ivan) مع ضمان معتمد.',
     longDescription: `
       <h3 class="text-xl font-black text-emerald-800 mb-2">عملاق الطاقة للمنازل الكبيرة</h3>
       <p class="mb-4">

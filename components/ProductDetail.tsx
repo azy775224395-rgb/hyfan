@@ -131,7 +131,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     orderSummary += `*بيانات المشتري:*\n👤 الاسم: ${buyerData.name}\n📍 الموقع: ${buyerData.location}`;
 
     const encodedMessage = encodeURIComponent(orderSummary);
-    window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank', 'noopener,noreferrer');
   };
 
   const baseUrl = window.location.origin;
@@ -455,17 +455,27 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                         <span className="font-black text-sm text-emerald-950">
                           {review.name}
                         </span>
-                        <div className="flex gap-0.5">
-                          {[...Array(review.rating)].map((_, i) => (
-                            <svg
-                              key={i}
-                              className="w-3 h-3 text-amber-400 fill-amber-400"
-                              viewBox="0 0 24 24"
-                            >
-                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                            </svg>
-                          ))}
-                        </div>
+                          <div className="flex gap-0.5">
+                            {[...Array(Math.max(0, Math.floor(review.rating)))].map((_, i) => (
+                              <svg
+                                key={i}
+                                className="w-3 h-3 text-amber-400 fill-amber-400"
+                                viewBox="0 0 24 24"
+                              >
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                              </svg>
+                            ))}
+                            {review.rating % 1 !== 0 && (
+                               <svg
+                                className="w-3 h-3 text-amber-400"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                style={{ clipPath: 'inset(0 50% 0 0)' }}
+                              >
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                              </svg>
+                            )}
+                          </div>
                       </div>
                       <p className="text-gray-600 text-sm font-medium">
                         {review.comment}

@@ -34,6 +34,14 @@ const BlogView: React.FC<BlogViewProps> = ({ onNavigate }) => {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="flex justify-center mb-8">
+          <img 
+            src="https://res.cloudinary.com/dxzqizvzw/image/upload/v1780332820/IMG_%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A6%D9%A0%D9%A1_%D9%A1%D9%A9%D9%A5%D9%A0%D9%A1%D9%A5_dlgr0w.png" 
+            alt="شعار مدونة أبو إيفان"
+            className="h-24 md:h-32 object-contain"
+          />
+        </div>
+
         <div className="mb-8 text-center max-w-3xl mx-auto animate-fade-in-up">
           <p className="text-gray-600 text-sm md:text-base leading-relaxed">
             مرحباً بك في مدونة <strong>أبو إيفان للطاقة المتجددة</strong>. نوفر لك هنا مقالات تعليمية وأدلة شاملة لتساعدك في اتخاذ القرار الصحيح عند اختيار <strong>منظومة طاقة شمسية في اليمن</strong>.
@@ -54,12 +62,12 @@ const BlogView: React.FC<BlogViewProps> = ({ onNavigate }) => {
               }}
               className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 group flex flex-col sm:flex-row"
             >
-              <div className="w-full sm:w-1/3 h-48 sm:h-auto shrink-0 relative overflow-hidden">
+              <div className="w-full sm:w-1/3 h-48 sm:h-auto shrink-0 relative overflow-hidden bg-gray-50 flex items-center justify-center p-4">
                 <img 
-                  src={article.image} 
-                  alt={article.imageAlt}
+                  src="https://res.cloudinary.com/dxzqizvzw/image/upload/v1780332820/IMG_%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A6%D9%A0%D9%A1_%D9%A1%D9%A9%D9%A5%D9%A0%D9%A1%D9%A5_dlgr0w.png" 
+                  alt="شعار المدونة"
                   loading="lazy"
-                  className="w-full h-full object-cover transform group-hover:scale-105 transition-duration-500"
+                  className="max-h-full max-w-full object-contain transform group-hover:scale-105 transition-duration-500"
                 />
               </div>
               <div className="p-6 flex flex-col justify-center">

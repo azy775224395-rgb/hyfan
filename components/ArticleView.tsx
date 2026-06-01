@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ChevronRight, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import SEO from "./SEO";
 import FAQSchema from "./FAQSchema";
 import BreadcrumbSchema from "./BreadcrumbSchema";
@@ -12,6 +13,7 @@ interface ArticleViewProps {
 }
 
 const ArticleView: React.FC<ArticleViewProps> = ({ id, onBack }) => {
+  const navigate = useNavigate();
   const article = articles.find(a => a.id === id);
 
   if (!article) {
@@ -26,6 +28,23 @@ const ArticleView: React.FC<ArticleViewProps> = ({ id, onBack }) => {
   }
 
   const baseUrl = window.location.origin;
+
+  const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const a = target.closest("a");
+    if (a) {
+      const href = a.getAttribute("href");
+      if (href?.startsWith("#/")) {
+        e.preventDefault();
+        const path = href.substring(1); // remove '#'
+        navigate(path);
+        window.scrollTo(0, 0);
+      } else if (href && (href.startsWith("http") || href.includes("wa.me"))) {
+        e.preventDefault();
+        window.open(href, '_blank', 'noopener,noreferrer');
+      }
+    }
+  };
 
   return (
     <article className="min-h-screen bg-white pb-24">
@@ -43,7 +62,6 @@ const ArticleView: React.FC<ArticleViewProps> = ({ id, onBack }) => {
           { name: article.title, item: `${baseUrl}/blog/${article.id}` }
         ]} 
       />
-
       
       {/* Header */}
       <div className="bg-white sticky top-0 z-30 shadow-sm border-b border-gray-100">
@@ -61,15 +79,9 @@ const ArticleView: React.FC<ArticleViewProps> = ({ id, onBack }) => {
         </div>
       </div>
 
-      {/* Hero Image */}
-      <div className="w-full h-64 md:h-96 relative overflow-hidden bg-gray-100">
-        <img 
-          src={article.image} 
-          alt={article.imageAlt}
-          loading="lazy"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+      {/* Empty space for spacing instead of Hero Image */}
+      <div className="w-full h-32 md:h-48 relative bg-gray-50 flex items-center justify-center">
+        {/* We removed the hero image and placed the logo below */}
       </div>
 
       <div className="container mx-auto px-4 -mt-20 relative z-10 w-full max-w-4xl">
@@ -77,8 +89,16 @@ const ArticleView: React.FC<ArticleViewProps> = ({ id, onBack }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white rounded-3xl shadow-xl p-6 md:p-12"
+          className="bg-white rounded-3xl shadow-xl p-6 md:p-12 mb-12"
         >
+          <div className="flex justify-center mb-6">
+            <img 
+              src="https://res.cloudinary.com/dxzqizvzw/image/upload/v1780332820/IMG_%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A6%D9%A0%D9%A1_%D9%A1%D9%A9%D9%A5%D9%A0%D9%A1%D9%A5_dlgr0w.png" 
+              alt="شعار أبو إيفان للطاقة"
+              className="h-20 object-contain"
+            />
+          </div>
+
           <div className="flex items-center gap-2 text-emerald-600 text-sm font-bold mb-4">
             <Calendar size={16} />
             <span>نشر في 2026</span>
@@ -89,8 +109,9 @@ const ArticleView: React.FC<ArticleViewProps> = ({ id, onBack }) => {
           </h1>
 
           <div 
-            className="prose prose-lg prose-emerald max-w-none text-gray-700"
+            className="prose prose-lg prose-emerald max-w-none text-gray-800"
             dangerouslySetInnerHTML={{ __html: article.content }}
+            onClick={handleContentClick}
           />
 
           {/* Social Share / Tags could go here */}

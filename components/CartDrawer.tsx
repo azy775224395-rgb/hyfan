@@ -77,7 +77,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     orderSummary += `*بيانات المشتري:*\nالاسم: ${buyerData.name}\nالموقع: ${buyerData.location}`;
 
     const encodedMessage = encodeURIComponent(orderSummary);
-    window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank', 'noopener,noreferrer');
   };
 
   return (

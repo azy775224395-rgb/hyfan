@@ -11,10 +11,10 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({ title, description, image, type = 'website', jsonLd }) => {
-  const siteName = "متجر حيفان للطاقة المتجددة";
+  const siteName = "متجر أبو إيفان للطاقة المتجددة";
   const defaultImage = "https://res.cloudinary.com/dxzqizvzw/image/upload/v1779763149/%D9%A2%D9%A0%D9%A2%D9%A6%D9%A0%D9%A5%D9%A2%D9%A6_%D9%A0%D9%A5%D9%A3%D9%A8%D9%A3%D9%A8_rmvnti.png";
   const currentUrl = window.location.href;
-  const fullTitle = `${title} | ${siteName}`;
+  const fullTitle = `${title} | ${siteName} | Abu Ivan`;
   const finalImage = image || defaultImage;
 
   return (
